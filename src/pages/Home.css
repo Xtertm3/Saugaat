@@ -1,0 +1,121 @@
+.hero-section {
+  position: relative;
+  height: 80vh;
+  min-height: 500px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-image: url('https://images.unsplash.com/photo-1601379326928-10db74191d90?auto=format&fit=crop&q=80&w=1600');
+  background-size: cover;
+  background-position: center;
+  color: white;
+  text-align: center;
+}
+
+.hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(11, 34, 57, 0.4);
+  z-index: 1;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 800px;
+  padding: 0 20px;
+}
+
+.hero-title {
+  font-size: 4rem;
+  margin-bottom: 20px;
+  color: white;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+
+.hero-subtitle {
+  font-size: 1.2rem;
+  margin-bottom: 30px;
+  font-family: var(--font-body);
+  text-shadow: 0 1px 5px rgba(0,0,0,0.3);
+}
+
+.hero-btn {
+  padding: 15px 40px;
+  font-size: 1.1rem;
+}
+
+.section-title {
+  font-size: 2.5rem;
+  margin-bottom: 15px;
+}
+
+.title-underline {
+  width: 60px;
+  height: 3px;
+  background-color: var(--secondary-color);
+  margin: 0 auto;
+}
+
+.mb-10 { margin-bottom: 40px; }
+.mb-8 { margin-bottom: 32px; }
+.mb-4 { margin-bottom: 16px; }
+.mt-10 { margin-top: 40px; }
+
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 30px;
+  justify-content: center;
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 30px;
+}
+
+.bg-main {
+  background-color: #f7f5f2;
+}
+
+.feature-banner {
+  position: relative;
+  background-image: url('https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&q=80&w=1600');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  color: white;
+  min-height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.feature-title {
+  font-size: 3rem;
+  color: white;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+
+.feature-desc {
+  font-size: 1.2rem;
+  max-width: 600px;
+  margin: 0 auto 30px;
+}
+
+.relative { position: relative; }
+.z-10 { z-index: 10; }
+
+@media (max-width: 768px) {
+  .hero-title { font-size: 2.5rem; }
+  .section-title { font-size: 2rem; }
+  .feature-title { font-size: 2.2rem; }
+  .category-image-wrapper {
+    width: 90px;
+    height: 90px;
+  }
+}
