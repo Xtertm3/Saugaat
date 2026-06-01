@@ -20,11 +20,6 @@ export const Header: React.FC = () => {
 
   return (
     <header className="header glass">
-      {/* Top Banner */}
-      <div className="top-banner bg-primary text-white text-center py-2 text-sm">
-        <span>Get 10% Off | Use Code "SAUGAAT10"</span>
-      </div>
-
       <div className="container">
         <div className="header-main">
           {/* Hamburger Menu & Search (Left) */}
@@ -43,7 +38,7 @@ export const Header: React.FC = () => {
           {/* Logo (Center) */}
           <div className="header-center text-center">
             <Link to="/" className="logo">
-              <img src="/logo.png" alt="Saugaat Logo" style={{ height: '120px', width: 'auto', objectFit: 'contain' }} />
+              <img src="/logo.png" alt="Saugaat Logo" style={{ height: '64px', width: 'auto', objectFit: 'contain' }} />
             </Link>
           </div>
 

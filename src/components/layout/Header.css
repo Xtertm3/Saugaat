@@ -6,16 +6,18 @@
   border-bottom: 1px solid var(--border-color);
 }
 
-.top-banner {
-  background-color: var(--primary-color);
-  color: white;
+.header.glass {
+  background: rgba(252, 251, 250, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(11, 34, 57, 0.08);
 }
 
 .header-main {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 15px 0;
+  padding: 8px 0;
 }
 
 .header-left, .header-right {
@@ -99,7 +101,7 @@
 
 .main-nav {
   border-top: 1px solid var(--border-color);
-  padding: 12px 0;
+  padding: 6px 0;
 }
 
 .nav-list {
