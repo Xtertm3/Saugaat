@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, ShoppingBag, Heart, User, Menu, X, LogOut } from 'lucide-react';
+import { Search, ShoppingBag, Heart, User, Menu, X, LogOut, BarChart3 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import './Header.css';
@@ -7,7 +7,7 @@ import './Header.css';
 export const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
-  const { user, signOut } = useAuth();
+  const { user, isAdmin, signOut } = useAuth();
 
   // Close menu when route changes
   React.useEffect(() => {
@@ -54,7 +54,13 @@ export const Header: React.FC = () => {
                 <Search size={24} />
               </button>
             </div>
-            
+
+            {isAdmin && (
+              <Link to="/admin/dashboard" className="icon-btn desktop-only" title="Admin Panel">
+                <BarChart3 size={24} />
+              </Link>
+            )}
+
             {user ? (
               <button onClick={() => signOut()} className="icon-btn desktop-only" title="Logout">
                 <LogOut size={24} />
@@ -64,7 +70,7 @@ export const Header: React.FC = () => {
                 <User size={24} />
               </Link>
             )}
-            
+
             <Link to="/wishlist" className="icon-btn badge-container desktop-only">
               <Heart size={24} />
               <span className="badge">0</span>
@@ -100,7 +106,7 @@ export const Header: React.FC = () => {
               <X size={28} />
             </button>
           </div>
-          
+
           <div className="mobile-nav-section">
             <h3 className="mobile-nav-title">Shop Categories</h3>
             <ul className="mobile-nav-list">
@@ -122,6 +128,9 @@ export const Header: React.FC = () => {
               <li><Link to="/contact">Contact Us</Link></li>
               <li><Link to="/faq">FAQs</Link></li>
               <li><Link to="/wishlist">My Wishlist</Link></li>
+              {isAdmin && (
+                <li><Link to="/admin/dashboard">Admin Panel</Link></li>
+              )}
               {user ? (
                 <li><button onClick={() => signOut()} style={{ background: 'none', border: 'none', padding: 0, font: 'inherit', color: 'inherit', cursor: 'pointer', fontSize: '1.1rem', fontWeight: 500 }}>Logout</button></li>
               ) : (

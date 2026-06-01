@@ -11,6 +11,11 @@ import { ReturnPolicy } from './pages/ReturnPolicy';
 import { Login } from './pages/Login';
 import ScrollToTop from './components/ScrollToTop';
 import { AuthProvider } from './context/AuthContext';
+import { ProtectedAdminRoute } from './components/ProtectedRoute';
+import { AdminSignup } from './pages/admin/AdminSignup';
+import { AdminDashboard } from './pages/admin/AdminDashboard';
+import { ProductManagement } from './pages/admin/ProductManagement';
+import { CategoryManagement } from './pages/admin/CategoryManagement';
 
 function App() {
   return (
@@ -28,6 +33,7 @@ function App() {
             <Route path="shipping" element={<ShippingPolicy />} />
             <Route path="returns" element={<ReturnPolicy />} />
             <Route path="login" element={<Login />} />
+            <Route path="admin-signup" element={<AdminSignup />} />
             <Route path="*" element={
               <div className="container text-center section-padding" style={{minHeight: '50vh'}}>
                 <h2>Coming Soon</h2>
@@ -35,6 +41,23 @@ function App() {
               </div>
             } />
           </Route>
+
+          {/* Admin Routes */}
+          <Route path="/admin/dashboard" element={
+            <ProtectedAdminRoute>
+              <AdminDashboard />
+            </ProtectedAdminRoute>
+          } />
+          <Route path="/admin/products" element={
+            <ProtectedAdminRoute>
+              <ProductManagement />
+            </ProtectedAdminRoute>
+          } />
+          <Route path="/admin/categories" element={
+            <ProtectedAdminRoute>
+              <CategoryManagement />
+            </ProtectedAdminRoute>
+          } />
         </Routes>
       </Router>
     </AuthProvider>
