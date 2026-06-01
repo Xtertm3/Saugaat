@@ -8,7 +8,10 @@ import {
   FolderOpen, 
   AlertCircle, 
   DollarSign, 
-  Plus
+  Plus,
+  Megaphone,
+  Sparkles,
+  Check
 } from 'lucide-react';
 import '../Admin.css';
 
@@ -60,6 +63,41 @@ export const AdminDashboard: React.FC = () => {
   ]);
 
   const [activeChartPoint, setActiveChartPoint] = useState<{ x: number, y: number, value: string, day: string } | null>(null);
+
+  // Campaign & Voucher Creator State
+  const [campaignName, setCampaignName] = useState('Diwali Curation Gold');
+  const [promoCode, setPromoCode] = useState('GOLDEN30');
+  const [discountVal, setDiscountVal] = useState(30);
+  const [discountType, setDiscountType] = useState<'percent' | 'fixed'>('percent');
+  const [targetTier, setTargetTier] = useState('Gold Tier Members');
+  const [bannerTheme, setBannerTheme] = useState<'navy' | 'crimson' | 'gold'>('navy');
+  const [campaignSuccess, setCampaignSuccess] = useState<string | null>(null);
+
+  const [campaignsList, setCampaignsList] = useState([
+    { id: 1, name: "Spontaneous Gifting Special", code: "JUSTFORYOU", value: "₹250 Off", target: "All Customers" },
+    { id: 2, name: "Curator Wedding Collection", code: "WEDDING15", value: "15% Off", target: "Gold Members" }
+  ]);
+
+  const handleCreateCampaign = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!campaignName.trim() || !promoCode.trim()) return;
+
+    const valueStr = discountType === 'percent' ? `${discountVal}% Off` : `₹${discountVal} Off`;
+    
+    setCampaignsList(prev => [
+      ...prev,
+      {
+        id: Date.now(),
+        name: campaignName,
+        code: promoCode.toUpperCase().replace(/\s+/g, ''),
+        value: valueStr,
+        target: targetTier
+      }
+    ]);
+
+    setCampaignSuccess(`✨ Campaign "${campaignName}" launched! Promo code ${promoCode.toUpperCase()} is active for ${targetTier}.`);
+    setTimeout(() => setCampaignSuccess(null), 5000);
+  };
 
   // Sales data for chart: Day, Value
   const chartData = [
@@ -394,6 +432,200 @@ export const AdminDashboard: React.FC = () => {
             </div>
           </div>
         </div>
+      {/* Campaign Success Notification */}
+      {campaignSuccess && (
+        <div style={{
+          marginTop: '30px',
+          background: 'rgba(76, 175, 80, 0.1)',
+          border: '1px solid #4caf50',
+          color: '#2e7d32',
+          padding: '16px 20px',
+          borderRadius: 'var(--radius-md)',
+          fontSize: '0.9rem',
+          fontWeight: 500,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px'
+        }}>
+          <Check size={18} />
+          <span>{campaignSuccess}</span>
+        </div>
+      )}
+
+      {/* Marketing Campaign & Voucher Creator Panel (Feature 5) */}
+      <div className="admin-campaign-panel shadow-glass">
+        <div className="panel-header" style={{ marginBottom: '16px', paddingBottom: '12px', borderBottom: '1px solid var(--border-color)' }}>
+          <h3 className="panel-title" style={{ fontSize: '1.2rem' }}>
+            <Megaphone size={18} className="text-secondary" />
+            Marketing Campaign & Discount Creator
+          </h3>
+          <span className="alert-count-tag" style={{ background: 'rgba(205, 168, 115, 0.15)', color: 'var(--secondary-color)' }}>
+            ACTIVE CONSOLE
+          </span>
+        </div>
+
+        <div className="campaign-grid">
+          {/* Creator Form */}
+          <form onSubmit={handleCreateCampaign} className="campaign-form-section">
+            <div className="campaign-field">
+              <label>Campaign Name</label>
+              <input 
+                type="text" 
+                required 
+                className="campaign-input"
+                placeholder="e.g. Diwali Curation Gold, Monsoon Special"
+                value={campaignName}
+                onChange={(e) => setCampaignName(e.target.value)}
+              />
+            </div>
+
+            <div className="campaign-field-row">
+              <div className="campaign-field">
+                <label>Promo Voucher Code</label>
+                <input 
+                  type="text" 
+                  required 
+                  className="campaign-input"
+                  style={{ textTransform: 'uppercase' }}
+                  placeholder="e.g. FESTIVE30"
+                  value={promoCode}
+                  onChange={(e) => setPromoCode(e.target.value)}
+                />
+              </div>
+
+              <div className="campaign-field">
+                <label>Discount Value</label>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <input 
+                    type="number" 
+                    required 
+                    min="1" 
+                    className="campaign-input"
+                    style={{ flex: 1 }}
+                    value={discountVal}
+                    onChange={(e) => setDiscountVal(Number(e.target.value))}
+                  />
+                  <select 
+                    className="campaign-input"
+                    value={discountType}
+                    onChange={(e) => setDiscountType(e.target.value as 'percent' | 'fixed')}
+                    style={{ width: '80px' }}
+                  >
+                    <option value="percent">% Off</option>
+                    <option value="fixed">₹ Off</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div className="campaign-field-row">
+              <div className="campaign-field">
+                <label>Target Audience Tier</label>
+                <select 
+                  className="campaign-input"
+                  value={targetTier}
+                  onChange={(e) => setTargetTier(e.target.value)}
+                >
+                  <option value="All Customers">All Customers</option>
+                  <option value="Silver Members">Silver Tier</option>
+                  <option value="Gold Tier Members">Gold Tier Members</option>
+                  <option value="Platinum Members">Platinum Tier Members</option>
+                </select>
+              </div>
+
+              <div className="campaign-field">
+                <label>Banner Theme</label>
+                <div className="theme-options-grid">
+                  <button 
+                    type="button" 
+                    className={`theme-btn theme-navy ${bannerTheme === 'navy' ? 'active' : ''}`}
+                    onClick={() => setBannerTheme('navy')}
+                  >
+                    Navy
+                  </button>
+                  <button 
+                    type="button" 
+                    className={`theme-btn theme-crimson ${bannerTheme === 'crimson' ? 'active' : ''}`}
+                    onClick={() => setBannerTheme('crimson')}
+                  >
+                    Ruby
+                  </button>
+                  <button 
+                    type="button" 
+                    className={`theme-btn theme-gold ${bannerTheme === 'gold' ? 'active' : ''}`}
+                    onClick={() => setBannerTheme('gold')}
+                  >
+                    Gold
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" className="campaign-submit-btn">
+              <Plus size={16} />
+              Launch Campaign Code
+            </button>
+          </form>
+
+          {/* Real-time Banner Preview and Active List */}
+          <div className="campaign-preview-section">
+            <div>
+              <h4 style={{ fontSize: '0.8rem', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '10px', letterSpacing: '0.5px' }}>
+                Live Promo Banner Mockup
+              </h4>
+              <div className="banner-mockup-wrapper">
+                <div className={`live-banner-mockup ${bannerTheme}`}>
+                  <Sparkles size={16} className="banner-sparkles text-secondary" style={{ display: 'block' }} />
+                  <div className="banner-badge">SAUGAAT PROMO</div>
+                  
+                  <div className="banner-title-text">
+                    {campaignName || 'Campaign Name'}
+                  </div>
+
+                  <div className="banner-middle">
+                    <span className="banner-promo-tag" style={{ display: 'block' }}>Use Voucher Code:</span>
+                    <div className="banner-code-box">
+                      <span className="banner-code-text">
+                        {promoCode ? promoCode.toUpperCase().replace(/\s+/g, '') : 'PROMO'}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="banner-discount-seal">
+                    {discountVal || 0}
+                    <span style={{ display: 'block' }}>{discountType === 'percent' ? '%' : '₹'}</span>
+                  </div>
+
+                  <div className="banner-footer-target">
+                    Target: <strong>{targetTier}</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Active campaigns history */}
+            <div>
+              <h4 style={{ fontSize: '0.8rem', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '10px', letterSpacing: '0.5px', borderTop: '1px solid var(--border-color)', paddingTop: '14px' }}>
+                Active Discount Codes
+              </h4>
+              <div className="active-campaigns-list">
+                {campaignsList.map(c => (
+                  <div key={c.id} className="active-campaign-row">
+                    <div>
+                      <h4>{c.name}</h4>
+                      <span>Tier: {c.target}</span>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <code style={{ display: 'block', marginBottom: '4px' }}>{c.code}</code>
+                      <span className="text-accent" style={{ fontWeight: 600 }}>{c.value}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
       </div>
     </AdminLayout>
   );

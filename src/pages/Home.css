@@ -1004,20 +1004,23 @@
   letter-spacing: 0.5px;
 }
 
-.luxury-hero-btn-sec {
+.btn-secondary.luxury-hero-btn-sec {
   padding: 14px 36px;
   font-weight: 600;
   font-size: 0.95rem;
   background: transparent;
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white !important;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
   border-radius: var(--radius-sm);
   transition: all var(--transition-fast);
 }
 
-.luxury-hero-btn-sec:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: white;
+.btn-secondary.luxury-hero-btn-sec:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+  border-color: white !important;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
 /* Elegant categories layout */
@@ -1269,5 +1272,667 @@
     max-width: 280px;
   }
 }
+
+
+/* ==========================================================================
+   Gifting Studio Features (Hamper Builder, Calligraphy, Registry)
+   ========================================================================== */
+
+.gifting-studio-section {
+  margin-bottom: 60px;
+}
+
+.gifting-studio-card {
+  background: white;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+.gifting-studio-header {
+  background: linear-gradient(135deg, var(--primary-color) 0%, #15324e 100%);
+  padding: 30px;
+  color: white;
+  text-align: center;
+  border-bottom: 2px solid var(--secondary-color);
+}
+
+.gifting-studio-header h2 {
+  color: white;
+  font-size: 2.2rem;
+  margin-bottom: 8px;
+}
+
+.gifting-studio-header p {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1.05rem;
+  font-weight: 300;
+}
+
+.gifting-studio-tabs {
+  display: flex;
+  background: #f7f5f2;
+  border-bottom: 1px solid var(--border-color);
+  justify-content: center;
+}
+
+.studio-tab-btn {
+  padding: 16px 28px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  border-bottom: 3px solid transparent;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.studio-tab-btn:hover {
+  color: var(--primary-color);
+  background: rgba(205, 168, 115, 0.05);
+}
+
+.studio-tab-btn.active {
+  color: var(--primary-color);
+  border-bottom-color: var(--secondary-color);
+  background: white;
+}
+
+.studio-tab-content {
+  padding: 40px;
+}
+
+/* Feature 2: Hamper Builder Grid */
+.hamper-builder-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 40px;
+}
+
+.hamper-options-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.hamper-section-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--primary-color);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.box-options-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 16px;
+}
+
+.box-option-card {
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  background: white;
+}
+
+.box-option-card:hover {
+  border-color: var(--secondary-color);
+  transform: translateY(-2px);
+}
+
+.box-option-card.active {
+  border-color: var(--secondary-color);
+  background: rgba(205, 168, 115, 0.08);
+  box-shadow: 0 4px 12px rgba(205, 168, 115, 0.15);
+}
+
+.box-option-card img {
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+  margin-bottom: 10px;
+}
+
+.box-option-card h4 {
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.box-option-card span {
+  font-size: 0.75rem;
+  color: var(--accent-color);
+  font-weight: 500;
+}
+
+/* Hamper Items List */
+.hamper-items-selection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 300px;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.hamper-item-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: white;
+  transition: all var(--transition-fast);
+}
+
+.hamper-item-row:hover {
+  border-color: rgba(205, 168, 115, 0.5);
+  background: #fdfdfd;
+}
+
+.hamper-item-row.selected {
+  border-color: var(--secondary-color);
+  background: rgba(205, 168, 115, 0.03);
+}
+
+.hamper-item-thumb {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+}
+
+.hamper-item-details {
+  flex: 1;
+}
+
+.hamper-item-details h4 {
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+.hamper-item-details span {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.hamper-item-price {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+.hamper-item-action-btn {
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.hamper-item-action-btn.add {
+  background: var(--primary-color);
+  color: white;
+}
+
+.hamper-item-action-btn.add:hover {
+  background: var(--secondary-color);
+}
+
+.hamper-item-action-btn.remove {
+  background: rgba(140, 38, 51, 0.1);
+  color: var(--accent-color);
+}
+
+.hamper-item-action-btn.remove:hover {
+  background: var(--accent-color);
+  color: white;
+}
+
+/* Hamper Preview Panel (Right Side) */
+.hamper-preview-panel {
+  background: #fcfbfa;
+  border: 1px dashed var(--secondary-color);
+  border-radius: var(--radius-lg);
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.02);
+}
+
+.hamper-visual-preview {
+  position: relative;
+  height: 250px;
+  background: #eae3d8;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(205, 168, 115, 0.3);
+  margin-bottom: 24px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.hamper-visual-preview img.box-base {
+  width: 140px;
+  height: 140px;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 16px rgba(0,0,0,0.25));
+  z-index: 10;
+}
+
+.hamper-floating-item {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1.5px solid white;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  object-fit: cover;
+  z-index: 20;
+}
+
+.hamper-floating-item.pos-1 { top: 30px; left: 40px; }
+.hamper-floating-item.pos-2 { top: 40px; right: 50px; }
+.hamper-floating-item.pos-3 { bottom: 50px; left: 50px; }
+.hamper-floating-item.pos-4 { bottom: 40px; right: 40px; }
+.hamper-floating-item.pos-5 { top: 100px; left: 15px; }
+
+.hamper-visual-empty {
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.hamper-visual-empty svg {
+  color: var(--secondary-color);
+  opacity: 0.5;
+  margin-bottom: 12px;
+}
+
+.hamper-summary-card {
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 20px;
+}
+
+.hamper-summary-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.hamper-summary-row.total {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  border-top: 1px solid var(--border-color);
+  padding-top: 12px;
+  margin-top: 8px;
+  margin-bottom: 0;
+}
+
+.hamper-checkout-btn {
+  width: 100%;
+  background: var(--primary-color);
+  color: white;
+  font-weight: 600;
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  margin-top: 16px;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all var(--transition-fast);
+}
+
+.hamper-checkout-btn:hover:not(:disabled) {
+  background: var(--secondary-color);
+}
+
+.hamper-checkout-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+/* Feature 3: Calligraphy Customizer */
+.calligraphy-customizer-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 40px;
+}
+
+.calligraphy-inputs-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.calligraphy-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.calligraphy-field label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--primary-color);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.calligraphy-field textarea {
+  width: 100%;
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  font-size: 0.95rem;
+  outline: none;
+  font-family: var(--font-body);
+  transition: all var(--transition-fast);
+  resize: none;
+}
+
+.calligraphy-field textarea:focus {
+  border-color: var(--secondary-color);
+  box-shadow: 0 0 0 3px rgba(205, 168, 115, 0.15);
+}
+
+.font-selectors-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 12px;
+}
+
+.font-option-btn {
+  border: 1px solid var(--border-color);
+  padding: 12px;
+  border-radius: var(--radius-md);
+  background: white;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.font-option-btn.active {
+  border-color: var(--secondary-color);
+  background: rgba(205, 168, 115, 0.08);
+  color: var(--primary-color);
+}
+
+.ink-selectors-row {
+  display: flex;
+  gap: 12px;
+}
+
+.ink-option-btn {
+  padding: 8px 16px;
+  border: 1.5px solid var(--border-color);
+  border-radius: 50px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: white;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.ink-option-btn.active {
+  border-color: var(--secondary-color);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+/* Calligraphy Card Render Preview (Right Side) */
+.greetings-card-preview-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.greetings-card-mockup {
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+  height: 420px;
+  background: #fbf9f4; /* Linen card color */
+  border: 12px solid #0b2239; /* Deep navy border wrapper */
+  border-radius: var(--radius-md);
+  padding: 30px;
+  box-shadow: var(--shadow-lg), 0 15px 35px rgba(0,0,0,0.15);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+}
+
+/* Decorative Gold Filigree Border */
+.greetings-card-mockup::after {
+  content: '';
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  right: 6px;
+  bottom: 6px;
+  border: 1px solid rgba(205, 168, 115, 0.5);
+  pointer-events: none;
+}
+
+.card-filigree-top {
+  border-bottom: 1px solid rgba(205, 168, 115, 0.2);
+  text-align: center;
+  padding-bottom: 8px;
+  font-family: var(--font-heading);
+  font-size: 0.7rem;
+  letter-spacing: 2px;
+  color: var(--secondary-color);
+}
+
+.card-message-body {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 10px 0;
+  font-size: 1.15rem;
+  line-height: 1.6;
+}
+
+.card-wax-seal {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid rgba(205, 168, 115, 0.2);
+  padding-top: 12px;
+}
+
+.card-sender-logo {
+  font-family: var(--font-heading);
+  font-size: 0.75rem;
+  letter-spacing: 1.5px;
+  font-weight: bold;
+  color: var(--primary-color);
+}
+
+.wax-seal-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #b83242 0%, #8c2633 100%);
+  border: 1px solid rgba(205, 168, 115, 0.4);
+  box-shadow: inset 0 2px 4px rgba(255,255,255,0.2), 0 3px 6px rgba(0,0,0,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--secondary-color);
+  font-size: 0.6rem;
+  font-weight: bold;
+}
+
+/* Feature 4: Registry Tab Styling */
+.registry-tab-container {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.registry-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.create-registry-btn {
+  background: var(--primary-color);
+  color: white;
+  padding: 10px 20px;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-transform: uppercase;
+}
+
+.create-registry-btn:hover {
+  background: var(--secondary-color);
+}
+
+.registries-list-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+.registry-card {
+  background: white;
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  transition: all var(--transition-normal);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.registry-card:hover {
+  border-color: rgba(205, 168, 115, 0.5);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.registry-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.registry-badge {
+  background: rgba(11, 34, 57, 0.06);
+  color: var(--primary-color);
+  padding: 4px 10px;
+  border-radius: 50px;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.registry-card h3 {
+  font-size: 1.15rem;
+  color: var(--primary-color);
+  margin: 0 0 6px 0;
+  font-weight: 600;
+}
+
+.registry-date {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  display: block;
+}
+
+.registry-stats-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.82rem;
+  color: var(--text-main);
+  margin-bottom: 8px;
+}
+
+.registry-progress-bar {
+  height: 8px;
+  background: #f0f0f0;
+  border-radius: 50px;
+  overflow: hidden;
+  margin-bottom: 18px;
+}
+
+.registry-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #cda873 0%, #a8814a 100%);
+  border-radius: 50px;
+}
+
+.registry-contributors {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border-color);
+  padding-top: 12px;
+  margin-top: auto;
+}
+
+/* Registry Creation Modal Panel Overlay */
+.registry-creation-box {
+  background: #fbfbfa;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.registry-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.registry-form-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+/* Responsive Gifting Studio adjustments */
+@media (max-width: 992px) {
+  .hamper-builder-grid, .calligraphy-customizer-grid {
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+  .studio-tab-content {
+    padding: 24px;
+  }
+}
+
 
 

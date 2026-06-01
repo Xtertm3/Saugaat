@@ -12,10 +12,14 @@ import {
   Gift, 
   ArrowRight, 
   Search, 
-  CheckCircle2 
+  CheckCircle2,
+  PenTool,
+  Sparkles,
+  ShoppingBag
 } from 'lucide-react';
-import { motion } from 'framer-motion'; 
+import { motion, AnimatePresence } from 'framer-motion'; 
 import { useAuth } from '../context/AuthContext';
+import { products as mockProducts } from '../data/mockData';
 import './Home.css';
 
 interface Product {
@@ -59,6 +63,91 @@ export const UserDashboard: React.FC = () => {
   });
 
   const [wishlist, setWishlist] = useState<Record<string, boolean>>({});
+
+  // Gifting Studio State
+  const [activeStudioTab, setActiveStudioTab] = useState<'hamper' | 'calligraphy' | 'registry'>('hamper');
+  const [selectedBox, setSelectedBox] = useState<'velvet' | 'wooden' | 'linen'>('velvet');
+  const [hamperItems, setHamperItems] = useState<string[]>([]);
+  const [studioSuccess, setStudioSuccess] = useState<string | null>(null);
+
+  // Calligraphy Greeting Card state
+  const [cardMessage, setCardMessage] = useState('Wishing you health, wealth, and prosperity on this auspicious occasion!');
+  const [cardFont, setCardFont] = useState<'vedic' | 'royal' | 'minimal'>('royal');
+  const [cardInk, setCardInk] = useState<'gold' | 'crimson' | 'navy'>('gold');
+
+  // Registry state
+  const [registries, setRegistries] = useState([
+    { id: 1, name: "Sister's Housewarming Party", target: 15000, current: 11250, date: "June 25, 2026", contributors: "Priya, Amit, Raj, Suresh" },
+    { id: 2, name: "Siddharth & Riya's Wedding", target: 50000, current: 30000, date: "October 18, 2026", contributors: "Aunt Nisha, Rohan, Uncle Verma + 9 others" }
+  ]);
+  const [showCreateRegistry, setShowCreateRegistry] = useState(false);
+  const [newRegistryName, setNewRegistryName] = useState('');
+  const [newRegistryTarget, setNewRegistryTarget] = useState(25000);
+  const [newRegistryDate, setNewRegistryDate] = useState('');
+
+  const boxTypes = [
+    { id: 'velvet', name: 'Royal Velvet Potli Box', price: 499, image: 'https://images.unsplash.com/photo-1512909006721-3d6018887383?auto=format&fit=crop&q=80&w=150' },
+    { id: 'wooden', name: 'Gilded Wooden Casket', price: 899, image: 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&q=80&w=150' },
+    { id: 'linen', name: 'Minimalist Linen Box', price: 299, image: 'https://images.unsplash.com/photo-1513201099705-a9746e1e201f?auto=format&fit=crop&q=80&w=150' }
+  ] as const;
+
+  const showNotification = (msg: string) => {
+    setStudioSuccess(msg);
+    setTimeout(() => setStudioSuccess(null), 5000);
+  };
+
+  const handleAddHamperItem = (id: string) => {
+    if (hamperItems.length >= 5) {
+      alert('You can add up to 5 items to a custom hamper box.');
+      return;
+    }
+    setHamperItems(prev => [...prev, id]);
+  };
+
+  const handleRemoveHamperItem = (indexToRemove: number) => {
+    setHamperItems(prev => prev.filter((_, idx) => idx !== indexToRemove));
+  };
+
+  const handleOrderCustomHamper = () => {
+    setStats(prev => ({
+      ...prev,
+      totalOrders: prev.totalOrders + 1,
+      points: prev.points + 150
+    }));
+    setHamperItems([]);
+    showNotification('✨ Custom Hamper added to your shopping cart! 150 Gifting Points have been credited.');
+  };
+
+  const handleAddCardToOrder = () => {
+    setStats(prev => ({
+      ...prev,
+      points: prev.points + 50
+    }));
+    showNotification('🎨 Handwritten calligraphy greeting card has been added to your upcoming order! 50 Gifting Points credited.');
+  };
+
+  const handleCreateRegistry = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newRegistryName.trim() || !newRegistryDate) return;
+    
+    setRegistries(prev => [
+      ...prev,
+      {
+        id: Date.now(),
+        name: newRegistryName,
+        target: newRegistryTarget,
+        current: 0,
+        date: newRegistryDate,
+        contributors: 'No contributors yet'
+      }
+    ]);
+    
+    setNewRegistryName('');
+    setNewRegistryTarget(25000);
+    setNewRegistryDate('');
+    setShowCreateRegistry(false);
+    showNotification('📅 New Gift Registry has been successfully published to your circle!');
+  };
 
   const [bestsellers] = useState<Product[]>([
     {
@@ -427,6 +516,457 @@ export const UserDashboard: React.FC = () => {
                 </div>
               );
             })}
+          </div>
+        </div>
+      </section>
+
+      {/* Studio Success Notification */}
+      <AnimatePresence>
+        {studioSuccess && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="container"
+            style={{ marginTop: '20px', zIndex: 100, position: 'relative' }}
+          >
+            <div className="glass" style={{
+              background: 'rgba(205, 168, 115, 0.15)',
+              border: '1px solid var(--secondary-color)',
+              color: 'var(--primary-color)',
+              padding: '16px 24px',
+              borderRadius: 'var(--radius-md)',
+              fontWeight: 500,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              boxShadow: 'var(--shadow-md)'
+            }}>
+              <Sparkles size={20} className="text-secondary" style={{ flexShrink: 0 }} />
+              <span>{studioSuccess}</span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Gifting Studio Section (Features 2, 3, 4) */}
+      <section className="gifting-studio-section container" style={{ marginTop: '40px' }}>
+        <div className="gifting-studio-card">
+          <div className="gifting-studio-header">
+            <h2>✨ Premium Gifting Concierge Studio</h2>
+            <p>Design custom experiences, compose calligraphy, and sync gift registries in real time.</p>
+          </div>
+
+          {/* Tab Selector */}
+          <div className="gifting-studio-tabs">
+            <button 
+              className={`studio-tab-btn ${activeStudioTab === 'hamper' ? 'active' : ''}`}
+              onClick={() => setActiveStudioTab('hamper')}
+            >
+              <Gift size={16} />
+              <span>Hamper Builder (Feature 2)</span>
+            </button>
+            <button 
+              className={`studio-tab-btn ${activeStudioTab === 'calligraphy' ? 'active' : ''}`}
+              onClick={() => setActiveStudioTab('calligraphy')}
+            >
+              <PenTool size={16} />
+              <span>Greeting Card Calligraphy (Feature 3)</span>
+            </button>
+            <button 
+              className={`studio-tab-btn ${activeStudioTab === 'registry' ? 'active' : ''}`}
+              onClick={() => setActiveStudioTab('registry')}
+            >
+              <Calendar size={16} />
+              <span>Occasion Registry (Feature 4)</span>
+            </button>
+          </div>
+
+          <div className="studio-tab-content">
+            {/* Tab 1: Hamper Builder */}
+            {activeStudioTab === 'hamper' && (
+              <div className="hamper-builder-grid">
+                <div className="hamper-options-panel">
+                  {/* Select Gifting Casing */}
+                  <div>
+                    <h3 className="hamper-section-title">
+                      <ShoppingBag size={16} className="text-secondary" />
+                      1. Choose Luxury Box / Casing
+                    </h3>
+                    <div className="box-options-grid">
+                      {boxTypes.map(box => (
+                        <div 
+                          key={box.id}
+                          className={`box-option-card ${selectedBox === box.id ? 'active' : ''}`}
+                          onClick={() => setSelectedBox(box.id)}
+                        >
+                          <img src={box.image} alt={box.name} />
+                          <h4>{box.name}</h4>
+                          <span>+₹{box.price}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Select Products */}
+                  <div>
+                    <h3 className="hamper-section-title">
+                      <Sparkles size={16} className="text-secondary" />
+                      2. Add Handcrafted Items (Max 5)
+                    </h3>
+                    <div className="hamper-items-selection">
+                      {mockProducts.slice(0, 10).map(product => {
+                        const countInHamper = hamperItems.filter(id => id === product.id).length;
+                        return (
+                          <div 
+                            key={product.id} 
+                            className={`hamper-item-row ${countInHamper > 0 ? 'selected' : ''}`}
+                          >
+                            <img src={product.image} alt={product.name} className="hamper-item-thumb" />
+                            <div className="hamper-item-details">
+                              <h4>{product.name}</h4>
+                              <span>₹{product.price} | {product.category.replace('-', ' ')}</span>
+                            </div>
+                            <div className="hamper-item-price">₹{product.price}</div>
+                            {countInHamper > 0 ? (
+                              <button 
+                                className="hamper-item-action-btn remove"
+                                onClick={() => {
+                                  const idx = hamperItems.indexOf(product.id);
+                                  if (idx > -1) handleRemoveHamperItem(idx);
+                                }}
+                              >
+                                Remove ({countInHamper})
+                              </button>
+                            ) : (
+                              <button 
+                                className="hamper-item-action-btn add"
+                                onClick={() => handleAddHamperItem(product.id)}
+                                disabled={hamperItems.length >= 5}
+                              >
+                                Add
+                              </button>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Real-time Hamper Basket Preview Panel */}
+                <div className="hamper-preview-panel">
+                  <div>
+                    <h3 className="hamper-section-title">
+                      <Gift size={16} className="text-secondary" />
+                      Live Hamper Curation
+                    </h3>
+                    
+                    <div className="hamper-visual-preview">
+                      {/* Box Base Rendering */}
+                      <img 
+                        src={boxTypes.find(b => b.id === selectedBox)?.image} 
+                        alt="Box Base" 
+                        className="box-base"
+                      />
+                      
+                      {/* Floating Items Rendering */}
+                      {hamperItems.map((itemId, idx) => {
+                        const product = mockProducts.find(p => p.id === itemId);
+                        if (!product) return null;
+                        return (
+                          <motion.img 
+                            key={`${itemId}-${idx}`}
+                            initial={{ scale: 0, rotate: -45 }}
+                            animate={{ scale: 1, rotate: idx * 12 }}
+                            src={product.image} 
+                            alt={product.name} 
+                            className={`hamper-floating-item pos-${idx + 1}`}
+                            title={product.name}
+                          />
+                        );
+                      })}
+
+                      {hamperItems.length === 0 && (
+                        <div className="hamper-visual-empty">
+                          <ShoppingBag size={36} />
+                          <p style={{ fontSize: '0.8rem', marginTop: '6px' }}>Your Hamper is empty.<br/>Select items on the left to pack them.</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="hamper-summary-card">
+                    <div className="hamper-summary-row">
+                      <span>Casing ({boxTypes.find(b => b.id === selectedBox)?.name})</span>
+                      <span>₹{boxTypes.find(b => b.id === selectedBox)?.price}</span>
+                    </div>
+                    <div className="hamper-summary-row">
+                      <span>Items Count</span>
+                      <span>{hamperItems.length} / 5</span>
+                    </div>
+                    <div className="hamper-summary-row">
+                      <span>Items Total</span>
+                      <span>
+                        ₹{hamperItems.reduce((acc, itemId) => {
+                          const p = mockProducts.find(prod => prod.id === itemId);
+                          return acc + (p?.price || 0);
+                        }, 0)}
+                      </span>
+                    </div>
+                    <div className="hamper-summary-row total">
+                      <span>Total Hamper Value</span>
+                      <span>
+                        ₹{(boxTypes.find(b => b.id === selectedBox)?.price || 0) + 
+                          hamperItems.reduce((acc, itemId) => {
+                            const p = mockProducts.find(prod => prod.id === itemId);
+                            return acc + (p?.price || 0);
+                          }, 0)}
+                      </span>
+                    </div>
+                    <button 
+                      className="hamper-checkout-btn"
+                      onClick={handleOrderCustomHamper}
+                      disabled={hamperItems.length === 0}
+                    >
+                      <Gift size={16} />
+                      Order Custom Hamper
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Tab 2: Calligraphy Customizer */}
+            {activeStudioTab === 'calligraphy' && (
+              <div className="calligraphy-customizer-grid">
+                <div className="calligraphy-inputs-panel">
+                  {/* Message Input */}
+                  <div className="calligraphy-field">
+                    <label>Greeting Message</label>
+                    <textarea 
+                      rows={4}
+                      value={cardMessage}
+                      onChange={(e) => setCardMessage(e.target.value.slice(0, 160))}
+                      placeholder="Write your greeting message (Max 160 characters)..."
+                    />
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'right' }}>
+                      {cardMessage.length} / 160 characters
+                    </span>
+                  </div>
+
+                  {/* Font Choice */}
+                  <div className="calligraphy-field">
+                    <label>Calligraphy Script Type</label>
+                    <div className="font-selectors-grid">
+                      <button 
+                        className={`font-option-btn ${cardFont === 'royal' ? 'active' : ''}`}
+                        onClick={() => setCardFont('royal')}
+                        style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic' }}
+                      >
+                        Royal Gold Script
+                      </button>
+                      <button 
+                        className={`font-option-btn ${cardFont === 'vedic' ? 'active' : ''}`}
+                        onClick={() => setCardFont('vedic')}
+                        style={{ fontFamily: '"Playfair Display", serif' }}
+                      >
+                        Vedic Serif
+                      </button>
+                      <button 
+                        className={`font-option-btn ${cardFont === 'minimal' ? 'active' : ''}`}
+                        onClick={() => setCardFont('minimal')}
+                        style={{ fontFamily: '"Outfit", sans-serif' }}
+                      >
+                        Minimalist Sans
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Ink Choice */}
+                  <div className="calligraphy-field">
+                    <label>Signature Ink Color</label>
+                    <div className="ink-selectors-row">
+                      <button 
+                        className={`ink-option-btn ${cardInk === 'gold' ? 'active' : ''}`}
+                        onClick={() => setCardInk('gold')}
+                        style={{ color: '#cda873', borderColor: cardInk === 'gold' ? '#cda873' : '' }}
+                      >
+                        ● Liquid Gold
+                      </button>
+                      <button 
+                        className={`ink-option-btn ${cardInk === 'crimson' ? 'active' : ''}`}
+                        onClick={() => setCardInk('crimson')}
+                        style={{ color: '#8c2633', borderColor: cardInk === 'crimson' ? '#8c2633' : '' }}
+                      >
+                        ● Crimson Red
+                      </button>
+                      <button 
+                        className={`ink-option-btn ${cardInk === 'navy' ? 'active' : ''}`}
+                        onClick={() => setCardInk('navy')}
+                        style={{ color: '#0b2239', borderColor: cardInk === 'navy' ? '#0b2239' : '' }}
+                      >
+                        ● Royal Navy
+                      </button>
+                    </div>
+                  </div>
+
+                  <button 
+                    className="hamper-checkout-btn"
+                    onClick={handleAddCardToOrder}
+                    disabled={!cardMessage.trim()}
+                  >
+                    <PenTool size={16} />
+                    Attach Handwritten Card (₹99)
+                  </button>
+                </div>
+
+                {/* Calligraphy Card Render Preview (Right Side) */}
+                <div className="greetings-card-preview-panel">
+                  <div className="greetings-card-mockup">
+                    <div className="card-filigree-top">SAUGAAT HANDCRAFTED WRAPPING</div>
+                    
+                    <div 
+                      className="card-message-body"
+                      style={{
+                        color: cardInk === 'gold' ? '#cda873' : cardInk === 'crimson' ? '#8c2633' : '#0b2239',
+                        fontFamily: cardFont === 'royal' ? 'Georgia, serif' : cardFont === 'vedic' ? '"Playfair Display", serif' : '"Outfit", sans-serif',
+                        fontStyle: cardFont === 'royal' ? 'italic' : 'normal',
+                        fontWeight: cardFont === 'minimal' ? '400' : 'bold'
+                      }}
+                    >
+                      "{cardMessage || 'Type your message on the left...'}"
+                    </div>
+
+                    <div className="card-wax-seal">
+                      <span className="card-sender-logo">Saugaat Curator</span>
+                      <div className="wax-seal-icon" title="Authentic Gifting Wax Seal">S</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Tab 3: Occasion Registry */}
+            {activeStudioTab === 'registry' && (
+              <div className="registry-tab-container">
+                <div className="registry-header-row">
+                  <h3 className="panel-title" style={{ fontSize: '1.2rem' }}>
+                    <Calendar size={18} className="text-secondary" />
+                    Manage Your Gifting Registries
+                  </h3>
+                  <button 
+                    className="create-registry-btn"
+                    onClick={() => setShowCreateRegistry(!showCreateRegistry)}
+                  >
+                    {showCreateRegistry ? 'Close Form' : 'Create New Registry'}
+                  </button>
+                </div>
+
+                {/* Create Registry Form Block */}
+                {showCreateRegistry && (
+                  <motion.div 
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    className="registry-creation-box"
+                  >
+                    <form onSubmit={handleCreateRegistry}>
+                      <div className="registry-form-grid">
+                        <div className="calligraphy-field">
+                          <label>Event / Registry Name</label>
+                          <input 
+                            type="text" 
+                            required
+                            placeholder="e.g. Anand's Wedding Pool, Baby Shower"
+                            value={newRegistryName}
+                            onChange={(e) => setNewRegistryName(e.target.value)}
+                            style={{ padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
+                          />
+                        </div>
+                        <div className="calligraphy-field">
+                          <label>Target Funding (₹)</label>
+                          <input 
+                            type="number" 
+                            required
+                            min="5000"
+                            step="1000"
+                            value={newRegistryTarget}
+                            onChange={(e) => setNewRegistryTarget(Number(e.target.value))}
+                            style={{ padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
+                          />
+                        </div>
+                        <div className="calligraphy-field">
+                          <label>Target Date</label>
+                          <input 
+                            type="date" 
+                            required
+                            value={newRegistryDate}
+                            onChange={(e) => setNewRegistryDate(e.target.value)}
+                            style={{ padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
+                          />
+                        </div>
+                      </div>
+                      <div className="registry-form-actions">
+                        <button 
+                          type="button" 
+                          className="btn btn-secondary" 
+                          onClick={() => setShowCreateRegistry(false)}
+                          style={{ padding: '8px 16px', fontSize: '0.8rem' }}
+                        >
+                          Cancel
+                        </button>
+                        <button 
+                          type="submit" 
+                          className="btn btn-primary"
+                          style={{ padding: '8px 16px', fontSize: '0.8rem' }}
+                        >
+                          Publish Registry
+                        </button>
+                      </div>
+                    </form>
+                  </motion.div>
+                )}
+
+                {/* Registries List Grid */}
+                <div className="registries-list-grid">
+                  {registries.map(reg => {
+                    const percent = Math.min(100, Math.round((reg.current / reg.target) * 100));
+                    return (
+                      <div key={reg.id} className="registry-card">
+                        <div>
+                          <div className="registry-card-top">
+                            <span className="registry-badge">ACTIVE POOL</span>
+                            <span className="registry-date">📅 {reg.date}</span>
+                          </div>
+                          <h3>{reg.name}</h3>
+                          
+                          <div style={{ margin: '16px 0' }}>
+                            <div className="registry-stats-row">
+                              <span>Target: ₹{reg.target.toLocaleString()}</span>
+                              <span style={{ fontWeight: 'bold' }}>{percent}% Funded</span>
+                            </div>
+                            <div className="registry-progress-bar">
+                              <div 
+                                className="registry-progress-fill" 
+                                style={{ width: `${percent}%` }}
+                              ></div>
+                            </div>
+                            <div className="registry-stats-row" style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                              <span>Collected: ₹{reg.current.toLocaleString()}</span>
+                              <span>Remaining: ₹{(reg.target - reg.current).toLocaleString()}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="registry-contributors">
+                          <strong>Contributors:</strong> {reg.contributors}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </section>
