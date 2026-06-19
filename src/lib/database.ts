@@ -41,7 +41,7 @@ export interface Product {
 }
 
 // Slugify helper for local IDs
-function slugify(text: string): string {
+export function slugify(text: string): string {
   return text
     .toLowerCase()
     .replace(/[^\w -]+/g, '')
@@ -348,16 +348,37 @@ export async function getProducts(limit?: number) {
 export async function getProductsByCategory(categoryId: string) {
   if (supabase) {
     try {
-      const { data, error } = await supabase
-        .from('products')
-        .select(`
-          *,
-          categories (id, name, parent_id),
-          product_images (*)
-        `)
-        .eq('category_id', categoryId)
-        .eq('status', 'active');
-      if (!error && data && data.length > 0) return data as Product[];
+      // 1. Fetch all categories to determine parent-child relationships and map slugs to UUIDs
+      const { data: allCategories, error: catError } = await supabase
+        .from('categories')
+        .select('*')
+        .order('sort_order', { ascending: true });
+
+      if (!catError && allCategories) {
+        // Resolve categoryId to a category record (handling either UUID match or slugified name match)
+        const resolvedCategory = allCategories.find(
+          c => c.id === categoryId || slugify(c.name) === categoryId
+        );
+
+        if (resolvedCategory) {
+          const isParent = resolvedCategory.parent_id === null;
+          const targetIds = isParent
+            ? [resolvedCategory.id, ...allCategories.filter(c => c.parent_id === resolvedCategory.id).map(c => c.id)]
+            : [resolvedCategory.id];
+
+          const { data, error } = await supabase
+            .from('products')
+            .select(`
+              *,
+              categories (id, name, parent_id),
+              product_images (*)
+            `)
+            .in('category_id', targetIds)
+            .eq('status', 'active');
+            
+          if (!error && data) return data as Product[];
+        }
+      }
     } catch (e) {
       console.error('Supabase query failed, falling back to LocalStorage', e);
     }
@@ -366,10 +387,16 @@ export async function getProductsByCategory(categoryId: string) {
   const localCats = getLocalCategories();
   const localProds = getLocalProducts().filter(p => p.status === 'active');
   
-  const isParent = localCats.some(c => c.id === categoryId && c.parent_id === null);
+  const resolvedCategory = localCats.find(
+    c => c.id === categoryId || slugify(c.name) === categoryId
+  );
+  
+  if (!resolvedCategory) return [];
+
+  const isParent = resolvedCategory.parent_id === null;
   const targetCategoryIds = isParent
-    ? [categoryId, ...localCats.filter(c => c.parent_id === categoryId).map(c => c.id)]
-    : [categoryId];
+    ? [resolvedCategory.id, ...localCats.filter(c => c.parent_id === resolvedCategory.id).map(c => c.id)]
+    : [resolvedCategory.id];
 
   const filtered = localProds.filter(p => targetCategoryIds.includes(p.category_id));
   

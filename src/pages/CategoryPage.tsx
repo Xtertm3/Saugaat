@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Heart, Star, Sparkles, RefreshCw } from 'lucide-react';
 import { useCart } from '../context/CartContext';
-import { getCategories, getProductsByCategory, getProducts, type Category, type Product } from '../lib/database';
+import { getCategories, getProductsByCategory, getProducts, slugify, type Category, type Product } from '../lib/database';
 
 export const CategoryPage: React.FC = () => {
   const { categoryId } = useParams<{ categoryId: string }>();
@@ -39,12 +39,12 @@ export const CategoryPage: React.FC = () => {
     setSelectedSubcategory('all');
   }, [categoryId]);
 
-  const currentCategory = categories.find(c => c.id === categoryId);
+  const currentCategory = categories.find(c => c.id === categoryId || slugify(c.name) === categoryId);
   const categoryName = currentCategory ? currentCategory.name : (categoryId === 'all' ? 'All Products' : 'Category');
 
-  // Dynamically find subcategories for this category in the database
-  const subcategoriesList = categoryId && categoryId !== 'all'
-    ? categories.filter(c => c.parent_id === categoryId)
+  // Dynamically find subcategories for this category in the database using resolved category ID
+  const subcategoriesList = currentCategory
+    ? categories.filter(c => c.parent_id === currentCategory.id)
     : [];
 
   const filteredProducts = selectedSubcategory === 'all'
