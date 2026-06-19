@@ -2,10 +2,10 @@
 
 :root {
   /* Colors */
-  --primary-color: #0b2239; /* Deep Navy */
-  --secondary-color: #cda873; /* Premium Gold / Rose Gold */
-  --accent-color: #8c2633; /* Deep Maroon / Ruby */
-  --bg-main: #fcfbfa; /* Soft Ivory */
+  --primary-color: #1F4D3A; /* Deep Emerald Green */
+  --secondary-color: #C8A96B; /* Antique Gold */
+  --accent-color: #C96A4A; /* Terracotta */
+  --bg-main: #F3E9DC; /* Warm Ivory Beige */
   --bg-card: #ffffff;
   --text-main: #2a2a2a;
   --text-muted: #666666;
@@ -19,8 +19,7 @@
   --shadow-sm: 0 2px 8px rgba(0,0,0,0.05);
   --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
   --shadow-lg: 0 12px 24px rgba(0,0,0,0.12);
-  --shadow-glass: 0 8px 32px 0 rgba(11, 34, 57, 0.1);
-
+  --shadow-glass: 0 8px 32px 0 rgba(31, 77, 58, 0.1);
   /* Utilities */
   --radius-sm: 4px;
   --radius-md: 8px;

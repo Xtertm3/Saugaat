@@ -332,3 +332,264 @@ export function getPublicImageUrl(path: string) {
     .getPublicUrl(path);
   return data?.publicUrl || '';
 }
+
+export interface Profile {
+  id: string;
+  email: string;
+  points: number;
+  tier: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export function calculateTier(points: number): string {
+  if (points < 100) return 'Bronze Tier Member';
+  if (points < 300) return 'Silver Tier Member';
+  if (points < 500) return 'Gold Tier Member';
+  return 'Platinum Tier Member';
+}
+
+export async function getProfile(userId: string): Promise<Profile | null> {
+  if (!supabase) return null;
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', userId)
+    .single();
+  if (error) {
+    console.error('Error fetching profile:', error);
+    return null;
+  }
+  return data as Profile;
+}
+
+export async function updateProfilePoints(userId: string, points: number): Promise<Profile | null> {
+  if (!supabase) return null;
+  const tier = calculateTier(points);
+  const { data, error } = await supabase
+    .from('profiles')
+    .update({ points, tier, updated_at: new Date().toISOString() })
+    .eq('id', userId)
+    .select()
+    .single();
+  if (error) {
+    console.error('Error updating profile points:', error);
+    return null;
+  }
+  return data as Profile;
+}
+
+export interface OrderTrackingLog {
+  status: 'pending' | 'processing' | 'shipped' | 'delivered';
+  timestamp: string;
+  description: string;
+}
+
+export interface CalligraphyCard {
+  message: string;
+  font: 'vedic' | 'royal' | 'minimal';
+  ink: 'gold' | 'crimson' | 'navy';
+}
+
+export interface Order {
+  id: string;
+  customerEmail: string;
+  customerName: string;
+  items: string;
+  total: number;
+  status: 'pending' | 'processing' | 'shipped' | 'delivered';
+  expectedDelivery: string;
+  logs: OrderTrackingLog[];
+  created_at: string;
+  card?: CalligraphyCard;
+}
+
+// Initial mock orders seed
+export const MOCK_ORDERS: Order[] = [
+  {
+    id: 'SG-2026-081',
+    customerEmail: 'customer@saugaat.com',
+    customerName: 'Customer',
+    items: 'Brass Urli + Pooja Thali',
+    total: 2198,
+    status: 'processing',
+    expectedDelivery: 'June 15, 2026',
+    created_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+    logs: [
+      { status: 'pending', timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), description: 'Order successfully placed. Gifting curator is reviewing.' },
+      { status: 'processing', timestamp: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(), description: 'Hamper box curated and customized branding verified.' }
+    ]
+  },
+  {
+    id: 'SG-2026-080',
+    customerEmail: 'customer@saugaat.com',
+    customerName: 'Customer',
+    items: 'Ceramic Vases Trio',
+    total: 1899,
+    status: 'shipped',
+    expectedDelivery: 'June 10, 2026',
+    created_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+    logs: [
+      { status: 'pending', timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), description: 'Order successfully placed.' },
+      { status: 'processing', timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), description: 'Item packed and quality check passed.' },
+      { status: 'shipped', timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), description: 'Dispatched from Jaipur Gifting Studio and handed to courier partner.' }
+    ]
+  }
+];
+
+export function getMockOrders(): Order[] {
+  const stored = localStorage.getItem('saugaat_mock_orders');
+  if (stored) {
+    try {
+      return JSON.parse(stored);
+    } catch (e) {
+      console.error('Error parsing mock orders from storage:', e);
+    }
+  }
+  
+  localStorage.setItem('saugaat_mock_orders', JSON.stringify(MOCK_ORDERS));
+  return MOCK_ORDERS;
+}
+
+export function saveMockOrders(orders: Order[]): void {
+  localStorage.setItem('saugaat_mock_orders', JSON.stringify(orders));
+}
+
+export async function getCustomerOrders(email: string): Promise<Order[]> {
+  const allOrders = getMockOrders();
+  return allOrders.filter(o => o.customerEmail === email);
+}
+
+export async function getOrderById(orderId: string): Promise<Order | null> {
+  const allOrders = getMockOrders();
+  return allOrders.find(o => o.id === orderId) || null;
+}
+
+export async function updateOrderStatus(
+  orderId: string, 
+  status: Order['status'], 
+  logDescription: string
+): Promise<Order | null> {
+  const allOrders = getMockOrders();
+  const index = allOrders.findIndex(o => o.id === orderId);
+  if (index === -1) return null;
+
+  const updatedOrder = {
+    ...allOrders[index],
+    status,
+    logs: [
+      ...allOrders[index].logs,
+      {
+        status,
+        timestamp: new Date().toISOString(),
+        description: logDescription
+      }
+    ]
+  };
+
+  allOrders[index] = updatedOrder;
+  saveMockOrders(allOrders);
+  
+  window.dispatchEvent(new Event('storage'));
+  
+  return updatedOrder;
+}
+
+export async function createOrder(orderData: {
+  customerEmail: string;
+  customerName: string;
+  items: string;
+  total: number;
+  expectedDelivery: string;
+  card?: CalligraphyCard;
+}): Promise<Order | null> {
+  const allOrders = getMockOrders();
+  
+  // Generate order ID like SG-2026-082
+  const prefix = 'SG-2026-';
+  let nextSuffix = 82;
+  const suffixes = allOrders.map(o => {
+    const match = o.id.match(/SG-2026-(\d+)/);
+    return match ? parseInt(match[1]) : 80;
+  });
+  if (suffixes.length > 0) {
+    nextSuffix = Math.max(...suffixes) + 1;
+  }
+  const orderId = `${prefix}${String(nextSuffix).padStart(3, '0')}`;
+
+  const newOrder: Order = {
+    id: orderId,
+    customerEmail: orderData.customerEmail,
+    customerName: orderData.customerName,
+    items: orderData.items,
+    total: orderData.total,
+    status: 'pending',
+    expectedDelivery: orderData.expectedDelivery,
+    created_at: new Date().toISOString(),
+    logs: [
+      {
+        status: 'pending',
+        timestamp: new Date().toISOString(),
+        description: 'Order successfully placed. Gifting curator is reviewing.'
+      }
+    ]
+  };
+  
+  if (orderData.card) {
+    newOrder.card = orderData.card;
+    newOrder.logs.push({
+      status: 'pending',
+      timestamp: new Date().toISOString(),
+      description: `Handwritten calligraphy greeting card attached: "${orderData.card.message.substring(0, 30)}${orderData.card.message.length > 30 ? '...' : ''}"`
+    });
+  }
+
+  allOrders.unshift(newOrder); // Add to beginning of the list
+  saveMockOrders(allOrders);
+  window.dispatchEvent(new Event('storage'));
+  return newOrder;
+}
+
+
+export async function attachCardToOrder(orderId: string, card: CalligraphyCard): Promise<Order | null> {
+  const allOrders = getMockOrders();
+  const index = allOrders.findIndex(o => o.id === orderId);
+  if (index === -1) return null;
+
+  const updatedOrder: Order = {
+    ...allOrders[index],
+    card,
+    logs: [
+      ...allOrders[index].logs,
+      {
+        status: allOrders[index].status,
+        timestamp: new Date().toISOString(),
+        description: `Handwritten calligraphy greeting card attached: "${card.message.substring(0, 30)}${card.message.length > 30 ? '...' : ''}"`
+      }
+    ]
+  };
+
+  allOrders[index] = updatedOrder;
+  saveMockOrders(allOrders);
+  
+  window.dispatchEvent(new Event('storage'));
+  
+  return updatedOrder;
+}
+
+export function getActiveCampaigns(): Array<{ id: number; name: string; code: string; value: string; target: string }> {
+  const saved = localStorage.getItem('saugaat_campaigns');
+  if (saved) {
+    try {
+      return JSON.parse(saved);
+    } catch (e) {
+      console.error('Error parsing campaigns:', e);
+    }
+  }
+  return [
+    { id: 1, name: "Spontaneous Gifting Special", code: "JUSTFORYOU", value: "₹250 Off", target: "All Customers" },
+    { id: 2, name: "Curator Wedding Collection", code: "WEDDING15", value: "15% Off", target: "Gold Members" }
+  ];
+}
+
+

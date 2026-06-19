@@ -13,6 +13,8 @@ import {
   Sparkles,
   Check
 } from 'lucide-react';
+import { getMockOrders, updateOrderStatus } from '../../lib/database';
+import type { Order as DbOrder } from '../../lib/database';
 import '../Admin.css';
 
 interface DashboardStats {
@@ -21,15 +23,6 @@ interface DashboardStats {
   totalCategories: number;
   activeListings: number;
   pendingReview: number;
-}
-
-interface Order {
-  id: string;
-  customer: string;
-  date: string;
-  status: 'paid' | 'shipped' | 'pending' | 'cancelled';
-  items: string;
-  total: number;
 }
 
 interface LowStockItem {
@@ -48,13 +41,42 @@ export const AdminDashboard: React.FC = () => {
     pendingReview: 2,
   });
 
-  const [orders] = useState<Order[]>([
-    { id: 'SG-2026-081', customer: 'Rahul Sharma', date: 'June 01, 2026', status: 'paid', items: 'Brass Urli + Pooja Thali', total: 2198 },
-    { id: 'SG-2026-080', customer: 'Priya Patel', date: 'June 01, 2026', status: 'shipped', items: 'Ceramic Vases Trio', total: 1899 },
-    { id: 'SG-2026-079', customer: 'Amit Verma', date: 'May 31, 2026', status: 'paid', items: 'Marble Ganesha Idol', total: 1499 },
-    { id: 'SG-2026-078', customer: 'Sneha Reddy', date: 'May 30, 2026', status: 'pending', items: 'Assorted Potlis Gift Pack', total: 999 },
-    { id: 'SG-2026-077', customer: 'Vikram Singh', date: 'May 29, 2026', status: 'cancelled', items: 'Wooden Educational Toy Set', total: 599 },
-  ]);
+  const [orders, setOrders] = useState<DbOrder[]>([]);
+
+  const fetchOrders = () => {
+    setOrders(getMockOrders());
+  };
+
+  React.useEffect(() => {
+    fetchOrders();
+    const handleStorageChange = () => {
+      fetchOrders();
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
+  const handleToggleStatus = async (orderId: string, currentStatus: DbOrder['status']) => {
+    const statusOrder: DbOrder['status'][] = ['pending', 'processing', 'shipped', 'delivered'];
+    const currentIndex = statusOrder.indexOf(currentStatus);
+    const nextStatus = statusOrder[(currentIndex + 1) % statusOrder.length];
+    
+    let logDesc = '';
+    if (nextStatus === 'pending') {
+      logDesc = 'Order successfully placed. Gifting curator is reviewing.';
+    } else if (nextStatus === 'processing') {
+      logDesc = 'Hamper box curated and customized branding verified in Gifting Studio.';
+    } else if (nextStatus === 'shipped') {
+      logDesc = 'Dispatched from Jaipur Gifting Studio and handed over to express delivery partner.';
+    } else if (nextStatus === 'delivered') {
+      logDesc = 'Handed over to customer. Verification code verified.';
+    }
+
+    const updated = await updateOrderStatus(orderId, nextStatus, logDesc);
+    if (updated) {
+      fetchOrders();
+    }
+  };
 
   const [lowStock] = useState<LowStockItem[]>([
     { id: 'p4', name: 'Ceramic Vases Trio', stock: 2, category: 'Home Decor' },
@@ -73,10 +95,17 @@ export const AdminDashboard: React.FC = () => {
   const [bannerTheme, setBannerTheme] = useState<'navy' | 'crimson' | 'gold'>('navy');
   const [campaignSuccess, setCampaignSuccess] = useState<string | null>(null);
 
-  const [campaignsList, setCampaignsList] = useState([
-    { id: 1, name: "Spontaneous Gifting Special", code: "JUSTFORYOU", value: "₹250 Off", target: "All Customers" },
-    { id: 2, name: "Curator Wedding Collection", code: "WEDDING15", value: "15% Off", target: "Gold Members" }
-  ]);
+  const [campaignsList, setCampaignsList] = useState<{ id: number; name: string; code: string; value: string; target: string }[]>(() => {
+    const saved = localStorage.getItem('saugaat_campaigns');
+    return saved ? JSON.parse(saved) : [
+      { id: 1, name: "Spontaneous Gifting Special", code: "JUSTFORYOU", value: "₹250 Off", target: "All Customers" },
+      { id: 2, name: "Curator Wedding Collection", code: "WEDDING15", value: "15% Off", target: "Gold Members" }
+    ];
+  });
+
+  React.useEffect(() => {
+    localStorage.setItem('saugaat_campaigns', JSON.stringify(campaignsList));
+  }, [campaignsList]);
 
   const handleCreateCampaign = (e: React.FormEvent) => {
     e.preventDefault();
@@ -374,12 +403,17 @@ export const AdminDashboard: React.FC = () => {
               {orders.map((order) => (
                 <tr key={order.id}>
                   <td><strong style={{ color: 'var(--primary-color)' }}>{order.id}</strong></td>
-                  <td>{order.customer}</td>
+                  <td>{order.customerName}</td>
                   <td className="text-muted" style={{ fontSize: '0.85rem' }}>{order.items}</td>
                   <td>
-                    <span className={`status-pill ${order.status}`}>
+                    <button 
+                      onClick={() => handleToggleStatus(order.id, order.status)}
+                      className={`status-pill ${order.status}`}
+                      style={{ cursor: 'pointer', border: 'none', outline: 'none' }}
+                      title="Click to cycle status: Pending -> Processing -> Shipped -> Delivered"
+                    >
                       {order.status}
-                    </span>
+                    </button>
                   </td>
                   <td><strong>₹{order.total}</strong></td>
                 </tr>

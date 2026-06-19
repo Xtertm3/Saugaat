@@ -17,9 +17,11 @@ import {
   Sparkles,
   ShoppingBag
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion'; 
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { products as mockProducts } from '../data/mockData';
+import { getCustomerOrders, attachCardToOrder, createOrder } from '../lib/database';
+import type { Order } from '../lib/database';
 import './Home.css';
 
 interface Product {
@@ -35,17 +37,9 @@ interface Product {
   reviewsCount: number;
 }
 
-interface UserStats {
-  userName: string;
-  totalOrders: number;
-  wishlistItems: number;
-  points: number;
-  tier: string;
-  nextTierPoints: number;
-}
 
 export const UserDashboard: React.FC = () => {
-  const { user } = useAuth();
+  const { user, points, tier, updatePoints } = useAuth();
   
   const formatName = (email?: string) => {
     if (!email) return 'Valued Guest';
@@ -53,16 +47,56 @@ export const UserDashboard: React.FC = () => {
     return namePart.charAt(0).toUpperCase() + namePart.slice(1);
   };
 
-  const [stats, setStats] = useState<UserStats>({
+  const [stats, setStats] = useState({
     userName: formatName(user?.email),
     totalOrders: 3,
     wishlistItems: 5,
-    points: 350,
-    tier: 'Gold Tier Member',
-    nextTierPoints: 500,
   });
 
+  React.useEffect(() => {
+    if (user?.email) {
+      setStats(prev => ({
+        ...prev,
+        userName: formatName(user.email)
+      }));
+    }
+  }, [user]);
+
+  const getNextTierDetails = (pts: number) => {
+    if (pts < 100) return { next: 'Silver', target: 100 };
+    if (pts < 300) return { next: 'Gold', target: 300 };
+    if (pts < 500) return { next: 'Platinum', target: 500 };
+    return { next: 'Max Tier', target: pts || 500 };
+  };
+
+  const { next: nextTier, target: nextTierPoints } = getNextTierDetails(points);
+
   const [wishlist, setWishlist] = useState<Record<string, boolean>>({});
+
+  const [customerOrders, setCustomerOrders] = useState<Order[]>([]);
+
+  const fetchOrders = async () => {
+    if (user?.email) {
+      const orders = await getCustomerOrders(user.email);
+      setCustomerOrders(orders);
+      setStats(prev => ({
+        ...prev,
+        totalOrders: orders.length
+      }));
+    }
+  };
+
+  React.useEffect(() => {
+    fetchOrders();
+
+    const handleStorageChange = () => {
+      fetchOrders();
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [user]);
+
+  const activeOrder = customerOrders.find(o => o.status !== 'delivered') || customerOrders[0];
 
   // Gifting Studio State
   const [activeStudioTab, setActiveStudioTab] = useState<'hamper' | 'calligraphy' | 'registry'>('hamper');
@@ -108,22 +142,75 @@ export const UserDashboard: React.FC = () => {
     setHamperItems(prev => prev.filter((_, idx) => idx !== indexToRemove));
   };
 
-  const handleOrderCustomHamper = () => {
-    setStats(prev => ({
-      ...prev,
-      totalOrders: prev.totalOrders + 1,
-      points: prev.points + 150
-    }));
-    setHamperItems([]);
-    showNotification('✨ Custom Hamper added to your shopping cart! 150 Gifting Points have been credited.');
+  const handleOrderCustomHamper = async () => {
+    if (!user?.email) {
+      alert('Please log in to place an order.');
+      return;
+    }
+    
+    const boxName = boxTypes.find(b => b.id === selectedBox)?.name || 'Custom Hamper';
+    const hamperTotal = (boxTypes.find(b => b.id === selectedBox)?.price || 0) + 
+      hamperItems.reduce((acc, itemId) => {
+        const p = mockProducts.find(prod => prod.id === itemId);
+        return acc + (p?.price || 0);
+      }, 0);
+    
+    const itemsDescription = `${boxName} containing: ` + hamperItems.map(itemId => {
+      const p = mockProducts.find(prod => prod.id === itemId);
+      return p?.name || itemId;
+    }).join(', ');
+    
+    // Check if there is a pending card
+    let attachedCard = undefined;
+    const pendingCardJson = localStorage.getItem('saugaat_pending_card');
+    if (pendingCardJson) {
+      try {
+        attachedCard = JSON.parse(pendingCardJson);
+        localStorage.removeItem('saugaat_pending_card');
+      } catch (e) {
+        console.error('Error parsing pending card:', e);
+      }
+    }
+
+    const newOrder = await createOrder({
+      customerEmail: user.email,
+      customerName: user.email.split('@')[0].toUpperCase(),
+      items: itemsDescription,
+      total: hamperTotal,
+      expectedDelivery: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+      card: attachedCard
+    });
+
+    if (newOrder) {
+      await fetchOrders(); // refresh order list
+      await updatePoints(150);
+      setHamperItems([]);
+      showNotification(`✨ Custom Hamper order #${newOrder.id} placed successfully! 150 Gifting Points have been credited.${attachedCard ? ' Calligraphy card attached!' : ''}`);
+    }
   };
 
-  const handleAddCardToOrder = () => {
-    setStats(prev => ({
-      ...prev,
-      points: prev.points + 50
-    }));
-    showNotification('🎨 Handwritten calligraphy greeting card has been added to your upcoming order! 50 Gifting Points credited.');
+  const handleAddCardToOrder = async () => {
+    if (!user?.email) {
+      alert('Please log in to customize a card.');
+      return;
+    }
+
+    const cardDetails = {
+      message: cardMessage,
+      font: cardFont,
+      ink: cardInk
+    };
+
+    if (activeOrder) {
+      await attachCardToOrder(activeOrder.id, cardDetails);
+      await fetchOrders(); // refresh orders list
+      await updatePoints(50);
+      showNotification(`🎨 Handwritten calligraphy greeting card has been attached to order #${activeOrder.id}! 50 Gifting Points credited.`);
+    } else {
+      localStorage.setItem('saugaat_pending_card', JSON.stringify(cardDetails));
+      await updatePoints(50);
+      showNotification('🎨 Calligraphy card saved! It will be attached automatically when you place your next custom hamper or order. 50 Gifting Points credited.');
+    }
   };
 
   const handleCreateRegistry = (e: React.FormEvent) => {
@@ -367,26 +454,26 @@ export const UserDashboard: React.FC = () => {
             <div className="card-top">
               <div className="card-badge">
                 <Award size={16} />
-                <span>{stats.tier}</span>
+                <span>{tier}</span>
               </div>
               <span className="card-logo">SAUGAAT</span>
             </div>
             <div className="card-middle">
               <span className="points-label">Gifting Balance</span>
               <div className="points-value">
-                <span className="number">{stats.points}</span>
+                <span className="number">{points}</span>
                 <span className="unit">Points</span>
               </div>
             </div>
             <div className="card-bottom">
               <div className="progress-text">
-                <span>Next Tier: Platinum</span>
-                <span>{stats.points} / {stats.nextTierPoints} XP</span>
+                <span>Next Tier: {nextTier}</span>
+                <span>{points} / {nextTierPoints} XP</span>
               </div>
               <div className="progress-bar-container">
                 <div 
                   className="progress-bar-fill" 
-                  style={{ width: `${(stats.points / stats.nextTierPoints) * 100}%` }}
+                  style={{ width: `${Math.min(100, (points / nextTierPoints) * 100)}%` }}
                 ></div>
               </div>
             </div>
@@ -442,58 +529,95 @@ export const UserDashboard: React.FC = () => {
       {/* Active Order Tracker & Activity Feed */}
       <section className="tracker-activity-section container">
         {/* Active Order Status Timeline */}
-        <div className="tracker-panel glass">
-          <div className="panel-header">
-            <h3 className="panel-title">
-              <Truck size={18} />
-              Current Order: #SG-98421
-            </h3>
-            <span className="delivery-est">Est. Delivery: June 05, 2026</span>
-          </div>
-          
-          <div className="timeline-container">
-            <div className="timeline-line">
-              <div className="timeline-line-fill" style={{ width: '66%' }}></div>
+        {activeOrder ? (
+          <div className="tracker-panel glass">
+            <div className="panel-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+              <div>
+                <h3 className="panel-title" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', margin: 0 }}>
+                  <Truck size={18} />
+                  Current Order: #{activeOrder.id}
+                  {activeOrder.card && (
+                    <span className="status-pill processing" style={{ fontSize: '0.72rem', padding: '2px 8px', display: 'inline-flex', alignItems: 'center', gap: '4px', textTransform: 'none', marginLeft: '6px', fontWeight: 600 }}>
+                      🎨 Calligraphy Card Attached
+                    </span>
+                  )}
+                </h3>
+              </div>
+              <span className="delivery-est">Est. Delivery: {activeOrder.expectedDelivery}</span>
             </div>
             
-            <div className="timeline-step completed">
-              <div className="step-dot">
-                <CheckCircle2 size={16} />
-              </div>
-              <span className="step-label">Ordered</span>
-              <span className="step-time">May 30, 2026</span>
-            </div>
+            {(() => {
+              const statusOrder = ['pending', 'processing', 'shipped', 'delivered'];
+              const currentIndex = statusOrder.indexOf(activeOrder.status);
+              const percent = currentIndex === 0 ? 0 : currentIndex === 1 ? 33 : currentIndex === 2 ? 66 : 100;
 
-            <div className="timeline-step completed">
-              <div className="step-dot">
-                <CheckCircle2 size={16} />
-              </div>
-              <span className="step-label">Processing</span>
-              <span className="step-time">May 31, 2026</span>
-            </div>
+              const getLogTime = (s: string) => {
+                const log = activeOrder.logs.find(l => l.status === s);
+                if (!log) return s === 'delivered' ? 'Pending' : s === 'shipped' ? 'On the Way' : '';
+                return new Date(log.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+              };
 
-            <div className="timeline-step active">
-              <div className="step-dot">
-                <div className="pulse-ring"></div>
-              </div>
-              <span className="step-label">In Transit</span>
-              <span className="step-time">On the Way</span>
-            </div>
+              const latestLog = activeOrder.logs[activeOrder.logs.length - 1]?.description || 'Order placed successfully.';
 
-            <div className="timeline-step pending">
-              <div className="step-dot"></div>
-              <span className="step-label">Delivered</span>
-              <span className="step-time">Pending</span>
-            </div>
+              return (
+                <>
+                  <div className="timeline-container">
+                    <div className="timeline-line">
+                      <div className="timeline-line-fill" style={{ width: `${percent}%` }}></div>
+                    </div>
+                    
+                    <div className={`timeline-step ${currentIndex >= 0 ? (currentIndex === 0 ? 'active' : 'completed') : 'pending'}`}>
+                      <div className="step-dot">
+                        {currentIndex > 0 ? <CheckCircle2 size={16} /> : currentIndex === 0 ? <div className="pulse-ring"></div> : null}
+                      </div>
+                      <span className="step-label">Ordered</span>
+                      <span className="step-time">{getLogTime('pending')}</span>
+                    </div>
+
+                    <div className={`timeline-step ${currentIndex >= 1 ? (currentIndex === 1 ? 'active' : 'completed') : 'pending'}`}>
+                      <div className="step-dot">
+                        {currentIndex > 1 ? <CheckCircle2 size={16} /> : currentIndex === 1 ? <div className="pulse-ring"></div> : null}
+                      </div>
+                      <span className="step-label">Processing</span>
+                      <span className="step-time">{getLogTime('processing')}</span>
+                    </div>
+
+                    <div className={`timeline-step ${currentIndex >= 2 ? (currentIndex === 2 ? 'active' : 'completed') : 'pending'}`}>
+                      <div className="step-dot">
+                        {currentIndex > 2 ? <CheckCircle2 size={16} /> : currentIndex === 2 ? <div className="pulse-ring"></div> : null}
+                      </div>
+                      <span className="step-label">In Transit</span>
+                      <span className="step-time">{getLogTime('shipped')}</span>
+                    </div>
+
+                    <div className={`timeline-step ${currentIndex >= 3 ? (currentIndex === 3 ? 'active' : 'completed') : 'pending'}`}>
+                      <div className="step-dot">
+                        {currentIndex === 3 ? <CheckCircle2 size={16} /> : null}
+                      </div>
+                      <span className="step-label">Delivered</span>
+                      <span className="step-time">{getLogTime('delivered')}</span>
+                    </div>
+                  </div>
+                  
+                  <div className="tracker-footer">
+                    <span className="status-note">Latest update: {latestLog}</span>
+                    <Link to="/my-orders" className="track-details-btn">
+                      Track Details <ArrowRight size={14} />
+                    </Link>
+                  </div>
+                </>
+              );
+            })()}
           </div>
-          
-          <div className="tracker-footer">
-            <span className="status-note">Latest update: Package departed Hyderabad Hub.</span>
-            <Link to="/my-orders" className="track-details-btn">
-              Track Details <ArrowRight size={14} />
-            </Link>
+        ) : (
+          <div className="tracker-panel glass" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '30px', textAlign: 'center' }}>
+            <ShoppingBag size={36} className="text-secondary" style={{ marginBottom: '12px' }} />
+            <h3 style={{ fontSize: '1.05rem', fontWeight: 'bold', color: 'var(--primary-color)', margin: 0 }}>No Active Shipments</h3>
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', maxWidth: '280px', marginTop: '6px', marginBottom: 0 }}>
+              Select one of our luxury hampers or design your own bespoke gift box to start tracking.
+            </p>
           </div>
-        </div>
+        )}
 
         {/* Recent Activities Feed */}
         <div className="activity-panel glass">
@@ -550,7 +674,7 @@ export const UserDashboard: React.FC = () => {
       </AnimatePresence>
 
       {/* Gifting Studio Section (Features 2, 3, 4) */}
-      <section className="gifting-studio-section container" style={{ marginTop: '40px' }}>
+      <section id="hamper-builder" className="gifting-studio-section container" style={{ marginTop: '40px' }}>
         <div className="gifting-studio-card">
           <div className="gifting-studio-header">
             <h2>✨ Premium Gifting Concierge Studio</h2>
@@ -790,23 +914,23 @@ export const UserDashboard: React.FC = () => {
                       <button 
                         className={`ink-option-btn ${cardInk === 'gold' ? 'active' : ''}`}
                         onClick={() => setCardInk('gold')}
-                        style={{ color: '#cda873', borderColor: cardInk === 'gold' ? '#cda873' : '' }}
+                        style={{ color: '#C8A96B', borderColor: cardInk === 'gold' ? '#C8A96B' : '' }}
                       >
                         ● Liquid Gold
                       </button>
                       <button 
                         className={`ink-option-btn ${cardInk === 'crimson' ? 'active' : ''}`}
                         onClick={() => setCardInk('crimson')}
-                        style={{ color: '#8c2633', borderColor: cardInk === 'crimson' ? '#8c2633' : '' }}
+                        style={{ color: '#C96A4A', borderColor: cardInk === 'crimson' ? '#C96A4A' : '' }}
                       >
-                        ● Crimson Red
+                        ● Terracotta
                       </button>
                       <button 
                         className={`ink-option-btn ${cardInk === 'navy' ? 'active' : ''}`}
                         onClick={() => setCardInk('navy')}
-                        style={{ color: '#0b2239', borderColor: cardInk === 'navy' ? '#0b2239' : '' }}
+                        style={{ color: '#1F4D3A', borderColor: cardInk === 'navy' ? '#1F4D3A' : '' }}
                       >
-                        ● Royal Navy
+                        ● Emerald Green
                       </button>
                     </div>
                   </div>
@@ -829,7 +953,7 @@ export const UserDashboard: React.FC = () => {
                     <div 
                       className="card-message-body"
                       style={{
-                        color: cardInk === 'gold' ? '#cda873' : cardInk === 'crimson' ? '#8c2633' : '#0b2239',
+                        color: cardInk === 'gold' ? '#C8A96B' : cardInk === 'crimson' ? '#C96A4A' : '#1F4D3A',
                         fontFamily: cardFont === 'royal' ? 'Georgia, serif' : cardFont === 'vedic' ? '"Playfair Display", serif' : '"Outfit", sans-serif',
                         fontStyle: cardFont === 'royal' ? 'italic' : 'normal',
                         fontWeight: cardFont === 'minimal' ? '400' : 'bold'

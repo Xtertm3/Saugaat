@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Minus, Plus, Heart, Share2, Truck } from 'lucide-react';
 import { products } from '../data/mockData';
+import { useCart } from '../context/CartContext';
 
 export const ProductPage: React.FC = () => {
   const { productId } = useParams<{ productId: string }>();
   const [quantity, setQuantity] = useState(1);
+  const navigate = useNavigate();
+  const { addToCart, toggleWishlist, isInWishlist } = useCart();
   
   const product = products.find(p => p.id === productId);
 
@@ -14,7 +17,7 @@ export const ProductPage: React.FC = () => {
     return (
       <div className="container text-center section-padding" style={{minHeight: '60vh'}}>
         <h2>Product not found</h2>
-        <Link to="/category/all" className="btn btn-primary" style={{ marginTop: '20px' }}>Continue Shopping</Link>
+        <Link to="/" className="btn btn-primary" style={{ marginTop: '20px' }}>Continue Shopping</Link>
       </div>
     );
   }
@@ -27,11 +30,13 @@ export const ProductPage: React.FC = () => {
     setQuantity(quantity + 1);
   };
 
+  const isWishlisted = isInWishlist(product.id);
+
   return (
     <div className="product-page section-padding container">
       {/* Breadcrumb */}
       <div className="breadcrumb" style={{ marginBottom: '20px', fontSize: '0.9rem', color: 'var(--text-muted)' }}>
-        <Link to="/">Home</Link> / <Link to={`/category/${product.category}`}>Category</Link> / <span className="text-primary">{product.name}</span>
+        <Link to="/">Home</Link> / <span className="text-primary">{product.name}</span>
       </div>
 
       <div className="product-detail-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '50px', alignItems: 'start' }}>
@@ -84,9 +89,53 @@ export const ProductPage: React.FC = () => {
           </div>
 
           <div className="action-buttons" style={{ display: 'flex', gap: '15px', marginBottom: '40px' }}>
-            <button className="btn btn-primary" style={{ flex: 2, padding: '15px' }}>ADD TO CART</button>
-            <button className="btn btn-secondary" style={{ flex: 1, padding: '15px' }}>BUY IT NOW</button>
-            <button className="btn btn-secondary" style={{ padding: '15px', width: '50px' }}><Heart size={20} /></button>
+            <button 
+              className="btn btn-primary" 
+              style={{ flex: 2, padding: '15px' }}
+              onClick={() => {
+                for (let i = 0; i < quantity; i++) {
+                  addToCart({
+                    id: product.id,
+                    name: product.name,
+                    price: product.price,
+                    image: product.image
+                  });
+                }
+                alert(`Added ${quantity} ${product.name} to cart.`);
+              }}
+            >
+              ADD TO CART
+            </button>
+            <button 
+              className="btn btn-secondary" 
+              style={{ flex: 1, padding: '15px' }}
+              onClick={() => {
+                for (let i = 0; i < quantity; i++) {
+                  addToCart({
+                    id: product.id,
+                    name: product.name,
+                    price: product.price,
+                    image: product.image
+                  });
+                }
+                navigate('/cart');
+              }}
+            >
+              BUY IT NOW
+            </button>
+            <button 
+              className="btn btn-secondary" 
+              style={{ padding: '15px', width: '50px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              onClick={() => toggleWishlist({
+                id: product.id,
+                name: product.name,
+                price: product.price,
+                image: product.image,
+                description: product.description || ''
+              })}
+            >
+              <Heart size={20} fill={isWishlisted ? 'var(--accent-color)' : 'none'} color={isWishlisted ? 'var(--accent-color)' : 'currentColor'} />
+            </button>
           </div>
 
           <div className="product-features" style={{ display: 'flex', flexDirection: 'column', gap: '15px', padding: '20px', backgroundColor: 'var(--bg-main)', borderRadius: 'var(--radius-md)' }}>

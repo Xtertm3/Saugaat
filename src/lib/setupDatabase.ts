@@ -79,6 +79,60 @@ export async function setupDatabase() {
       console.warn('Could not execute images SQL directly via RPC:', e);
     }
 
+    // Create profiles table and triggers
+    try {
+      await supabase.rpc('execute_sql', {
+        sql: `
+          CREATE TABLE IF NOT EXISTS public.profiles (
+            id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+            email VARCHAR(255) NOT NULL,
+            points INT DEFAULT 0,
+            tier VARCHAR(50) DEFAULT 'Bronze Tier Member',
+            created_at TIMESTAMP DEFAULT NOW(),
+            updated_at TIMESTAMP DEFAULT NOW()
+          );
+
+          -- Enable RLS on profiles
+          ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+
+          -- Policies for profiles
+          DO $$$
+          BEGIN
+            IF NOT EXISTS (
+              SELECT 1 FROM pg_policies WHERE tablename = 'profiles' AND policyname = 'Allow users to read their own profile'
+            ) THEN
+              CREATE POLICY "Allow users to read their own profile" ON public.profiles
+                FOR SELECT USING (auth.uid() = id);
+            END IF;
+
+            IF NOT EXISTS (
+              SELECT 1 FROM pg_policies WHERE tablename = 'profiles' AND policyname = 'Allow users to update their own profile'
+            ) THEN
+              CREATE POLICY "Allow users to update their own profile" ON public.profiles
+                FOR UPDATE USING (auth.uid() = id);
+            END IF;
+          END $$$;
+
+          -- Profile auto-creation trigger on auth.users signup
+          CREATE OR REPLACE FUNCTION public.handle_new_user()
+          RETURNS trigger AS $$$
+          BEGIN
+            INSERT INTO public.profiles (id, email, points, tier)
+            VALUES (new.id, new.email, 0, 'Bronze Tier Member');
+            RETURN new;
+          END;
+          $$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+          DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+          CREATE TRIGGER on_auth_user_created
+            AFTER INSERT ON auth.users
+            FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+        `
+      });
+    } catch (e) {
+      console.warn('Could not execute profiles SQL directly via RPC:', e);
+    }
+
     console.log('Database tables created successfully');
 
     // Seed categories
@@ -194,10 +248,21 @@ CREATE TABLE IF NOT EXISTS public.product_images (
 
 CREATE INDEX IF NOT EXISTS idx_product_images_product ON public.product_images(product_id);
 
+-- Create profiles table
+CREATE TABLE IF NOT EXISTS public.profiles (
+  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  email VARCHAR(255) NOT NULL,
+  points INT DEFAULT 0,
+  tier VARCHAR(50) DEFAULT 'Bronze Tier Member',
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+
 -- Enable Row Level Security
 ALTER TABLE public.categories ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.product_images ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies for categories
 CREATE POLICY "Allow public read" ON public.categories FOR SELECT USING (true);
@@ -215,4 +280,22 @@ CREATE POLICY "Allow authenticated admin delete" ON public.products FOR DELETE U
 CREATE POLICY "Allow public read" ON public.product_images FOR SELECT USING (true);
 CREATE POLICY "Allow authenticated admin insert" ON public.product_images FOR INSERT WITH CHECK (true);
 CREATE POLICY "Allow authenticated admin delete" ON public.product_images FOR DELETE USING (true);
+
+-- RLS Policies for profiles
+CREATE POLICY "Allow users to read their own profile" ON public.profiles FOR SELECT USING (auth.uid() = id);
+CREATE POLICY "Allow users to update their own profile" ON public.profiles FOR UPDATE USING (auth.uid() = id);
+
+-- Profile auto-creation trigger on auth.users signup
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS trigger AS $$
+BEGIN
+  INSERT INTO public.profiles (id, email, points, tier)
+  VALUES (new.id, new.email, 0, 'Bronze Tier Member');
+  RETURN new;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE OR REPLACE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 `;

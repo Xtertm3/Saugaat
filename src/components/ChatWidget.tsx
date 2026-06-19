@@ -11,6 +11,7 @@ import {
   Headphones
 } from 'lucide-react';
 import './ChatWidget.css';
+import { getMockOrders, getActiveCampaigns } from '../lib/database';
 
 interface Message {
   id: string;
@@ -52,15 +53,59 @@ export const ChatWidget: React.FC = () => {
 
       const lowerText = userText.toLowerCase();
 
-      if (lowerText.includes('track') || lowerText.includes('sg-89302') || lowerText.includes('order')) {
-        replyText = 'I have fetched the latest tracking information for your active order #SG-89302:';
-        replyType = 'tracking';
+      // Check if the query has an order ID match
+      const orderMatch = userText.toUpperCase().match(/SG-2026-\d+/);
+      const isTrackQuery = lowerText.includes('track') || lowerText.includes('status') || lowerText.includes('where is');
+      
+      if (orderMatch) {
+        const orderId = orderMatch[0];
+        const allOrders = getMockOrders();
+        const order = allOrders.find(o => o.id === orderId);
+        if (order) {
+          replyText = `I found your order **#${order.id}** containing *${order.items}*.\n\n` +
+            `• **Current Status**: ${order.status.toUpperCase()}\n` +
+            `• **Expected Delivery**: ${order.expectedDelivery}\n` +
+            `• **Latest Update**: *${order.logs[order.logs.length - 1]?.description || 'Order placed.'}*`;
+        } else {
+          replyText = `I searched for order **#${orderId}** but couldn't find it. Please double-check your order ID (e.g. SG-2026-081).`;
+        }
+      } else if (isTrackQuery || lowerText.includes('order')) {
+        // Look up the active logged-in user
+        const mockSession = localStorage.getItem('saugaat_mock_session');
+        if (mockSession) {
+          try {
+            const sessionData = JSON.parse(mockSession);
+            const email = sessionData.user?.email;
+            if (email) {
+              const allOrders = getMockOrders();
+              const userOrders = allOrders.filter(o => o.customerEmail === email);
+              if (userOrders.length > 0) {
+                const active = userOrders.find(o => o.status !== 'delivered') || userOrders[0];
+                replyText = `I found your active order **#${active.id}** containing *${active.items}*:\n\n` +
+                  `• **Current Status**: ${active.status.toUpperCase()}\n` +
+                  `• **Expected Delivery**: ${active.expectedDelivery}\n` +
+                  `• **Latest Update**: *${active.logs[active.logs.length - 1]?.description || 'Order placed.'}*\n\n` +
+                  `You can type another order ID (e.g., SG-2026-081) if you want to track a different order!`;
+              } else {
+                replyText = "You don't have any active orders under your account right now. Build a bespoke hamper or browse our collections to place one!";
+              }
+            } else {
+              replyText = "Please log in to track your active orders, or specify an order ID (e.g. SG-2026-080).";
+            }
+          } catch (e) {
+            replyText = "I encountered an error looking up your session. Please provide a specific order ID to track (e.g., SG-2026-080).";
+          }
+        } else {
+          replyText = "Please log in to track your active orders, or specify an order ID (e.g. SG-2026-080).";
+        }
       } else if (lowerText.includes('hamper') || lowerText.includes('custom') || lowerText.includes('build')) {
-        replyText = 'Crafting a bespoke hamper is simple! Go to your Customer Dashboard and open the "Build-Your-Own-Hamper" tab. Select your box style, drag premium items (Brass Diya, Incense, Sweets), and watch the budget sync live. Would you like to check it out?';
+        replyText = 'Crafting a bespoke hamper is simple! Go to your Customer Dashboard and open the "Hamper Builder" tab. Select your box style, drag premium items (Brass Diya, Incense, Sweets), and watch the budget sync live. Would you like to check it out?';
       } else if (lowerText.includes('card') || lowerText.includes('greeting') || lowerText.includes('calligraphy')) {
-        replyText = 'We offer premium hand-written calligraphy greeting cards. To customize yours, head to your Customer Dashboard -> "Card Customizer" tab. You can preview scripts (Vedic, Royal Gold, Minimal Sans) in real-time. Feel free to try it!';
+        replyText = 'We offer premium hand-written calligraphy greeting cards. To customize yours, head to your Customer Dashboard -> "Greeting Card Calligraphy" tab. You can preview scripts (Vedic, Royal Gold, Minimal Sans) in real-time. Feel free to try it!';
       } else if (lowerText.includes('promotion') || lowerText.includes('voucher') || lowerText.includes('coupon') || lowerText.includes('offer')) {
-        replyText = 'Here are our active promotional campaigns for the season:\n\n✨ **FESTIVE20**: 20% off on all brass and marble idols.\n✨ **SAUGAATGOLD**: Free gold-leaf luxury packaging on orders above ₹2,500.\n\n*Note: Administrators can generate new customized voucher codes directly inside the Admin Dashboard under "Campaign Manager".*';
+        const campaigns = getActiveCampaigns();
+        const promoList = campaigns.map(c => `✨ **${c.code}** (${c.name}): **${c.value}** for *${c.target}*`).join('\n');
+        replyText = `Here are our active promotional campaigns for the season:\n\n${promoList}\n\n*Note: Administrators can generate new customized voucher codes directly inside the Admin Dashboard under "Campaign Manager".*`;
       } else if (lowerText.includes('curator') || lowerText.includes('talk') || lowerText.includes('agent') || lowerText.includes('speak')) {
         replyText = 'Connecting to Gifting Curator Aditi... Connected!\n\n"Namaste! I would love to curate a specialized package for your occasion or assist with customized branding. Please leave your details below and I will get back to you within 30 minutes:"';
         replyType = 'lead-form';

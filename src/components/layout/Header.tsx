@@ -1,140 +1,178 @@
 import React, { useState } from 'react';
-import { Search, ShoppingBag, Heart, User, Menu, X, LogOut, BarChart3 } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+import { Search, ShoppingBag, Heart, User, LogOut, BarChart3, Menu, X } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useCart } from '../../context/CartContext';
 import './Header.css';
 
 export const Header: React.FC = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const location = useLocation();
   const { user, isAdmin, signOut } = useAuth();
+  const { cart, wishlist } = useCart();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // Close menu when route changes
-  React.useEffect(() => {
-    setIsMenuOpen(false);
-  }, [location.pathname]);
-
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
+  const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const wishlistCount = wishlist.length;
 
   return (
-    <header className="header glass">
+    <header className="header glass" style={{ padding: '15px 0' }}>
       <div className="container">
-        <div className="header-main">
-          {/* Hamburger Menu & Search (Left) */}
-          <div className="header-left">
-            <button className="icon-btn" onClick={toggleMenu} style={{ marginRight: '10px' }}>
-              <Menu size={28} />
+        <div className="header-main" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          
+          {/* Logo & Mobile Menu Toggle (Left) */}
+          <div className="header-left" style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '15px' }}>
+            <button 
+              className="icon-btn mobile-only" 
+              onClick={() => setIsMobileMenuOpen(true)} 
+              title="Open Menu"
+              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+            >
+              <Menu size={24} />
             </button>
-            <div className="search-bar desktop-only">
-              <input type="text" placeholder="Search for products, categories..." />
+            <Link to="/" className="logo" style={{ display: 'inline-block' }}>
+              <img src="/logo.png" alt="Saugaat Logo" style={{ height: '54px', width: 'auto', objectFit: 'contain' }} />
+            </Link>
+          </div>
+
+          {/* Search bar (Center) */}
+          <div className="header-center" style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+            <div className="search-bar desktop-only" style={{ maxWidth: '320px', width: '100%' }}>
+              <input type="text" placeholder="Search premium gifts..." />
               <button className="search-btn">
-                <Search size={20} />
+                <Search size={18} />
               </button>
             </div>
           </div>
 
-          {/* Logo (Center) */}
-          <div className="header-center text-center">
-            <Link to="/" className="logo">
-              <img src="/logo.png" alt="Saugaat Logo" style={{ height: '64px', width: 'auto', objectFit: 'contain' }} />
-            </Link>
-          </div>
-
-          {/* Icons (Right) */}
-          <div className="header-right">
+          {/* Icons & Account (Right) */}
+          <div className="header-right" style={{ flex: 1, display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '15px' }}>
             <div className="search-bar mobile-only" style={{ border: 'none', padding: 0, width: 'auto', background: 'transparent' }}>
-              <button className="icon-btn">
-                <Search size={24} />
+              <button className="icon-btn" style={{ color: 'var(--primary-color)' }}>
+                <Search size={22} />
               </button>
             </div>
 
             {isAdmin && (
-              <Link to="/admin/dashboard" className="icon-btn desktop-only" title="Admin Panel">
-                <BarChart3 size={24} />
+              <Link to="/admin/dashboard" className="icon-btn" title="Admin Panel" style={{ color: 'var(--primary-color)' }}>
+                <BarChart3 size={22} />
               </Link>
             )}
 
             {user ? (
-              <button onClick={() => signOut()} className="icon-btn desktop-only" title="Logout">
-                <LogOut size={24} />
-              </button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <Link to="/my-orders" className="desktop-only" style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--primary-color)', textDecoration: 'none' }}>
+                  Track Orders
+                </Link>
+                <button onClick={() => signOut()} className="icon-btn" title="Logout" style={{ color: 'var(--primary-color)', background: 'none', border: 'none', cursor: 'pointer' }}>
+                  <LogOut size={22} />
+                </button>
+              </div>
             ) : (
-              <Link to="/login" className="icon-btn desktop-only" title="Login">
-                <User size={24} />
+              <Link to="/login" className="icon-btn" title="Login" style={{ color: 'var(--primary-color)' }}>
+                <User size={22} />
               </Link>
             )}
 
-            <Link to="/wishlist" className="icon-btn badge-container desktop-only">
-              <Heart size={24} />
-              <span className="badge">0</span>
+            <Link to="/wishlist" className="icon-btn badge-container" title="Wishlist" style={{ color: 'var(--primary-color)' }}>
+              <Heart size={22} />
+              {wishlistCount > 0 && <span className="badge" style={{ backgroundColor: 'var(--secondary-color)' }}>{wishlistCount}</span>}
             </Link>
-            <Link to="/cart" className="icon-btn badge-container">
-              <ShoppingBag size={24} />
-              <span className="badge bg-accent">2</span>
+            
+            <Link to="/cart" className="icon-btn badge-container" title="Shopping Cart" style={{ color: 'var(--primary-color)' }}>
+              <ShoppingBag size={22} />
+              {cartCount > 0 && <span className="badge bg-accent">{cartCount}</span>}
             </Link>
           </div>
         </div>
 
-        {/* Desktop Navigation Menu */}
-        <nav className="main-nav desktop-only">
-          <ul className="nav-list">
-            <li><Link to="/">Home</Link></li>
-            <li><Link to="/category/home-decor">Home Decor</Link></li>
-            <li><Link to="/category/idols">Idols</Link></li>
-            <li><Link to="/category/festivals">Festivals</Link></li>
-            <li><Link to="/category/toys">Toys</Link></li>
-            <li><Link to="/category/gift-packs">Gift Packs</Link></li>
-            <li><Link to="/category/return-gifts">Return Gifts</Link></li>
-            <li><Link to="/category/just-like-that" className="text-accent font-medium">Just Like That</Link></li>
+        {/* Clean Luxury Navigation Menu */}
+        <nav className="main-nav" style={{ marginTop: '15px', borderTop: '1px solid rgba(0,0,0,0.05)', paddingTop: '12px' }}>
+          <ul className="nav-list" style={{ display: 'flex', justifyContent: 'center', gap: '35px', listStyle: 'none', margin: 0, padding: 0 }}>
+            <li>
+              <Link to="/" style={{ textDecoration: 'none', fontSize: '0.9rem', fontWeight: 600, color: 'var(--primary-color)', letterSpacing: '1px', textTransform: 'uppercase' }}>
+                Home
+              </Link>
+            </li>
+            {user && (
+              <li>
+                <a href="/#hamper-builder" onClick={(e) => {
+                  const element = document.getElementById('hamper-builder');
+                  if (element) {
+                    e.preventDefault();
+                    element.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }} style={{ textDecoration: 'none', fontSize: '0.9rem', fontWeight: 600, color: 'var(--primary-color)', letterSpacing: '1px', textTransform: 'uppercase' }}>
+                  Bespoke Hamper Builder
+                </a>
+              </li>
+            )}
+            <li>
+              <Link to="/services/corporate/event-plannings-creation-setup-management" style={{ textDecoration: 'none', fontSize: '0.9rem', fontWeight: 600, color: 'var(--primary-color)', letterSpacing: '1px', textTransform: 'uppercase' }}>
+                Corporate Gifting
+              </Link>
+            </li>
+            <li>
+              <Link to="/about" style={{ textDecoration: 'none', fontSize: '0.9rem', fontWeight: 600, color: 'var(--primary-color)', letterSpacing: '1px', textTransform: 'uppercase' }}>
+                Our Story
+              </Link>
+            </li>
           </ul>
         </nav>
       </div>
 
-      {/* Mobile Menu Overlay */}
-      <div className={`mobile-menu-overlay ${isMenuOpen ? 'open' : ''}`}>
-        <div className="mobile-menu-content">
+      {/* Mobile Drawer Overlay */}
+      <div 
+        className={`mobile-menu-overlay ${isMobileMenuOpen ? 'open' : ''}`} 
+        onClick={() => setIsMobileMenuOpen(false)}
+      >
+        <div 
+          className="mobile-menu-content" 
+          onClick={(e) => e.stopPropagation()}
+        >
           <div className="mobile-menu-header">
-            <h2 className="text-primary font-heading">Menu</h2>
-            <button className="icon-btn" onClick={toggleMenu}>
-              <X size={28} />
+            <h2 className="logo" style={{ margin: 0 }}>
+              <img src="/logo.png" alt="Saugaat Logo" style={{ height: '44px', width: 'auto', objectFit: 'contain' }} />
+            </h2>
+            <button 
+              onClick={() => setIsMobileMenuOpen(false)} 
+              style={{ color: 'var(--primary-color)', cursor: 'pointer' }}
+              title="Close Menu"
+            >
+              <X size={24} />
             </button>
           </div>
-
-          <div className="mobile-nav-section">
-            <h3 className="mobile-nav-title">Shop Categories</h3>
-            <ul className="mobile-nav-list">
-              <li><Link to="/">Home</Link></li>
-              <li><Link to="/category/home-decor">Home Decor</Link></li>
-              <li><Link to="/category/idols">Idols</Link></li>
-              <li><Link to="/category/festivals">Festivals</Link></li>
-              <li><Link to="/category/toys">Toys</Link></li>
-              <li><Link to="/category/gift-packs">Gift Packs</Link></li>
-              <li><Link to="/category/return-gifts">Return Gifts</Link></li>
-              <li><Link to="/category/just-like-that">Just Like That</Link></li>
-            </ul>
-          </div>
-
-          <div className="mobile-nav-section mt-8">
-            <h3 className="mobile-nav-title">Quick Links</h3>
-            <ul className="mobile-nav-list">
-              <li><Link to="/about">About Us</Link></li>
-              <li><Link to="/contact">Contact Us</Link></li>
-              <li><Link to="/faq">FAQs</Link></li>
-              <li><Link to="/wishlist">My Wishlist</Link></li>
-              {isAdmin && (
-                <li><Link to="/admin/dashboard">Admin Panel</Link></li>
-              )}
-              {user ? (
-                <li><button onClick={() => signOut()} style={{ background: 'none', border: 'none', padding: 0, font: 'inherit', color: 'inherit', cursor: 'pointer', fontSize: '1.1rem', fontWeight: 500 }}>Logout</button></li>
-              ) : (
-                <li><Link to="/login">Login / Sign Up</Link></li>
-              )}
-            </ul>
-          </div>
+          
+          <div className="mobile-nav-title">Navigation</div>
+          <ul className="mobile-nav-list">
+            <li>
+              <Link to="/" onClick={() => setIsMobileMenuOpen(false)}>Home</Link>
+            </li>
+            {user && (
+              <li>
+                <a 
+                  href="/#hamper-builder" 
+                  onClick={(e) => {
+                    setIsMobileMenuOpen(false);
+                    const element = document.getElementById('hamper-builder');
+                    if (element) {
+                      e.preventDefault();
+                      element.scrollIntoView({ behavior: 'smooth' });
+                    }
+                  }}
+                >
+                  Bespoke Hamper Builder
+                </a>
+              </li>
+            )}
+            <li>
+              <Link to="/services/corporate/event-plannings-creation-setup-management" onClick={() => setIsMobileMenuOpen(false)}>Corporate Gifting</Link>
+            </li>
+            <li>
+              <Link to="/about" onClick={() => setIsMobileMenuOpen(false)}>Our Story</Link>
+            </li>
+          </ul>
         </div>
       </div>
     </header>
   );
 };
+

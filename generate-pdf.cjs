@@ -12,12 +12,12 @@ function generatePDF() {
   doc.pipe(fs.createWriteStream(pdfPath));
 
   // Color Palette
-  const primaryColor = '#0b2239'; // Deep Navy
-  const secondaryColor = '#cda873'; // Premium Gold
-  const accentColor = '#8c2633'; // Deep Crimson
+  const primaryColor = '#1F4D3A'; // Deep Emerald Green
+  const secondaryColor = '#C8A96B'; // Antique Gold
+  const accentColor = '#C96A4A'; // Terracotta
   const textColor = '#2a2a2a';
   const mutedText = '#555555';
-  const lightBg = '#fcfbfa';
+  const lightBg = '#F3E9DC'; // Warm Ivory Beige
 
   // Helper function to draw header/footer on pages
   const drawPageDecorations = () => {
