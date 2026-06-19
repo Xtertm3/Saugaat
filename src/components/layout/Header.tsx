@@ -86,33 +86,40 @@ export const Header: React.FC = () => {
 
         {/* Clean Luxury Navigation Menu */}
         <nav className="main-nav" style={{ marginTop: '15px', borderTop: '1px solid rgba(0,0,0,0.05)', paddingTop: '12px' }}>
-          <ul className="nav-list" style={{ display: 'flex', justifyContent: 'center', gap: '35px', listStyle: 'none', margin: 0, padding: 0 }}>
+          <ul className="nav-list" style={{ display: 'flex', justifyContent: 'center', gap: '25px', listStyle: 'none', margin: 0, padding: 0, flexWrap: 'wrap' }}>
             <li>
-              <Link to="/" style={{ textDecoration: 'none', fontSize: '0.9rem', fontWeight: 600, color: 'var(--primary-color)', letterSpacing: '1px', textTransform: 'uppercase' }}>
-                Home
-              </Link>
-            </li>
-            {user && (
-              <li>
-                <a href="/#hamper-builder" onClick={(e) => {
-                  const element = document.getElementById('hamper-builder');
-                  if (element) {
-                    e.preventDefault();
-                    element.scrollIntoView({ behavior: 'smooth' });
-                  }
-                }} style={{ textDecoration: 'none', fontSize: '0.9rem', fontWeight: 600, color: 'var(--primary-color)', letterSpacing: '1px', textTransform: 'uppercase' }}>
-                  Bespoke Hamper Builder
-                </a>
-              </li>
-            )}
-            <li>
-              <Link to="/services/corporate/event-plannings-creation-setup-management" style={{ textDecoration: 'none', fontSize: '0.9rem', fontWeight: 600, color: 'var(--primary-color)', letterSpacing: '1px', textTransform: 'uppercase' }}>
-                Corporate Gifting
+              <Link to="/category/home-decor" style={{ textDecoration: 'none', fontSize: '0.85rem', fontWeight: 600, color: 'var(--primary-color)', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+                Home Decor
               </Link>
             </li>
             <li>
-              <Link to="/about" style={{ textDecoration: 'none', fontSize: '0.9rem', fontWeight: 600, color: 'var(--primary-color)', letterSpacing: '1px', textTransform: 'uppercase' }}>
-                Our Story
+              <Link to="/category/idols" style={{ textDecoration: 'none', fontSize: '0.85rem', fontWeight: 600, color: 'var(--primary-color)', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+                Idols
+              </Link>
+            </li>
+            <li>
+              <Link to="/category/festivals" style={{ textDecoration: 'none', fontSize: '0.85rem', fontWeight: 600, color: 'var(--primary-color)', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+                Festivals
+              </Link>
+            </li>
+            <li>
+              <Link to="/category/toys" style={{ textDecoration: 'none', fontSize: '0.85rem', fontWeight: 600, color: 'var(--primary-color)', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+                Toys
+              </Link>
+            </li>
+            <li>
+              <Link to="/category/gift-packs" style={{ textDecoration: 'none', fontSize: '0.85rem', fontWeight: 600, color: 'var(--primary-color)', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+                Gift Packs
+              </Link>
+            </li>
+            <li>
+              <Link to="/category/return-gifts" style={{ textDecoration: 'none', fontSize: '0.85rem', fontWeight: 600, color: 'var(--primary-color)', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+                Return Gifts
+              </Link>
+            </li>
+            <li>
+              <Link to="/category/just-like-that" style={{ textDecoration: 'none', fontSize: '0.85rem', fontWeight: 600, color: 'var(--primary-color)', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+                Just Like That
               </Link>
             </li>
           </ul>
@@ -141,33 +148,28 @@ export const Header: React.FC = () => {
             </button>
           </div>
           
-          <div className="mobile-nav-title">Navigation</div>
+          <div className="mobile-nav-title">Categories</div>
           <ul className="mobile-nav-list">
             <li>
-              <Link to="/" onClick={() => setIsMobileMenuOpen(false)}>Home</Link>
-            </li>
-            {user && (
-              <li>
-                <a 
-                  href="/#hamper-builder" 
-                  onClick={(e) => {
-                    setIsMobileMenuOpen(false);
-                    const element = document.getElementById('hamper-builder');
-                    if (element) {
-                      e.preventDefault();
-                      element.scrollIntoView({ behavior: 'smooth' });
-                    }
-                  }}
-                >
-                  Bespoke Hamper Builder
-                </a>
-              </li>
-            )}
-            <li>
-              <Link to="/services/corporate/event-plannings-creation-setup-management" onClick={() => setIsMobileMenuOpen(false)}>Corporate Gifting</Link>
+              <Link to="/category/home-decor" onClick={() => setIsMobileMenuOpen(false)}>Home Decor</Link>
             </li>
             <li>
-              <Link to="/about" onClick={() => setIsMobileMenuOpen(false)}>Our Story</Link>
+              <Link to="/category/idols" onClick={() => setIsMobileMenuOpen(false)}>Idols</Link>
+            </li>
+            <li>
+              <Link to="/category/festivals" onClick={() => setIsMobileMenuOpen(false)}>Festivals</Link>
+            </li>
+            <li>
+              <Link to="/category/toys" onClick={() => setIsMobileMenuOpen(false)}>Toys</Link>
+            </li>
+            <li>
+              <Link to="/category/gift-packs" onClick={() => setIsMobileMenuOpen(false)}>Gift Packs</Link>
+            </li>
+            <li>
+              <Link to="/category/return-gifts" onClick={() => setIsMobileMenuOpen(false)}>Return Gifts</Link>
+            </li>
+            <li>
+              <Link to="/category/just-like-that" onClick={() => setIsMobileMenuOpen(false)}>Just Like That</Link>
             </li>
           </ul>
         </div>
