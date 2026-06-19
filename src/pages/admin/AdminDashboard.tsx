@@ -11,10 +11,14 @@ import {
   Plus,
   Megaphone,
   Sparkles,
-  Check
+  Check,
+  Database,
+  Trash2,
+  RefreshCw
 } from 'lucide-react';
 import { getMockOrders, updateOrderStatus } from '../../lib/database';
 import type { Order as DbOrder } from '../../lib/database';
+import { setupDatabase } from '../../lib/setupDatabase';
 import '../Admin.css';
 
 interface DashboardStats {
@@ -42,6 +46,26 @@ export const AdminDashboard: React.FC = () => {
   });
 
   const [orders, setOrders] = useState<DbOrder[]>([]);
+  const [seeding, setSeeding] = useState(false);
+  const [seedResult, setSeedResult] = useState<{ success: boolean; message: string } | null>(null);
+
+  const handleSeedDatabase = async (purge: boolean) => {
+    setSeeding(true);
+    setSeedResult(null);
+    try {
+      const res = await setupDatabase({ purgeFirst: purge });
+      if (res) {
+        setSeedResult(res);
+      } else {
+        setSeedResult({ success: false, message: 'Database seeding failed.' });
+      }
+    } catch (err: any) {
+      setSeedResult({ success: false, message: err.message || 'Error seeding database.' });
+    } finally {
+      setSeeding(false);
+      setTimeout(() => setSeedResult(null), 10000);
+    }
+  };
 
   const fetchOrders = () => {
     setOrders(getMockOrders());
@@ -463,6 +487,60 @@ export const AdminDashboard: React.FC = () => {
               <a href="/admin/categories" className="action-btn">
                 <FolderOpen size={14} /> Add Category
               </a>
+            </div>
+
+            <div style={{ marginTop: '16px', borderTop: '1px solid var(--border-color)', paddingTop: '16px' }}>
+              <h5 style={{ margin: '0 0 10px 0', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)' }}>
+                🗄️ Supabase Seeding Console
+              </h5>
+              <p className="text-muted" style={{ fontSize: '0.75rem', margin: '0 0 12px 0', lineHeight: '1.3' }}>
+                Quickly populate your Supabase database with 70 premium products (10 per category) with images and pricing.
+              </p>
+              
+              {seeding ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8rem', color: 'var(--secondary-color)', padding: '6px 0' }}>
+                  <RefreshCw className="animate-spin" size={16} />
+                  <span>Seeding products and images...</span>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <button 
+                    onClick={() => handleSeedDatabase(false)}
+                    className="action-btn"
+                    style={{ background: 'var(--secondary-color)', color: 'white', border: 'none', cursor: 'pointer', padding: '8px 12px', fontSize: '0.8rem', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                  >
+                    <Database size={14} />
+                    Sync & Seed (Add Missing)
+                  </button>
+                  <button 
+                    onClick={() => {
+                      if (confirm('WARNING: This will delete ALL existing products, product images, and categories from Supabase, then seed them fresh. Are you sure?')) {
+                        handleSeedDatabase(true);
+                      }
+                    }}
+                    className="action-btn"
+                    style={{ background: 'rgba(239, 83, 80, 0.08)', color: '#ef5350', border: '1px dashed rgba(239, 83, 80, 0.4)', cursor: 'pointer', padding: '8px 12px', fontSize: '0.8rem', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                  >
+                    <Trash2 size={14} />
+                    Full Reset & Clean Seed
+                  </button>
+                </div>
+              )}
+
+              {seedResult && (
+                <div style={{ 
+                  marginTop: '10px', 
+                  fontSize: '0.75rem', 
+                  padding: '8px 10px', 
+                  borderRadius: 'var(--radius-sm)',
+                  backgroundColor: seedResult.success ? 'rgba(76, 175, 80, 0.1)' : 'rgba(239, 83, 80, 0.1)',
+                  color: seedResult.success ? '#2e7d32' : '#c62828',
+                  border: seedResult.success ? '1px solid #4caf50' : '1px solid #ef5350',
+                  lineHeight: '1.4'
+                }}>
+                  {seedResult.message}
+                </div>
+              )}
             </div>
           </div>
         </div>
