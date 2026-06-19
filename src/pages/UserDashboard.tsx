@@ -19,8 +19,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
-import { products as mockProducts } from '../data/mockData';
-import { getCustomerOrders, attachCardToOrder, createOrder } from '../lib/database';
+import { getCustomerOrders, attachCardToOrder, createOrder, getProducts } from '../lib/database';
 import type { Order } from '../lib/database';
 import './Home.css';
 
@@ -35,6 +34,7 @@ interface Product {
   isTrending?: boolean;
   rating: number;
   reviewsCount: number;
+  category?: string;
 }
 
 
@@ -74,6 +74,7 @@ export const UserDashboard: React.FC = () => {
   const [wishlist, setWishlist] = useState<Record<string, boolean>>({});
 
   const [customerOrders, setCustomerOrders] = useState<Order[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
 
   const fetchOrders = async () => {
     if (user?.email) {
@@ -86,11 +87,33 @@ export const UserDashboard: React.FC = () => {
     }
   };
 
+  const fetchProducts = async () => {
+    try {
+      const dbProds = await getProducts();
+      const mapped = dbProds.map(p => ({
+        id: p.id,
+        name: p.name,
+        price: p.price,
+        originalPrice: p.original_price || p.price,
+        discount: p.discount_percentage > 0 ? `${p.discount_percentage}% OFF` : '',
+        image: p.product_images && p.product_images.length > 0 ? p.product_images[0].image_url : 'https://images.unsplash.com/photo-1513201099705-a9746e1e201f?auto=format&fit=crop&q=80&w=800',
+        category: p.category_id,
+        rating: 4.8,
+        reviewsCount: 45
+      }));
+      setProducts(mapped);
+    } catch (err) {
+      console.error('Error fetching hamper products:', err);
+    }
+  };
+
   React.useEffect(() => {
     fetchOrders();
+    fetchProducts();
 
     const handleStorageChange = () => {
       fetchOrders();
+      fetchProducts();
     };
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
@@ -151,12 +174,12 @@ export const UserDashboard: React.FC = () => {
     const boxName = boxTypes.find(b => b.id === selectedBox)?.name || 'Custom Hamper';
     const hamperTotal = (boxTypes.find(b => b.id === selectedBox)?.price || 0) + 
       hamperItems.reduce((acc, itemId) => {
-        const p = mockProducts.find(prod => prod.id === itemId);
+        const p = products.find((prod: Product) => prod.id === itemId);
         return acc + (p?.price || 0);
       }, 0);
     
     const itemsDescription = `${boxName} containing: ` + hamperItems.map(itemId => {
-      const p = mockProducts.find(prod => prod.id === itemId);
+      const p = products.find((prod: Product) => prod.id === itemId);
       return p?.name || itemId;
     }).join(', ');
     
@@ -739,7 +762,7 @@ export const UserDashboard: React.FC = () => {
                       2. Add Handcrafted Items (Max 5)
                     </h3>
                     <div className="hamper-items-selection">
-                      {mockProducts.slice(0, 10).map(product => {
+                      {products.slice(0, 10).map(product => {
                         const countInHamper = hamperItems.filter(id => id === product.id).length;
                         return (
                           <div 
@@ -749,7 +772,7 @@ export const UserDashboard: React.FC = () => {
                             <img src={product.image} alt={product.name} className="hamper-item-thumb" />
                             <div className="hamper-item-details">
                               <h4>{product.name}</h4>
-                              <span>₹{product.price} | {product.category.replace('-', ' ')}</span>
+                              <span>₹{product.price} | {(product.category || '').replace('-', ' ')}</span>
                             </div>
                             <div className="hamper-item-price">₹{product.price}</div>
                             {countInHamper > 0 ? (
@@ -796,7 +819,7 @@ export const UserDashboard: React.FC = () => {
                       
                       {/* Floating Items Rendering */}
                       {hamperItems.map((itemId, idx) => {
-                        const product = mockProducts.find(p => p.id === itemId);
+                        const product = products.find(p => p.id === itemId);
                         if (!product) return null;
                         return (
                           <motion.img 
@@ -833,7 +856,7 @@ export const UserDashboard: React.FC = () => {
                       <span>Items Total</span>
                       <span>
                         ₹{hamperItems.reduce((acc, itemId) => {
-                          const p = mockProducts.find(prod => prod.id === itemId);
+                          const p = products.find(prod => prod.id === itemId);
                           return acc + (p?.price || 0);
                         }, 0)}
                       </span>
@@ -843,7 +866,7 @@ export const UserDashboard: React.FC = () => {
                       <span>
                         ₹{(boxTypes.find(b => b.id === selectedBox)?.price || 0) + 
                           hamperItems.reduce((acc, itemId) => {
-                            const p = mockProducts.find(prod => prod.id === itemId);
+                            const p = products.find(prod => prod.id === itemId);
                             return acc + (p?.price || 0);
                           }, 0)}
                       </span>

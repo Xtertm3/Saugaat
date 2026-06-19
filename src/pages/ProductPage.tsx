@@ -1,21 +1,56 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Minus, Plus, Heart, Share2, Truck } from 'lucide-react';
-import { products } from '../data/mockData';
+import { Minus, Plus, Heart, Share2, Truck, RefreshCw } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { getProductById, type Product } from '../lib/database';
 
 export const ProductPage: React.FC = () => {
   const { productId } = useParams<{ productId: string }>();
   const [quantity, setQuantity] = useState(1);
+  const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { addToCart, toggleWishlist, isInWishlist } = useCart();
-  
-  const product = products.find(p => p.id === productId);
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      if (!productId) return;
+      setLoading(true);
+      try {
+        const prod = await getProductById(productId);
+        setProduct(prod);
+      } catch (err) {
+        console.error('Error fetching product detail:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProduct();
+    setQuantity(1);
+  }, [productId]);
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+        <RefreshCw size={36} className="spin-anim" style={{ color: 'var(--secondary-color)' }} />
+        <style>{`
+          .spin-anim {
+            animation: spin 1s linear infinite;
+          }
+          @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+          }
+        `}</style>
+      </div>
+    );
+  }
 
   if (!product) {
     return (
-      <div className="container text-center section-padding" style={{minHeight: '60vh'}}>
+      <div className="container text-center section-padding" style={{ minHeight: '60vh' }}>
         <h2>Product not found</h2>
         <Link to="/" className="btn btn-primary" style={{ marginTop: '20px' }}>Continue Shopping</Link>
       </div>
@@ -31,6 +66,9 @@ export const ProductPage: React.FC = () => {
   };
 
   const isWishlisted = isInWishlist(product.id);
+  const featuredImg = product.product_images && product.product_images.length > 0
+    ? product.product_images.find(img => img.is_featured)?.image_url || product.product_images[0].image_url
+    : 'https://images.unsplash.com/photo-1513201099705-a9746e1e201f?auto=format&fit=crop&q=80&w=800';
 
   return (
     <div className="product-page section-padding container">
@@ -48,9 +86,9 @@ export const ProductPage: React.FC = () => {
           className="product-image-large"
         >
           <img 
-            src={product.image} 
+            src={featuredImg} 
             alt={product.name} 
-            style={{ width: '100%', borderRadius: 'var(--radius-md)', boxShadow: 'var(--shadow-md)' }} 
+            style={{ width: '100%', borderRadius: 'var(--radius-md)', boxShadow: 'var(--shadow-md)', maxHeight: '550px', objectFit: 'cover' }} 
           />
         </motion.div>
 
@@ -61,16 +99,16 @@ export const ProductPage: React.FC = () => {
           transition={{ duration: 0.5 }}
           className="product-details"
         >
-          <h1 style={{ fontSize: '2.5rem', marginBottom: '10px' }}>{product.name}</h1>
+          <h1 style={{ fontSize: '2.5rem', marginBottom: '10px', color: 'var(--primary-color)', fontFamily: 'var(--font-heading)' }}>{product.name}</h1>
           
           <div className="price-container" style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '20px' }}>
             <span style={{ fontSize: '1.8rem', fontWeight: '600', color: 'var(--primary-color)' }}>₹{product.price}</span>
-            {product.originalPrice && (
-              <span style={{ fontSize: '1.2rem', textDecoration: 'line-through', color: 'var(--text-muted)' }}>₹{product.originalPrice}</span>
+            {product.original_price && product.original_price > product.price && (
+              <span style={{ fontSize: '1.2rem', textDecoration: 'line-through', color: 'var(--text-muted)' }}>₹{product.original_price}</span>
             )}
-            {product.discount && (
+            {product.discount_percentage > 0 && (
               <span style={{ backgroundColor: 'var(--accent-color)', color: 'white', padding: '4px 10px', borderRadius: '4px', fontSize: '0.85rem', fontWeight: 'bold' }}>
-                {product.discount}
+                {product.discount_percentage}% OFF
               </span>
             )}
           </div>
@@ -98,10 +136,9 @@ export const ProductPage: React.FC = () => {
                     id: product.id,
                     name: product.name,
                     price: product.price,
-                    image: product.image
+                    image: featuredImg
                   });
                 }
-                alert(`Added ${quantity} ${product.name} to cart.`);
               }}
             >
               ADD TO CART
@@ -115,7 +152,7 @@ export const ProductPage: React.FC = () => {
                     id: product.id,
                     name: product.name,
                     price: product.price,
-                    image: product.image
+                    image: featuredImg
                   });
                 }
                 navigate('/cart');
@@ -130,7 +167,7 @@ export const ProductPage: React.FC = () => {
                 id: product.id,
                 name: product.name,
                 price: product.price,
-                image: product.image,
+                image: featuredImg,
                 description: product.description || ''
               })}
             >

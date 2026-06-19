@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { categories, products } from '../data/mockData';
 import { useAuth } from '../context/AuthContext';
 import { UserDashboard } from './UserDashboard';
 import { 
@@ -11,13 +10,41 @@ import {
   Truck, 
   Heart,
   Gift,
-  Star
+  Star,
+  RefreshCw
 } from 'lucide-react';
+import { getParentCategories, getTrendingProducts, type Category, type Product } from '../lib/database';
 import './Home.css';
 
 export const Home: React.FC = () => {
   const { user } = useAuth();
   const [wishlist, setWishlist] = useState<Record<string, boolean>>({});
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [trendingProducts, setTrendingProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    // If user is logged in, they see UserDashboard, so we don't need to load home page data
+    if (user) return;
+
+    const loadHomeData = async () => {
+      setLoading(true);
+      try {
+        const [parentCats, trendingProds] = await Promise.all([
+          getParentCategories(),
+          getTrendingProducts(4)
+        ]);
+        setCategories(parentCats);
+        setTrendingProducts(trendingProds);
+      } catch (err) {
+        console.error('Error loading home page catalog data:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadHomeData();
+  }, [user]);
 
   // If user is logged in, show the dashboard
   if (user) {
@@ -28,7 +55,6 @@ export const Home: React.FC = () => {
     setWishlist(prev => ({ ...prev, [productId]: !prev[productId] }));
   };
 
-  // Otherwise, show the regular home page
   return (
     <div className="home-page-wrapper">
       {/* Luxury Hero Section */}
@@ -75,25 +101,31 @@ export const Home: React.FC = () => {
             <div className="title-underline" style={{ margin: '8px auto' }}></div>
           </div>
           
-          <div className="category-grid">
-            {categories.map((category, index) => (
-              <motion.div
-                key={category.id}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5, delay: index * 0.05 }}
-                viewport={{ once: true }}
-              >
-                <Link to={`/category/${category.id}`} className="luxury-category-card">
-                  <div className="category-image-circle">
-                    <img src={category.image} alt={category.name} className="category-image" />
-                    <div className="category-image-overlay"></div>
-                  </div>
-                  <span className="category-name-premium">{category.name}</span>
-                </Link>
-              </motion.div>
-            ))}
-          </div>
+          {loading && categories.length === 0 ? (
+            <div style={{ display: 'flex', justifyContent: 'center', padding: '40px 0' }}>
+              <RefreshCw size={28} className="spin-anim" style={{ color: 'var(--secondary-color)' }} />
+            </div>
+          ) : (
+            <div className="category-grid">
+              {categories.map((category, index) => (
+                <motion.div
+                  key={category.id}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5, delay: index * 0.05 }}
+                  viewport={{ once: true }}
+                >
+                  <Link to={`/category/${category.id}`} className="luxury-category-card">
+                    <div className="category-image-circle">
+                      <img src={category.image_url} alt={category.name} className="category-image" />
+                      <div className="category-image-overlay"></div>
+                    </div>
+                    <span className="category-name-premium">{category.name}</span>
+                  </Link>
+                </motion.div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -166,60 +198,76 @@ export const Home: React.FC = () => {
             </Link>
           </div>
 
-          <div className="product-grid">
-            {products.slice(0, 4).map((product, index) => {
-              const isWishlisted = !!wishlist[product.id];
-              return (
-                <motion.div
-                  key={product.id}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.05 }}
-                  viewport={{ once: true }}
-                  className="premium-product-card"
-                >
-                  <div className="product-badge">NEW IN</div>
-                  <button 
-                    className={`wishlist-toggle-btn ${isWishlisted ? 'active' : ''}`}
-                    onClick={() => toggleWishlist(product.id)}
-                    title={isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist'}
+          {loading && trendingProducts.length === 0 ? (
+            <div style={{ display: 'flex', justifyContent: 'center', padding: '60px 0' }}>
+              <RefreshCw size={32} className="spin-anim" style={{ color: 'var(--secondary-color)' }} />
+            </div>
+          ) : (
+            <div className="product-grid">
+              {trendingProducts.map((product, index) => {
+                const isWishlisted = !!wishlist[product.id];
+                const featuredImg = product.product_images && product.product_images.length > 0
+                  ? product.product_images.find(img => img.is_featured)?.image_url || product.product_images[0].image_url
+                  : 'https://images.unsplash.com/photo-1513201099705-a9746e1e201f?auto=format&fit=crop&q=80&w=800';
+
+                return (
+                  <motion.div
+                    key={product.id}
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: index * 0.05 }}
+                    viewport={{ once: true }}
+                    className="premium-product-card"
                   >
-                    <Heart size={18} fill={isWishlisted ? 'var(--accent-color)' : 'none'} />
-                  </button>
-                  <div className="product-image-container">
-                    <img src={product.image} alt={product.name} className="product-image" />
-                    <div className="product-actions">
-                      <button className="btn btn-primary" style={{ flex: 1, textTransform: 'uppercase', fontSize: '0.8rem', letterSpacing: '0.5px' }}>
-                        Add to Cart
-                      </button>
-                    </div>
-                  </div>
-                  <div className="premium-product-info">
-                    <div className="product-rating">
-                      <div className="stars">
-                        {[...Array(5)].map((_, i) => (
-                          <Star 
-                            key={i} 
-                            size={12} 
-                            fill={i < 4 ? 'var(--secondary-color)' : 'none'} 
-                            color="var(--secondary-color)" 
-                          />
-                        ))}
+                    {product.discount_percentage > 0 ? (
+                      <div className="product-badge">{product.discount_percentage}% OFF</div>
+                    ) : (
+                      <div className="product-badge">TRENDING</div>
+                    )}
+                    <button 
+                      className={`wishlist-toggle-btn ${isWishlisted ? 'active' : ''}`}
+                      onClick={() => toggleWishlist(product.id)}
+                      title={isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist'}
+                    >
+                      <Heart size={18} fill={isWishlisted ? 'var(--accent-color)' : 'none'} />
+                    </button>
+                    <div className="product-image-container">
+                      <img src={featuredImg} alt={product.name} className="product-image" />
+                      <div className="product-actions">
+                        <Link to={`/product/${product.id}`} className="btn btn-primary" style={{ flex: 1, textTransform: 'uppercase', fontSize: '0.8rem', letterSpacing: '0.5px', textAlign: 'center', lineHeight: '2.5' }}>
+                          View Details
+                        </Link>
                       </div>
-                      <span className="rating-text">4.8 (45 reviews)</span>
                     </div>
-                    <h3 className="premium-product-title">
-                      <Link to={`/product/${product.id}`}>{product.name}</Link>
-                    </h3>
-                    <div className="premium-product-price-wrapper">
-                      <span className="product-price">₹{product.price}</span>
-                      <span className="product-original-price">₹{product.originalPrice}</span>
+                    <div className="premium-product-info">
+                      <div className="product-rating">
+                        <div className="stars">
+                          {[...Array(5)].map((_, i) => (
+                            <Star 
+                              key={i} 
+                              size={12} 
+                              fill={i < 4 ? 'var(--secondary-color)' : 'none'} 
+                              color="var(--secondary-color)" 
+                            />
+                          ))}
+                        </div>
+                        <span className="rating-text">4.8 (45 reviews)</span>
+                      </div>
+                      <h3 className="premium-product-title">
+                        <Link to={`/product/${product.id}`}>{product.name}</Link>
+                      </h3>
+                      <div className="premium-product-price-wrapper">
+                        <span className="product-price">₹{product.price}</span>
+                        {product.original_price && product.original_price > product.price && (
+                          <span className="product-original-price">₹{product.original_price}</span>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </section>
 
@@ -256,6 +304,16 @@ export const Home: React.FC = () => {
           <Link to="/category/gift-packs" className="btn btn-accent">Explore Hampers</Link>
         </div>
       </section>
+
+      <style>{`
+        .spin-anim {
+          animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 };

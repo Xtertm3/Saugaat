@@ -1,46 +1,55 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AdminLayout } from './AdminLayout';
-import { Edit, Trash2, Plus } from 'lucide-react';
+import { Edit, Trash2, Plus, RefreshCw } from 'lucide-react';
+import { getCategories, createCategory, updateCategory, deleteCategory, type Category } from '../../lib/database';
 import '../Admin.css';
 
-interface Category {
-  id: string;
-  name: string;
-  image: string;
-  parentId: string | null;
-}
-
 export const CategoryManagement: React.FC = () => {
-  const [categories, setCategories] = useState<Category[]>([
-    { id: 'parent-1', name: 'Home Decor', image: '', parentId: null },
-    { id: 'parent-2', name: 'Idols', image: '', parentId: null },
-    { id: 'parent-3', name: 'Festivals', image: '', parentId: null },
-    { id: 'parent-4', name: 'Toys', image: '', parentId: null },
-    { id: 'parent-5', name: 'Gift Packs', image: '', parentId: null },
-    { id: 'parent-6', name: 'Return Gifts', image: '', parentId: null },
-  ]);
-
+  const [categories, setCategories] = useState<Category[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [formData, setFormData] = useState({ name: '', image: '', parentId: '' });
+  const [formData, setFormData] = useState({ name: '', image_url: '', parent_id: '' });
   const [expandedParent, setExpandedParent] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const parentCategories = categories.filter((c) => c.parentId === null);
-  const getSubcategories = (parentId: string) => categories.filter((c) => c.parentId === parentId);
+  const fetchCategories = async () => {
+    setLoading(true);
+    try {
+      const cats = await getCategories();
+      setCategories(cats);
+    } catch (err) {
+      console.error('Error fetching categories:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCategories();
+    window.addEventListener('storage', fetchCategories);
+    return () => window.removeEventListener('storage', fetchCategories);
+  }, []);
+
+  const parentCategories = categories.filter((c) => c.parent_id === null);
+  const getSubcategories = (parentId: string) => categories.filter((c) => c.parent_id === parentId);
 
   const handleAddCategory = () => {
-    setFormData({ name: '', image: '', parentId: '' });
+    setFormData({ name: '', image_url: '', parent_id: '' });
     setEditingId(null);
     setShowForm(true);
   };
 
   const handleEditCategory = (category: Category) => {
-    setFormData({ name: category.name, image: category.image, parentId: category.parentId || '' });
+    setFormData({ 
+      name: category.name, 
+      image_url: category.image_url || '', 
+      parent_id: category.parent_id || '' 
+    });
     setEditingId(category.id);
     setShowForm(true);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!formData.name.trim()) {
@@ -48,31 +57,42 @@ export const CategoryManagement: React.FC = () => {
       return;
     }
 
-    if (editingId) {
-      setCategories((prev) =>
-        prev.map((c) =>
-          c.id === editingId
-            ? { ...c, name: formData.name, image: formData.image, parentId: formData.parentId || null }
-            : c
-        )
-      );
-    } else {
-      const newCategory: Category = {
-        id: `cat-${Date.now()}`,
-        name: formData.name,
-        image: formData.image,
-        parentId: formData.parentId || null,
-      };
-      setCategories((prev) => [...prev, newCategory]);
+    try {
+      if (editingId) {
+        await updateCategory(editingId, {
+          name: formData.name,
+          image_url: formData.image_url,
+          parent_id: formData.parent_id || null,
+        });
+      } else {
+        await createCategory(
+          formData.name,
+          formData.image_url || 'https://images.unsplash.com/photo-1513201099705-a9746e1e201f?auto=format&fit=crop&q=80&w=800',
+          formData.parent_id || null,
+          `${formData.name} Collection`
+        );
+      }
+      await fetchCategories();
+      setShowForm(false);
+      setFormData({ name: '', image_url: '', parent_id: '' });
+    } catch (err) {
+      console.error('Error saving category:', err);
+      alert('Failed to save category.');
     }
-
-    setShowForm(false);
-    setFormData({ name: '', image: '', parentId: '' });
   };
 
-  const handleDelete = (id: string) => {
-    if (confirm('Delete this category? All products in this category will be unaffected.')) {
-      setCategories((prev) => prev.filter((c) => c.id !== id));
+  const handleDelete = async (id: string) => {
+    if (confirm('Are you sure you want to delete this category? All subcategories will also be deleted, but products will be unaffected.')) {
+      try {
+        const success = await deleteCategory(id);
+        if (success) {
+          await fetchCategories();
+        } else {
+          alert('Failed to delete category.');
+        }
+      } catch (err) {
+        console.error('Error deleting category:', err);
+      }
     }
   };
 
@@ -102,8 +122,8 @@ export const CategoryManagement: React.FC = () => {
             ← Back to Categories
           </button>
 
-          <h2 style={{ marginTop: 0, marginBottom: '20px', color: 'var(--text-main)' }}>
-            {editingId ? 'Edit Category' : 'Add New Category'}
+          <h2 style={{ marginTop: 0, marginBottom: '20px', color: 'var(--text-main)', fontFamily: 'var(--font-heading)' }}>
+            {editingId ? 'Edit Category Settings' : 'Add New Category'}
           </h2>
 
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -122,8 +142,8 @@ export const CategoryManagement: React.FC = () => {
             <div className="form-group">
               <label>Parent Category (leave empty for main category)</label>
               <select
-                value={formData.parentId}
-                onChange={(e) => setFormData((prev) => ({ ...prev, parentId: e.target.value }))}
+                value={formData.parent_id}
+                onChange={(e) => setFormData((prev) => ({ ...prev, parent_id: e.target.value }))}
                 className="form-input"
               >
                 <option value="">-- Main Category --</option>
@@ -136,12 +156,12 @@ export const CategoryManagement: React.FC = () => {
             </div>
 
             <div className="form-group">
-              <label>Category Image (Optional)</label>
+              <label>Category Image URL (Optional)</label>
               <input
                 type="text"
-                value={formData.image}
-                onChange={(e) => setFormData((prev) => ({ ...prev, image: e.target.value }))}
-                placeholder="Image URL or file path"
+                value={formData.image_url}
+                onChange={(e) => setFormData((prev) => ({ ...prev, image_url: e.target.value }))}
+                placeholder="Image URL"
                 className="form-input"
               />
             </div>
@@ -165,6 +185,15 @@ export const CategoryManagement: React.FC = () => {
           <div className="admin-table-header">
             <h2 className="admin-table-title">Product Categories</h2>
             <div className="admin-table-actions">
+              <button 
+                onClick={fetchCategories} 
+                className="btn-icon" 
+                title="Reload Categories"
+                disabled={loading}
+                style={{ marginRight: '8px', padding: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              >
+                <RefreshCw size={18} className={loading ? 'spin-anim' : ''} />
+              </button>
               <button
                 onClick={handleAddCategory}
                 className="btn btn-primary"
@@ -177,7 +206,11 @@ export const CategoryManagement: React.FC = () => {
           </div>
 
           <div style={{ padding: '20px' }}>
-            {parentCategories.map((parent) => {
+            {loading && categories.length === 0 ? (
+              <div style={{ textAlign: 'center', color: 'var(--text-muted)' }}>
+                Loading categories...
+              </div>
+            ) : parentCategories.map((parent) => {
               const subcats = getSubcategories(parent.id);
               const isExpanded = expandedParent === parent.id;
 
@@ -286,7 +319,7 @@ export const CategoryManagement: React.FC = () => {
                     >
                       <button
                         onClick={() => {
-                          setFormData({ name: '', image: '', parentId: parent.id });
+                          setFormData({ name: '', image_url: '', parent_id: parent.id });
                           setEditingId(null);
                           setShowForm(true);
                         }}
@@ -311,6 +344,16 @@ export const CategoryManagement: React.FC = () => {
           </div>
         </div>
       )}
+      
+      <style>{`
+        .spin-anim {
+          animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
     </AdminLayout>
   );
 };
