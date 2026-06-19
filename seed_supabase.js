@@ -32,7 +32,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
 const slugify = (text) => {
   return text
     .toLowerCase()
-    .replace(/[^\w ]+/g, '')
+    .replace(/[^\w -]+/g, '')
     .trim()
     .replace(/ +/g, '-');
 };

@@ -44,7 +44,7 @@ export interface Product {
 function slugify(text: string): string {
   return text
     .toLowerCase()
-    .replace(/[^\w ]+/g, '')
+    .replace(/[^\w -]+/g, '')
     .trim()
     .replace(/ +/g, '-');
 }
