@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
+import { useCart } from '../context/CartContext';
 import { getCustomerOrders, attachCardToOrder, createOrder, getProducts } from '../lib/database';
 import type { Order } from '../lib/database';
 import './Home.css';
@@ -40,6 +41,7 @@ interface Product {
 
 export const UserDashboard: React.FC = () => {
   const { user, points, tier, updatePoints } = useAuth();
+  const { addToCart, toggleWishlist: globalToggleWishlist, isInWishlist, wishlist: globalWishlist } = useCart();
   
   const formatName = (email?: string) => {
     if (!email) return 'Valued Guest';
@@ -70,8 +72,6 @@ export const UserDashboard: React.FC = () => {
   };
 
   const { next: nextTier, target: nextTierPoints } = getNextTierDetails(points);
-
-  const [wishlist, setWishlist] = useState<Record<string, boolean>>({});
 
   const [customerOrders, setCustomerOrders] = useState<Order[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
@@ -359,19 +359,18 @@ export const UserDashboard: React.FC = () => {
     { id: 3, text: 'You added Brass Urli with Diyas to your wishlist.', time: 'Yesterday', icon: Heart, color: 'var(--accent-color)' },
   ]);
 
-  const toggleWishlist = (productId: string) => {
-    setWishlist(prev => {
-      const newState = { ...prev, [productId]: !prev[productId] };
-      setStats(s => ({
-        ...s,
-        wishlistItems: s.wishlistItems + (newState[productId] ? 1 : -1)
-      }));
-      return newState;
+  const handleToggleWishlist = (product: Product) => {
+    globalToggleWishlist({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.image,
+      description: product.category || ''
     });
   };
 
   const ProductCard = ({ product, index }: { product: Product; index: number }) => {
-    const isWishlisted = !!wishlist[product.id];
+    const isWishlisted = isInWishlist(product.id);
     return (
       <motion.div
         initial={{ opacity: 0, y: 30 }}
@@ -383,7 +382,7 @@ export const UserDashboard: React.FC = () => {
         <div className="product-badge">{product.discount}</div>
         <button 
           className={`wishlist-toggle-btn ${isWishlisted ? 'active' : ''}`}
-          onClick={() => toggleWishlist(product.id)}
+          onClick={() => handleToggleWishlist(product)}
           title={isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist'}
         >
           <Heart size={18} fill={isWishlisted ? 'var(--accent-color)' : 'none'} />
@@ -391,7 +390,19 @@ export const UserDashboard: React.FC = () => {
         <div className="product-image-container">
           <img src={product.image} alt={product.name} className="product-image" />
           <div className="product-actions">
-            <button className="btn btn-primary" style={{ flex: 1, textTransform: 'uppercase', fontSize: '0.8rem', letterSpacing: '0.5px' }}>
+            <button 
+              className="btn btn-primary" 
+              style={{ flex: 1, textTransform: 'uppercase', fontSize: '0.8rem', letterSpacing: '0.5px' }}
+              onClick={() => {
+                addToCart({
+                  id: product.id,
+                  name: product.name,
+                  price: product.price,
+                  image: product.image
+                });
+                showNotification(`🛒 Added ${product.name} to cart!`);
+              }}
+            >
               Add to Cart
             </button>
           </div>
@@ -515,7 +526,7 @@ export const UserDashboard: React.FC = () => {
           </div>
           <div className="stat-content">
             <span className="stat-label">Total Orders</span>
-            <span className="stat-number">{stats.totalOrders}</span>
+            <span className="stat-number">{customerOrders.length}</span>
             <span className="stat-helper">All shipments active</span>
           </div>
         </motion.div>
@@ -529,7 +540,7 @@ export const UserDashboard: React.FC = () => {
           </div>
           <div className="stat-content">
             <span className="stat-label">Wishlisted Items</span>
-            <span className="stat-number">{stats.wishlistItems}</span>
+            <span className="stat-number">{globalWishlist.length}</span>
             <span className="stat-helper">Curated by you</span>
           </div>
         </motion.div>

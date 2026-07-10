@@ -18,6 +18,7 @@ interface Message {
   sender: 'bot' | 'user';
   text: string;
   type?: 'default' | 'tracking' | 'recs' | 'lead-form' | 'lead-success';
+  orderData?: any;
 }
 
 export const ChatWidget: React.FC = () => {
@@ -50,22 +51,28 @@ export const ChatWidget: React.FC = () => {
       setIsTyping(false);
       let replyText = '';
       let replyType: Message['type'] = 'default';
-
+      let matchingOrder: any = undefined;
+ 
       const lowerText = userText.toLowerCase();
-
+ 
       // Check if the query has an order ID match
-      const orderMatch = userText.toUpperCase().match(/SG-2026-\d+/);
+      const orderMatch = userText.toUpperCase().match(/(?:#)?(SG-(?:2026-)?\d+)/);
       const isTrackQuery = lowerText.includes('track') || lowerText.includes('status') || lowerText.includes('where is');
       
       if (orderMatch) {
-        const orderId = orderMatch[0];
+        let orderId = orderMatch[1];
+        if (orderId.startsWith('SG-') && !orderId.startsWith('SG-2026-')) {
+          orderId = 'SG-2026-' + orderId.substring(3);
+        }
         const allOrders = getMockOrders();
         const order = allOrders.find(o => o.id === orderId);
         if (order) {
+          matchingOrder = order;
           replyText = `I found your order **#${order.id}** containing *${order.items}*.\n\n` +
             `• **Current Status**: ${order.status.toUpperCase()}\n` +
             `• **Expected Delivery**: ${order.expectedDelivery}\n` +
             `• **Latest Update**: *${order.logs[order.logs.length - 1]?.description || 'Order placed.'}*`;
+          replyType = 'tracking';
         } else {
           replyText = `I searched for order **#${orderId}** but couldn't find it. Please double-check your order ID (e.g. SG-2026-081).`;
         }
@@ -81,11 +88,13 @@ export const ChatWidget: React.FC = () => {
               const userOrders = allOrders.filter(o => o.customerEmail === email);
               if (userOrders.length > 0) {
                 const active = userOrders.find(o => o.status !== 'delivered') || userOrders[0];
+                matchingOrder = active;
                 replyText = `I found your active order **#${active.id}** containing *${active.items}*:\n\n` +
                   `• **Current Status**: ${active.status.toUpperCase()}\n` +
                   `• **Expected Delivery**: ${active.expectedDelivery}\n` +
                   `• **Latest Update**: *${active.logs[active.logs.length - 1]?.description || 'Order placed.'}*\n\n` +
                   `You can type another order ID (e.g., SG-2026-081) if you want to track a different order!`;
+                replyType = 'tracking';
               } else {
                 replyText = "You don't have any active orders under your account right now. Build a bespoke hamper or browse our collections to place one!";
               }
@@ -119,7 +128,8 @@ export const ChatWidget: React.FC = () => {
           id: Date.now().toString(),
           sender: 'bot',
           text: replyText,
-          type: replyType
+          type: replyType,
+          orderData: matchingOrder
         }
       ]);
     }, 1000);
@@ -227,29 +237,21 @@ export const ChatWidget: React.FC = () => {
                     <div style={{ whiteSpace: 'pre-wrap' }}>{msg.text}</div>
                     
                     {/* Interactive Widget Types */}
-                    {msg.type === 'tracking' && (
+                    {msg.type === 'tracking' && msg.orderData && (
                       <div className="chat-tracking-card">
                         <div className="chat-tracking-title">
-                          <span>Delhivery Express #SG-89302</span>
-                          <span className="text-secondary">EST: TODAY</span>
+                          <span>Delhivery Express #{msg.orderData.id}</span>
+                          <span className="text-secondary">EST: {msg.orderData.expectedDelivery}</span>
                         </div>
                         <div className="chat-tracking-timeline">
-                          <div className="chat-timeline-step completed">
-                            Order Placed
-                            <span className="chat-timeline-time">May 30, 10:30 AM</span>
-                          </div>
-                          <div className="chat-timeline-step completed">
-                            Crated & Dispatched (Jaipur Hub)
-                            <span className="chat-timeline-time">May 31, 04:15 PM</span>
-                          </div>
-                          <div className="chat-timeline-step completed">
-                            Arrived in Delhi (Okhla Center)
-                            <span className="chat-timeline-time">June 01, 09:00 AM</span>
-                          </div>
-                          <div className="chat-timeline-step active">
-                            Out for Delivery (Courier: Amit)
-                            <span className="chat-timeline-time">June 01, 02:45 PM (Today)</span>
-                          </div>
+                          {msg.orderData.logs.map((log: any, idx: number) => (
+                            <div key={idx} className={`chat-timeline-step ${idx === msg.orderData.logs.length - 1 ? 'active' : 'completed'}`}>
+                              <strong>{log.status.toUpperCase()}</strong>: {log.description}
+                              <span className="chat-timeline-time">
+                                {new Date(log.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                              </span>
+                            </div>
+                          ))}
                         </div>
                       </div>
                     )}
@@ -296,11 +298,11 @@ export const ChatWidget: React.FC = () => {
               {!isTyping && messages[messages.length - 1]?.sender === 'bot' && messages[messages.length - 1]?.type !== 'lead-form' && (
                 <div className="chatbot-presets-wrapper">
                   <button 
-                    onClick={() => handlePresetClick('Track active order #SG-89302')}
+                    onClick={() => handlePresetClick('Track active order #SG-2026-081')}
                     className="chatbot-preset-btn"
                   >
                     <Truck size={14} className="text-secondary" />
-                    <span>Track active order #SG-89302</span>
+                    <span>Track active order #SG-2026-081</span>
                   </button>
                   <button 
                     onClick={() => handlePresetClick('How do I build a custom hamper?')}

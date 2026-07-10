@@ -409,7 +409,7 @@ export const AdminDashboard: React.FC = () => {
         <div className="admin-table-container shadow-glass">
           <div className="admin-table-header">
             <h2 className="admin-table-title">Recent Transactions</h2>
-            <Link to="/admin/products" className="btn btn-secondary" style={{ padding: '6px 12px', fontSize: '0.8rem' }}>
+            <Link to="/admin/orders" className="btn btn-secondary" style={{ padding: '6px 12px', fontSize: '0.8rem' }}>
               View All Orders
             </Link>
           </div>

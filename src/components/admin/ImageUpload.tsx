@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Upload, X, Star } from 'lucide-react';
 
 interface ImageFile {
@@ -11,12 +11,19 @@ interface ImageFile {
 interface ImageUploadProps {
   onImagesChange: (images: ImageFile[]) => void;
   maxFiles?: number;
+  initialImages?: ImageFile[];
 }
 
-export const ImageUpload: React.FC<ImageUploadProps> = ({ onImagesChange, maxFiles = 10 }) => {
+export const ImageUpload: React.FC<ImageUploadProps> = ({ onImagesChange, maxFiles = 10, initialImages }) => {
   const [images, setImages] = useState<ImageFile[]>([]);
   const [dragging, setDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (initialImages && initialImages.length > 0) {
+      setImages(initialImages);
+    }
+  }, [initialImages]);
 
   const validateFile = (file: File): boolean => {
     const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
@@ -200,20 +207,23 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({ onImagesChange, maxFil
                 )}
 
                 {/* Action Buttons */}
-                <div style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  backgroundColor: 'rgba(0, 0, 0, 0.6)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                  opacity: 0,
-                  transition: 'opacity var(--transition-fast)',
-                }}>
+                <div 
+                  className="image-upload-actions"
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    opacity: 0,
+                    transition: 'opacity var(--transition-fast)',
+                  }}
+                >
                   <button
                     title={image.isFeatured ? 'Already featured' : 'Set as featured'}
                     onClick={() => !image.isFeatured && toggleFeatured(image.id)}
@@ -256,13 +266,13 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({ onImagesChange, maxFil
                 }} onMouseEnter={(e) => {
                   const parent = (e.target as HTMLElement).parentElement;
                   if (parent) {
-                    const buttons = parent.querySelector('div:nth-child(3)') as HTMLElement;
+                    const buttons = parent.querySelector('.image-upload-actions') as HTMLElement;
                     if (buttons) buttons.style.opacity = '1';
                   }
                 }} onMouseLeave={(e) => {
                   const parent = (e.target as HTMLElement).parentElement;
                   if (parent) {
-                    const buttons = parent.querySelector('div:nth-child(3)') as HTMLElement;
+                    const buttons = parent.querySelector('.image-upload-actions') as HTMLElement;
                     if (buttons) buttons.style.opacity = '0';
                   }
                 }} />

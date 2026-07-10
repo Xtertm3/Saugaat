@@ -14,11 +14,12 @@ import {
   RefreshCw
 } from 'lucide-react';
 import { getParentCategories, getTrendingProducts, type Category, type Product } from '../lib/database';
+import { useCart } from '../context/CartContext';
 import './Home.css';
 
 export const Home: React.FC = () => {
   const { user } = useAuth();
-  const [wishlist, setWishlist] = useState<Record<string, boolean>>({});
+  const { toggleWishlist, isInWishlist } = useCart();
   const [categories, setCategories] = useState<Category[]>([]);
   const [trendingProducts, setTrendingProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
@@ -51,8 +52,17 @@ export const Home: React.FC = () => {
     return <UserDashboard />;
   }
 
-  const toggleWishlist = (productId: string) => {
-    setWishlist(prev => ({ ...prev, [productId]: !prev[productId] }));
+  const handleToggleWishlist = (product: Product) => {
+    const featuredImg = product.product_images && product.product_images.length > 0
+      ? product.product_images.find(img => img.is_featured)?.image_url || product.product_images[0].image_url
+      : 'https://images.unsplash.com/photo-1513201099705-a9746e1e201f?auto=format&fit=crop&q=80&w=800';
+    toggleWishlist({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: featuredImg,
+      description: product.description || ''
+    });
   };
 
   return (
@@ -205,7 +215,7 @@ export const Home: React.FC = () => {
           ) : (
             <div className="product-grid">
               {trendingProducts.map((product, index) => {
-                const isWishlisted = !!wishlist[product.id];
+                const isWishlisted = isInWishlist(product.id);
                 const featuredImg = product.product_images && product.product_images.length > 0
                   ? product.product_images.find(img => img.is_featured)?.image_url || product.product_images[0].image_url
                   : 'https://images.unsplash.com/photo-1513201099705-a9746e1e201f?auto=format&fit=crop&q=80&w=800';
@@ -226,7 +236,7 @@ export const Home: React.FC = () => {
                     )}
                     <button 
                       className={`wishlist-toggle-btn ${isWishlisted ? 'active' : ''}`}
-                      onClick={() => toggleWishlist(product.id)}
+                      onClick={() => handleToggleWishlist(product)}
                       title={isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist'}
                     >
                       <Heart size={18} fill={isWishlisted ? 'var(--accent-color)' : 'none'} />

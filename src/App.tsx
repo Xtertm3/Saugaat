@@ -21,6 +21,7 @@ import { MyOrders } from './pages/MyOrders';
 import { CartPage } from './pages/CartPage';
 import { WishlistPage } from './pages/WishlistPage';
 import { CheckoutPage } from './pages/CheckoutPage';
+import { OrdersManagement } from './pages/admin/OrdersManagement';
 
 function App() {
   return (
@@ -66,6 +67,11 @@ function App() {
           <Route path="/admin/categories" element={
             <ProtectedAdminRoute>
               <CategoryManagement />
+            </ProtectedAdminRoute>
+          } />
+          <Route path="/admin/orders" element={
+            <ProtectedAdminRoute>
+              <OrdersManagement />
             </ProtectedAdminRoute>
           } />
         </Routes>

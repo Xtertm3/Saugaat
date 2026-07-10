@@ -520,7 +520,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           Product Images *
         </h3>
         {/* Pass our custom callback to sync uploaded images to parent state */}
-        <ImageUpload onImagesChange={setImages} maxFiles={10} />
+        <ImageUpload onImagesChange={setImages} maxFiles={10} initialImages={images} />
         {images.length > 0 && (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '12px' }}>
             {images.map((img) => (

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { BarChart3, Package, FolderOpen, LogOut, Menu, X, Award, ChevronLeft, ChevronRight } from 'lucide-react';
+import { BarChart3, Package, FolderOpen, ShoppingBag, LogOut, Menu, X, Award, ChevronLeft, ChevronRight } from 'lucide-react';
 import '../Admin.css';
 
 interface AdminLayoutProps {
@@ -57,6 +57,15 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => 
           >
             <BarChart3 size={20} />
             {!collapsed && <span>Dashboard</span>}
+          </Link>
+          <Link
+            to="/admin/orders"
+            className={`admin-nav-item ${isActive('/admin/orders') ? 'active' : ''}`}
+            onClick={() => setSidebarOpen(false)}
+            title="Orders"
+          >
+            <ShoppingBag size={20} />
+            {!collapsed && <span>Orders</span>}
           </Link>
           <Link
             to="/admin/products"
