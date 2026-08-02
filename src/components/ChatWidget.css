@@ -13,7 +13,7 @@
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--primary-color) 0%, #15324e 100%);
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
   color: var(--secondary-color);
   display: flex;
   align-items: center;
@@ -97,7 +97,7 @@
 
 /* Header styling */
 .chatbot-header {
-  background: linear-gradient(135deg, var(--primary-color) 0%, #1a3c5a 100%);
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
   padding: 16px 20px;
   display: flex;
   justify-content: space-between;
@@ -209,7 +209,7 @@
 
 .chat-message.user {
   align-self: flex-end;
-  background: linear-gradient(135deg, var(--primary-color) 0%, #1e456b 100%);
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
   color: white;
   border-bottom-right-radius: 4px;
 }

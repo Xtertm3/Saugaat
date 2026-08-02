@@ -12,7 +12,7 @@ import { Login } from './pages/Login';
 import ScrollToTop from './components/ScrollToTop';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
-import { ProtectedAdminRoute } from './components/ProtectedRoute';
+import { ProtectedAdminRoute, ProtectedUserRoute } from './components/ProtectedRoute';
 import { AdminSignup } from './pages/admin/AdminSignup';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
 import { ProductManagement } from './pages/admin/ProductManagement';
@@ -22,6 +22,7 @@ import { CartPage } from './pages/CartPage';
 import { WishlistPage } from './pages/WishlistPage';
 import { CheckoutPage } from './pages/CheckoutPage';
 import { OrdersManagement } from './pages/admin/OrdersManagement';
+import { UserDashboard } from './pages/UserDashboard';
 
 function App() {
   return (
@@ -41,6 +42,11 @@ function App() {
               <Route path="returns" element={<ReturnPolicy />} />
               <Route path="login" element={<Login />} />
               <Route path="my-orders" element={<MyOrders />} />
+              <Route path="dashboard" element={
+                <ProtectedUserRoute>
+                  <UserDashboard />
+                </ProtectedUserRoute>
+              } />
               <Route path="cart" element={<CartPage />} />
               <Route path="wishlist" element={<WishlistPage />} />
               <Route path="checkout" element={<CheckoutPage />} />

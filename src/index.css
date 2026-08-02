@@ -2,24 +2,27 @@
 
 :root {
   /* Colors */
-  --primary-color: #1F4D3A; /* Deep Emerald Green */
-  --secondary-color: #C8A96B; /* Antique Gold */
-  --accent-color: #C96A4A; /* Terracotta */
-  --bg-main: #F3E9DC; /* Warm Ivory Beige */
+  --primary-color: #D9146D; /* Royal Fuchsia Pink */
+  --primary-dark: #9C0E4E;  /* Deep Fuchsia */
+  --primary-light: #F06292; /* Soft Fuchsia Pink */
+  --secondary-color: #D4AF37; /* Luxe Antique Gold */
+  --secondary-dark: #B89020;  /* Rich Dark Gold */
+  --accent-color: #E5C158; /* Sparkling Gold Accent */
+  --bg-main: #FFF7FA; /* Light Soft Rose/White Background */
   --bg-card: #ffffff;
-  --text-main: #2a2a2a;
-  --text-muted: #666666;
-  --border-color: #eaeaea;
+  --text-main: #1F191D; /* Deep Charcoal for crisp contrast */
+  --text-muted: #6D646A; /* Soft Muted Mauve Text */
+  --border-color: #F3E2EA; /* Soft Pinkish Gold Tint Border */
 
   /* Typography */
   --font-heading: 'Playfair Display', serif;
   --font-body: 'Outfit', sans-serif;
 
   /* Shadows */
-  --shadow-sm: 0 2px 8px rgba(0,0,0,0.05);
-  --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
-  --shadow-lg: 0 12px 24px rgba(0,0,0,0.12);
-  --shadow-glass: 0 8px 32px 0 rgba(31, 77, 58, 0.1);
+  --shadow-sm: 0 2px 8px rgba(217, 20, 109, 0.05);
+  --shadow-md: 0 4px 14px rgba(217, 20, 109, 0.1);
+  --shadow-lg: 0 12px 28px rgba(217, 20, 109, 0.15);
+  --shadow-glass: 0 8px 32px 0 rgba(217, 20, 109, 0.12);
   /* Utilities */
   --radius-sm: 4px;
   --radius-md: 8px;

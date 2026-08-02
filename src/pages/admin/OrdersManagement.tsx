@@ -427,7 +427,7 @@ export const OrdersManagement: React.FC = () => {
                   </span>
                   <p 
                     style={{ 
-                      color: selectedOrder.card.ink === 'gold' ? '#C8A96B' : selectedOrder.card.ink === 'crimson' ? '#C96A4A' : '#1F4D3A',
+                      color: selectedOrder.card.ink === 'gold' ? '#D4AF37' : selectedOrder.card.ink === 'crimson' ? '#C96A4A' : '#D9146D',
                       fontFamily: selectedOrder.card.font === 'royal' ? 'Georgia, serif' : selectedOrder.card.font === 'vedic' ? '"Playfair Display", serif' : '"Outfit", sans-serif',
                       fontStyle: selectedOrder.card.font === 'royal' ? 'italic' : 'normal',
                       fontWeight: selectedOrder.card.font === 'minimal' ? 'normal' : 'bold',

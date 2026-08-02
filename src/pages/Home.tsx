@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
-import { UserDashboard } from './UserDashboard';
 import { 
   ArrowRight, 
   Sparkles, 
@@ -11,23 +10,29 @@ import {
   Heart,
   Gift,
   Star,
-  RefreshCw
+  RefreshCw,
+  LayoutDashboard,
+  Box,
+  CheckCircle2
 } from 'lucide-react';
 import { getParentCategories, getTrendingProducts, type Category, type Product } from '../lib/database';
 import { useCart } from '../context/CartContext';
 import './Home.css';
 
 export const Home: React.FC = () => {
-  const { user } = useAuth();
-  const { toggleWishlist, isInWishlist } = useCart();
+  const { user, points } = useAuth();
+  const { toggleWishlist, isInWishlist, addToCart } = useCart();
   const [categories, setCategories] = useState<Category[]>([]);
   const [trendingProducts, setTrendingProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  // Custom Hamper Builder Preview state
+  const [hamperStep, setHamperStep] = useState<1 | 2 | 3>(1);
+  const [selectedBoxStyle, setSelectedBoxStyle] = useState<'velvet' | 'wooden' | 'gold'>('velvet');
+  const [hamperItemsCount, setHamperItemsCount] = useState<number>(3);
 
   useEffect(() => {
-    // If user is logged in, they see UserDashboard, so we don't need to load home page data
-    if (user) return;
-
     const loadHomeData = async () => {
       setLoading(true);
       try {
@@ -45,12 +50,7 @@ export const Home: React.FC = () => {
     };
 
     loadHomeData();
-  }, [user]);
-
-  // If user is logged in, show the dashboard
-  if (user) {
-    return <UserDashboard />;
-  }
+  }, []);
 
   const handleToggleWishlist = (product: Product) => {
     const featuredImg = product.product_images && product.product_images.length > 0
@@ -65,8 +65,43 @@ export const Home: React.FC = () => {
     });
   };
 
+  const handleQuickAddHamper = () => {
+    addToCart({
+      id: `custom-hamper-${Date.now()}`,
+      name: `Custom ${selectedBoxStyle.toUpperCase()} Luxury Gift Hamper Box (${hamperItemsCount} items)`,
+      price: selectedBoxStyle === 'wooden' ? 2499 : selectedBoxStyle === 'gold' ? 3499 : 1999,
+      image: selectedBoxStyle === 'wooden' 
+        ? 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&q=80&w=800'
+        : 'https://images.unsplash.com/photo-1513201099705-a9746e1e201f?auto=format&fit=crop&q=80&w=800'
+    });
+    navigate('/cart');
+  };
+
   return (
     <div className="home-page-wrapper">
+      {/* Logged in User Dashboard Banner */}
+      {user && (
+        <div style={{
+          backgroundColor: 'var(--primary-color)',
+          color: 'white',
+          padding: '12px 20px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '10px',
+          boxShadow: 'inset 0 -2px 5px rgba(0,0,0,0.1)'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem' }}>
+            <Sparkles size={16} style={{ color: 'var(--secondary-color)' }} />
+            <span>Welcome back, <strong>{user.email?.split('@')[0]}</strong>! You have <strong>{points} Rewards Points</strong>.</span>
+          </div>
+          <Link to="/dashboard" className="btn btn-accent" style={{ padding: '6px 16px', fontSize: '0.8rem' }}>
+            <LayoutDashboard size={14} style={{ marginRight: '6px' }} /> Go to My Dashboard
+          </Link>
+        </div>
+      )}
+
       {/* Luxury Hero Section */}
       <section className="luxury-hero">
         <div className="hero-texture-overlay"></div>
@@ -136,6 +171,156 @@ export const Home: React.FC = () => {
               ))}
             </div>
           )}
+        </div>
+      </section>
+
+      {/* Interactive Custom Hamper Box Builder Showcase */}
+      <section className="section-padding" style={{ backgroundColor: 'rgba(31, 77, 58, 0.03)', borderTop: '1px solid rgba(200, 169, 107, 0.2)', borderBottom: '1px solid rgba(200, 169, 107, 0.2)' }}>
+        <div className="container">
+          <div className="text-center mb-10">
+            <span className="section-subtitle"><Box size={14} style={{ display: 'inline', marginRight: '4px' }} /> Signature Interactive Experience</span>
+            <h2 className="luxury-section-title">Build Your Custom Gift Box</h2>
+            <p className="text-muted" style={{ marginTop: '8px', maxWidth: '600px', margin: '8px auto 0 auto' }}>
+              Curate a bespoke gift box with hand-picked items, custom velvet linings, and personalized calligraphy cards.
+            </p>
+            <div className="title-underline" style={{ margin: '12px auto 30px auto' }}></div>
+          </div>
+
+          <div className="glass shadow-lg" style={{ borderRadius: 'var(--radius-lg)', padding: '30px', maxWidth: '900px', margin: '0 auto', border: '1px solid rgba(200, 169, 107, 0.3)' }}>
+            {/* Steps indicator */}
+            <div style={{ display: 'flex', justifyContent: 'space-around', marginBottom: '30px', borderBottom: '1px solid rgba(0,0,0,0.06)', paddingBottom: '20px' }}>
+              <div 
+                onClick={() => setHamperStep(1)} 
+                style={{ cursor: 'pointer', textAlign: 'center', opacity: hamperStep === 1 ? 1 : 0.6, fontWeight: hamperStep === 1 ? 700 : 500, color: hamperStep === 1 ? 'var(--primary-color)' : 'var(--text-muted)' }}
+              >
+                <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: hamperStep === 1 ? 'var(--primary-color)' : '#eee', color: hamperStep === 1 ? 'white' : '#666', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 6px auto' }}>1</div>
+                1. Box Style
+              </div>
+              <div 
+                onClick={() => setHamperStep(2)} 
+                style={{ cursor: 'pointer', textAlign: 'center', opacity: hamperStep === 2 ? 1 : 0.6, fontWeight: hamperStep === 2 ? 700 : 500, color: hamperStep === 2 ? 'var(--primary-color)' : 'var(--text-muted)' }}
+              >
+                <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: hamperStep === 2 ? 'var(--primary-color)' : '#eee', color: hamperStep === 2 ? 'white' : '#666', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 6px auto' }}>2</div>
+                2. Items Selection
+              </div>
+              <div 
+                onClick={() => setHamperStep(3)} 
+                style={{ cursor: 'pointer', textAlign: 'center', opacity: hamperStep === 3 ? 1 : 0.6, fontWeight: hamperStep === 3 ? 700 : 500, color: hamperStep === 3 ? 'var(--primary-color)' : 'var(--text-muted)' }}
+              >
+                <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: hamperStep === 3 ? 'var(--primary-color)' : '#eee', color: hamperStep === 3 ? 'white' : '#666', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 6px auto' }}>3</div>
+                3. Final Review
+              </div>
+            </div>
+
+            {/* Step 1: Box Style */}
+            {hamperStep === 1 && (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px' }}>
+                <div 
+                  onClick={() => setSelectedBoxStyle('velvet')}
+                  style={{
+                    border: selectedBoxStyle === 'velvet' ? '2px solid var(--secondary-color)' : '1px solid var(--border-color)',
+                    borderRadius: 'var(--radius-md)',
+                    padding: '20px',
+                    textAlign: 'center',
+                    cursor: 'pointer',
+                    backgroundColor: selectedBoxStyle === 'velvet' ? 'rgba(200, 169, 107, 0.08)' : 'white'
+                  }}
+                >
+                  <div style={{ fontSize: '1.2rem', fontWeight: 600, color: 'var(--primary-color)', marginBottom: '8px' }}>Royal Velvet Casket</div>
+                  <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '12px' }}>Deep emerald plush padding with gold accent clasp</div>
+                  <div style={{ fontWeight: 'bold', color: 'var(--secondary-color)' }}>₹1,999 Base</div>
+                </div>
+
+                <div 
+                  onClick={() => setSelectedBoxStyle('wooden')}
+                  style={{
+                    border: selectedBoxStyle === 'wooden' ? '2px solid var(--secondary-color)' : '1px solid var(--border-color)',
+                    borderRadius: 'var(--radius-md)',
+                    padding: '20px',
+                    textAlign: 'center',
+                    cursor: 'pointer',
+                    backgroundColor: selectedBoxStyle === 'wooden' ? 'rgba(200, 169, 107, 0.08)' : 'white'
+                  }}
+                >
+                  <div style={{ fontSize: '1.2rem', fontWeight: 600, color: 'var(--primary-color)', marginBottom: '8px' }}>Hand-Carved Teak Chest</div>
+                  <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '12px' }}>Solid wooden brass inlaid keepsake box</div>
+                  <div style={{ fontWeight: 'bold', color: 'var(--secondary-color)' }}>₹2,499 Base</div>
+                </div>
+
+                <div 
+                  onClick={() => setSelectedBoxStyle('gold')}
+                  style={{
+                    border: selectedBoxStyle === 'gold' ? '2px solid var(--secondary-color)' : '1px solid var(--border-color)',
+                    borderRadius: 'var(--radius-md)',
+                    padding: '20px',
+                    textAlign: 'center',
+                    cursor: 'pointer',
+                    backgroundColor: selectedBoxStyle === 'gold' ? 'rgba(200, 169, 107, 0.08)' : 'white'
+                  }}
+                >
+                  <div style={{ fontSize: '1.2rem', fontWeight: 600, color: 'var(--primary-color)', marginBottom: '8px' }}>Gold-Gilded Trunk</div>
+                  <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '12px' }}>Festive hamper box with silk ribbon ties</div>
+                  <div style={{ fontWeight: 'bold', color: 'var(--secondary-color)' }}>₹3,499 Base</div>
+                </div>
+              </div>
+            )}
+
+            {/* Step 2: Items count */}
+            {hamperStep === 2 && (
+              <div style={{ textAlign: 'center', padding: '20px 0' }}>
+                <h3 style={{ fontSize: '1.2rem', color: 'var(--primary-color)', marginBottom: '16px' }}>Select Number of Curation Items</h3>
+                <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginBottom: '30px' }}>
+                  {[3, 4, 5].map(cnt => (
+                    <button
+                      key={cnt}
+                      onClick={() => setHamperItemsCount(cnt)}
+                      style={{
+                        padding: '12px 24px',
+                        borderRadius: 'var(--radius-md)',
+                        border: hamperItemsCount === cnt ? '2px solid var(--primary-color)' : '1px solid var(--border-color)',
+                        backgroundColor: hamperItemsCount === cnt ? 'var(--primary-color)' : 'white',
+                        color: hamperItemsCount === cnt ? 'white' : 'var(--primary-color)',
+                        fontWeight: 600,
+                        fontSize: '1rem',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      {cnt} Items Pack
+                    </button>
+                  ))}
+                </div>
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Includes brass diya, scented soy wax candle, organic dry fruits, and handpainted coasters.</p>
+              </div>
+            )}
+
+            {/* Step 3: Final Review & CTA */}
+            {hamperStep === 3 && (
+              <div style={{ textAlign: 'center', padding: '10px 0' }}>
+                <CheckCircle2 size={40} style={{ color: 'var(--secondary-color)', margin: '0 auto 12px auto' }} />
+                <h3 style={{ fontSize: '1.4rem', color: 'var(--primary-color)' }}>Your Customized Gift Hamper</h3>
+                <p style={{ color: 'var(--text-muted)', margin: '8px 0 20px 0' }}>
+                  Style: <strong style={{ textTransform: 'capitalize' }}>{selectedBoxStyle} Box</strong> | Items: <strong>{hamperItemsCount} Premium Items</strong>
+                </p>
+                <div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--primary-color)', marginBottom: '20px' }}>
+                  Total: ₹{selectedBoxStyle === 'wooden' ? 2499 : selectedBoxStyle === 'gold' ? 3499 : 1999}
+                </div>
+              </div>
+            )}
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '30px', paddingTop: '20px', borderTop: '1px solid rgba(0,0,0,0.06)' }}>
+              {hamperStep > 1 ? (
+                <button onClick={() => setHamperStep((hamperStep - 1) as any)} className="btn btn-secondary">Previous Step</button>
+              ) : <div></div>}
+
+              {hamperStep < 3 ? (
+                <button onClick={() => setHamperStep((hamperStep + 1) as any)} className="btn btn-primary">Next Step <ArrowRight size={16} style={{ marginLeft: '6px' }} /></button>
+              ) : (
+                <button onClick={handleQuickAddHamper} className="btn btn-primary" style={{ backgroundColor: 'var(--secondary-color)' }}>
+                  Add Custom Hamper to Cart <Gift size={16} style={{ marginLeft: '6px' }} />
+                </button>
+              )}
+            </div>
+          </div>
         </div>
       </section>
 

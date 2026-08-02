@@ -12,7 +12,10 @@ import {
   ShoppingBag,
   MapPin,
   FileText,
-  PenTool
+  PenTool,
+  Printer,
+  X,
+  Sparkles
 } from 'lucide-react';
 import './Home.css';
 
@@ -21,6 +24,7 @@ export const MyOrders: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showInvoiceModal, setShowInvoiceModal] = useState(false);
 
   const fetchOrders = async () => {
     if (user?.email) {
@@ -56,11 +60,15 @@ export const MyOrders: React.FC = () => {
     }
   };
 
+  const handlePrintInvoice = () => {
+    window.print();
+  };
+
   return (
     <div className="my-orders-wrapper bg-light-sand" style={{ minHeight: '80vh', padding: '40px 0' }}>
       <div className="container">
         {/* Back Link */}
-        <Link to="/" className="link-arrow" style={{ display: 'inline-flex', alignItems: 'center', marginBottom: '24px', gap: '6px', textDecoration: 'none' }}>
+        <Link to="/dashboard" className="link-arrow" style={{ display: 'inline-flex', alignItems: 'center', marginBottom: '24px', gap: '6px', textDecoration: 'none' }}>
           <ArrowLeft size={16} /> Back to Dashboard
         </Link>
 
@@ -115,6 +123,23 @@ export const MyOrders: React.FC = () => {
               .order-sidebar-card.active-card {
                 background-color: rgba(205, 168, 115, 0.08) !important;
                 border-color: var(--secondary-color) !important;
+              }
+              @media print {
+                body * {
+                  visibility: hidden;
+                }
+                .printable-invoice-area, .printable-invoice-area * {
+                  visibility: visible;
+                }
+                .printable-invoice-area {
+                  position: absolute;
+                  left: 0;
+                  top: 0;
+                  width: 100%;
+                }
+                .no-print {
+                  display: none !important;
+                }
               }
             `}</style>
 
@@ -176,11 +201,20 @@ export const MyOrders: React.FC = () => {
                           Placed on {new Date(selectedOrder.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
                         </p>
                       </div>
-                      <div style={{ textAlign: 'right' }}>
-                        <span className="delivery-est" style={{ display: 'block', fontWeight: 600, fontSize: '0.9rem' }}>Est. Delivery: {selectedOrder.expectedDelivery}</span>
-                        <span className={`status-pill ${selectedOrder.status}`} style={{ display: 'inline-block', marginTop: '6px' }}>
-                          {getStatusLabel(selectedOrder.status)}
-                        </span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <button 
+                          onClick={() => setShowInvoiceModal(true)}
+                          className="btn btn-secondary" 
+                          style={{ padding: '8px 16px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '6px' }}
+                        >
+                          <Printer size={14} /> Tax Invoice
+                        </button>
+                        <div style={{ textAlign: 'right' }}>
+                          <span className="delivery-est" style={{ display: 'block', fontWeight: 600, fontSize: '0.85rem' }}>Est. Delivery: {selectedOrder.expectedDelivery}</span>
+                          <span className={`status-pill ${selectedOrder.status}`} style={{ display: 'inline-block', marginTop: '4px' }}>
+                            {getStatusLabel(selectedOrder.status)}
+                          </span>
+                        </div>
                       </div>
                     </div>
 
@@ -297,8 +331,8 @@ export const MyOrders: React.FC = () => {
                           <div>
                             <span className="text-muted" style={{ fontSize: '0.78rem', textTransform: 'uppercase', display: 'block', letterSpacing: '0.5px' }}>Delivery Address</span>
                             <span style={{ fontSize: '0.88rem', color: 'var(--text-main)' }}>
-                              John Doe<br />
-                              123 Main St, Mumbai, Maharashtra - 400001
+                              {user?.email ? user.email.split('@')[0].toUpperCase() : 'Valued Customer'}<br />
+                              123 Heritage Lane, Bandra West, Mumbai, MH - 400050
                             </span>
                           </div>
                         </div>
@@ -341,7 +375,6 @@ export const MyOrders: React.FC = () => {
                           position: 'relative',
                           overflow: 'hidden'
                         }}>
-                          {/* Filigree border */}
                           <div style={{
                             position: 'absolute',
                             inset: '10px',
@@ -363,7 +396,7 @@ export const MyOrders: React.FC = () => {
 
                           <div 
                             style={{
-                              color: selectedOrder.card.ink === 'gold' ? '#C8A96B' : selectedOrder.card.ink === 'crimson' ? '#C96A4A' : '#1F4D3A',
+                              color: selectedOrder.card.ink === 'gold' ? '#D4AF37' : selectedOrder.card.ink === 'crimson' ? '#C96A4A' : '#D9146D',
                               fontFamily: selectedOrder.card.font === 'royal' ? 'Georgia, serif' : selectedOrder.card.font === 'vedic' ? '"Playfair Display", serif' : '"Outfit", sans-serif',
                               fontStyle: selectedOrder.card.font === 'royal' ? 'italic' : 'normal',
                               fontSize: '1.2rem',
@@ -380,7 +413,6 @@ export const MyOrders: React.FC = () => {
                             "{selectedOrder.card.message}"
                           </div>
 
-                          {/* Wax Seal Mock */}
                           <div style={{
                             width: '45px',
                             height: '45px',
@@ -420,6 +452,131 @@ export const MyOrders: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Tax Invoice Modal */}
+      {showInvoiceModal && selectedOrder && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          backgroundColor: 'rgba(0,0,0,0.65)',
+          backdropFilter: 'blur(6px)',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 2000,
+          padding: '20px'
+        }}>
+          <div className="printable-invoice-area" style={{
+            backgroundColor: '#ffffff',
+            borderRadius: 'var(--radius-md)',
+            width: '100%',
+            maxWidth: '750px',
+            maxHeight: '90vh',
+            overflowY: 'auto',
+            padding: '40px',
+            position: 'relative',
+            boxShadow: '0 20px 50px rgba(0,0,0,0.3)',
+            color: '#1a1a1a'
+          }}>
+            {/* Modal Controls */}
+            <div className="no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', borderBottom: '1px solid #eee', paddingBottom: '16px' }}>
+              <h3 style={{ margin: 0, fontSize: '1.2rem', color: 'var(--primary-color)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Sparkles size={18} style={{ color: 'var(--secondary-color)' }} /> Official Tax Invoice
+              </h3>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button onClick={handlePrintInvoice} className="btn btn-primary" style={{ padding: '8px 16px', fontSize: '0.85rem' }}>
+                  <Printer size={14} style={{ marginRight: '6px' }} /> Print / Save PDF
+                </button>
+                <button onClick={() => setShowInvoiceModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}>
+                  <X size={24} />
+                </button>
+              </div>
+            </div>
+
+            {/* Printable Document Sheet */}
+            <div style={{ border: '2px solid #D9146D', padding: '30px', backgroundColor: '#fff7fa' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '2px solid #D4AF37', paddingBottom: '20px', marginBottom: '25px' }}>
+                <div>
+                  <h1 style={{ fontFamily: 'Georgia, serif', color: '#D9146D', fontSize: '1.8rem', margin: 0 }}>SAUGAAT</h1>
+                  <p style={{ fontSize: '0.8rem', color: '#666', margin: '4px 0 0 0' }}>Luxury Gifting Studio Pvt Ltd</p>
+                  <p style={{ fontSize: '0.75rem', color: '#888', margin: '2px 0 0 0' }}>GSTIN: 27SAUGAAT8899F1Z9 | PAN: AAACS9988K</p>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <h2 style={{ fontSize: '1.2rem', color: '#D4AF37', margin: 0, textTransform: 'uppercase', letterSpacing: '1px' }}>TAX INVOICE</h2>
+                  <p style={{ fontSize: '0.85rem', fontWeight: 'bold', margin: '6px 0 0 0' }}>#{selectedOrder.id}</p>
+                  <p style={{ fontSize: '0.8rem', color: '#666', margin: '2px 0 0 0' }}>Date: {new Date(selectedOrder.created_at).toLocaleDateString()}</p>
+                </div>
+              </div>
+
+              {/* Billed To & Shipped To */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '25px', fontSize: '0.85rem' }}>
+                <div>
+                  <strong style={{ color: '#D9146D', textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '1px' }}>Billed & Shipped To:</strong>
+                  <p style={{ margin: '6px 0 0 0', fontWeight: 600 }}>{user?.email ? user.email.split('@')[0].toUpperCase() : 'Valued Customer'}</p>
+                  <p style={{ margin: '2px 0 0 0', color: '#555' }}>Email: {user?.email || 'customer@saugaat.com'}</p>
+                  <p style={{ margin: '2px 0 0 0', color: '#555' }}>123 Heritage Lane, Bandra West</p>
+                  <p style={{ margin: '2px 0 0 0', color: '#555' }}>Mumbai, Maharashtra - 400050</p>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <strong style={{ color: '#D9146D', textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '1px' }}>Payment Info:</strong>
+                  <p style={{ margin: '6px 0 0 0', fontWeight: 600 }}>Status: PAID (Online)</p>
+                  <p style={{ margin: '2px 0 0 0', color: '#555' }}>Method: Razorpay Express UPI / Card</p>
+                  <p style={{ margin: '2px 0 0 0', color: '#555' }}>Delivery Method: Express Wooden Crate</p>
+                </div>
+              </div>
+
+              {/* Items Table */}
+              <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '25px', fontSize: '0.85rem' }}>
+                <thead>
+                  <tr style={{ backgroundColor: '#D9146D', color: 'white', textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '1px' }}>
+                    <th style={{ padding: '10px', textAlign: 'left' }}>Item Description</th>
+                    <th style={{ padding: '10px', textAlign: 'center' }}>Qty</th>
+                    <th style={{ padding: '10px', textAlign: 'right' }}>Rate</th>
+                    <th style={{ padding: '10px', textAlign: 'right' }}>GST (18%)</th>
+                    <th style={{ padding: '10px', textAlign: 'right' }}>Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr style={{ borderBottom: '1px solid #eee' }}>
+                    <td style={{ padding: '12px 10px', fontWeight: 600 }}>{selectedOrder.items}</td>
+                    <td style={{ padding: '12px 10px', textAlign: 'center' }}>1</td>
+                    <td style={{ padding: '12px 10px', textAlign: 'right' }}>₹{Math.round(selectedOrder.total * 0.847)}</td>
+                    <td style={{ padding: '12px 10px', textAlign: 'right' }}>₹{Math.round(selectedOrder.total * 0.153)}</td>
+                    <td style={{ padding: '12px 10px', textAlign: 'right', fontWeight: 'bold' }}>₹{selectedOrder.total}</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              {/* Total Calculation */}
+              <div style={{ display: 'flex', justifyContent: 'flex-end', borderTop: '2px solid #D4AF37', paddingTop: '15px' }}>
+                <div style={{ width: '240px', fontSize: '0.85rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                    <span>Taxable Value:</span>
+                    <span>₹{Math.round(selectedOrder.total * 0.847)}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                    <span>IGST (18%):</span>
+                    <span>₹{Math.round(selectedOrder.total * 0.153)}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                    <span>Shipping Charges:</span>
+                    <span style={{ color: '#D9146D', fontWeight: 600 }}>FREE</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.1rem', fontWeight: 'bold', color: '#D9146D', borderTop: '1px solid #ccc', paddingTop: '8px', marginTop: '6px' }}>
+                    <span>Grand Total:</span>
+                    <span>₹{selectedOrder.total}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Footer Stamp */}
+              <div style={{ marginTop: '30px', textAlign: 'center', borderTop: '1px dashed #ccc', paddingTop: '16px', fontSize: '0.75rem', color: '#777' }}>
+                Thank you for choosing Saugaat Luxury Gifting Studio. This is a computer-generated tax invoice.
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

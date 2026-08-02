@@ -871,7 +871,7 @@ export interface OrderTrackingLog {
 export interface CalligraphyCard {
   message: string;
   font: 'vedic' | 'royal' | 'minimal';
-  ink: 'gold' | 'crimson' | 'navy';
+  ink: 'gold' | 'crimson' | 'navy' | 'fuchsia';
 }
 
 export interface Order {

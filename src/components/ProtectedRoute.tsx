@@ -15,3 +15,15 @@ export const ProtectedAdminRoute: React.FC<ProtectedRouteProps> = ({ children })
 
   return <>{children}</>;
 };
+
+export const ProtectedUserRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
+  const storedUser = localStorage.getItem('saugaat_user');
+  const user = storedUser ? JSON.parse(storedUser) : null;
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <>{children}</>;
+};
+

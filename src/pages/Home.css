@@ -132,7 +132,7 @@
 /* Luxury Hero Banner */
 .user-luxury-hero {
   position: relative;
-  background: linear-gradient(135deg, var(--primary-color) 0%, #133024 100%);
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
   padding: 80px 0;
   overflow: hidden;
   color: white;
@@ -1310,7 +1310,7 @@
 }
 
 .gifting-studio-header {
-  background: linear-gradient(135deg, var(--primary-color) 0%, #133024 100%);
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
   padding: 30px;
   color: white;
   text-align: center;
@@ -1734,7 +1734,7 @@
   max-width: 320px;
   height: 420px;
   background: #fbf9f4; /* Linen card color */
-  border: 12px solid #1F4D3A; /* Deep emerald border wrapper */
+  border: 12px solid var(--primary-color); /* Royal Fuchsia border wrapper */
   border-radius: var(--radius-md);
   padding: 30px;
   box-shadow: var(--shadow-lg), 0 15px 35px rgba(0,0,0,0.15);
