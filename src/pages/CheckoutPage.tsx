@@ -19,8 +19,7 @@ import {
   AlertCircle,
   Printer,
   MessageSquare,
-  Mail,
-  Phone
+  Mail
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import './Home.css';

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Minus, Plus, Heart, Truck, RefreshCw, Star, ShieldCheck, Sparkles, MessageSquare, Check } from 'lucide-react';
 import { useCart } from '../context/CartContext';
@@ -33,8 +33,6 @@ export const ProductPage: React.FC = () => {
   const [newReviewComment, setNewReviewComment] = useState('');
   const [newReviewRating, setNewReviewRating] = useState(5);
   const [reviewSubmittedMsg, setReviewSubmittedMsg] = useState(false);
-
-  const navigate = useNavigate();
   const { addToCart, toggleWishlist, isInWishlist } = useCart();
 
   useEffect(() => {
