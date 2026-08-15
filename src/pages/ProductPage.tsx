@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Minus, Plus, Heart, Truck, RefreshCw, Star, ShieldCheck, Sparkles, MessageSquare, Check } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { getProductById, getProductsByCategory, type Product } from '../lib/database';
+import { STORE_CONTACT } from '../config/contact';
 
 interface Review {
   id: string;
@@ -252,7 +253,18 @@ export const ProductPage: React.FC = () => {
             </button>
             <button 
               className="btn btn-secondary" 
-              style={{ flex: 1, padding: '16px', fontWeight: 700, backgroundColor: 'var(--secondary-color)', color: 'white', borderColor: 'var(--secondary-color)' }}
+              style={{ 
+                flex: 1, 
+                padding: '16px', 
+                fontWeight: 700, 
+                backgroundColor: '#25D366', 
+                color: 'white', 
+                borderColor: '#25D366',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px'
+              }}
               onClick={() => {
                 for (let i = 0; i < quantity; i++) {
                   addToCart({
@@ -262,10 +274,21 @@ export const ProductPage: React.FC = () => {
                     image: selectedImage || allImages[0]
                   });
                 }
-                navigate('/cart');
+                
+                const waMessage = `*DIRECT BUY REQUEST - SAUGAAT*
+------------------------------
+🎁 *Product:* ${product.name}
+🔢 *Quantity:* ${quantity}
+💰 *Price per Unit:* ₹${product.price}
+💵 *Total Amount:* ₹${product.price * quantity}
+------------------------------
+Hi Saugaat Support, I would like to buy this item right now! Please guide me on payment and delivery details.`;
+
+                const whatsappUrl = `https://wa.me/${STORE_CONTACT.whatsappNumber}?text=${encodeURIComponent(waMessage)}`;
+                window.open(whatsappUrl, '_blank');
               }}
             >
-              BUY IT NOW
+              <MessageSquare size={18} /> BUY IT NOW
             </button>
             <button 
               className="btn btn-secondary" 
