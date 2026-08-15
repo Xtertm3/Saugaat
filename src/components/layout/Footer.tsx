@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import './Footer.css';
+import { STORE_CONTACT } from '../../config/contact';
 
 export const Footer: React.FC = () => {
   return (
@@ -14,7 +15,12 @@ export const Footer: React.FC = () => {
               Curated luxury gifting and premium home decor for every special occasion. 
               Celebrate life's moments with elegance.
             </p>
-            <div className="social-links">
+            <div style={{ marginTop: '12px', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+              <div>📍 {STORE_CONTACT.address}</div>
+              <div style={{ marginTop: '4px' }}>📞 <a href={`tel:${STORE_CONTACT.phone}`} style={{ color: 'inherit' }}>{STORE_CONTACT.phone}</a></div>
+              <div style={{ marginTop: '4px' }}>✉️ <a href={`mailto:${STORE_CONTACT.email}`} style={{ color: 'inherit' }}>{STORE_CONTACT.email}</a></div>
+            </div>
+            <div className="social-links" style={{ marginTop: '15px' }}>
               <a href="#" className="social-icon">IG</a>
               <a href="#" className="social-icon">FB</a>
               <a href="#" className="social-icon">TW</a>

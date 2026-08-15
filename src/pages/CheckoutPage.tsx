@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { createOrder, getActiveCampaigns } from '../lib/database';
+import { STORE_CONTACT } from '../config/contact';
 import { 
   ArrowLeft, 
   ArrowRight, 
@@ -16,7 +17,10 @@ import {
   Tag,
   Check,
   AlertCircle,
-  Printer
+  Printer,
+  MessageSquare,
+  Mail,
+  Phone
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import './Home.css';
@@ -248,6 +252,27 @@ export const CheckoutPage: React.FC = () => {
         subtotal,
         discount
       });
+
+      // Format WhatsApp order message for customer redirection
+      const waText = `*NEW SAUGAAT ORDER #${newOrder.id}*
+------------------------------
+👤 *Customer:* ${shippingAddress.fullName}
+📞 *Phone:* ${shippingAddress.phone}
+✉️ *Email:* ${shippingAddress.email}
+📍 *Address:* ${shippingAddress.addressLine}, ${shippingAddress.city}, ${shippingAddress.state} - ${shippingAddress.postalCode}
+
+📦 *Items Purchased:*
+${cart.map(item => `• ${item.name} (x${item.quantity}) - ₹${item.price * item.quantity}`).join('\n')}
+
+💳 *Payment:* ${paymentInfo.method.toUpperCase()}
+💰 *Total Paid:* ₹${total}
+------------------------------
+Thank you! Please process my order.`;
+
+      const whatsappUrl = `https://wa.me/${STORE_CONTACT.whatsappNumber}?text=${encodeURIComponent(waText)}`;
+      
+      // Open WhatsApp chat in a new tab for instant order direct communication
+      window.open(whatsappUrl, '_blank');
 
       clearCart();
       setCurrentStep('success');
@@ -996,7 +1021,25 @@ export const CheckoutPage: React.FC = () => {
                 </div>
 
                 {/* Action panel */}
-                <div style={{ display: 'flex', gap: '15px', marginTop: '40px', justifyContent: 'center' }} className="no-print">
+                <div style={{ display: 'flex', gap: '12px', marginTop: '35px', justifyContent: 'center', flexWrap: 'wrap' }} className="no-print">
+                  <a 
+                    href={`https://wa.me/${STORE_CONTACT.whatsappNumber}?text=${encodeURIComponent(`Hi Saugaat Support, I have a question regarding Order #${createdOrder.id}`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn"
+                    style={{ backgroundColor: '#25D366', color: 'white', display: 'flex', gap: '8px', alignItems: 'center' }}
+                  >
+                    <MessageSquare size={16} /> Direct WhatsApp Chat
+                  </a>
+
+                  <a 
+                    href={`mailto:${STORE_CONTACT.email}?subject=Inquiry regarding Order #${createdOrder.id}`}
+                    className="btn btn-secondary"
+                    style={{ display: 'flex', gap: '8px', alignItems: 'center' }}
+                  >
+                    <Mail size={16} /> Email Support ({STORE_CONTACT.email})
+                  </a>
+
                   <button 
                     onClick={handlePrint}
                     className="btn btn-secondary"
@@ -1004,12 +1047,13 @@ export const CheckoutPage: React.FC = () => {
                   >
                     <Printer size={16} /> Print Receipt
                   </button>
+
                   <Link 
                     to="/my-orders" 
                     className="btn btn-primary"
                     style={{ display: 'flex', gap: '8px', alignItems: 'center' }}
                   >
-                    Go to Real-Time Tracking <ArrowRight size={16} />
+                    Real-Time Tracking <ArrowRight size={16} />
                   </Link>
                 </div>
                 

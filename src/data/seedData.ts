@@ -40,6 +40,11 @@ export const seedCategories = [
 // Product seed data - 10 products per parent category (total 70)
 export const seedProducts = [
   // === HOME DECOR ===
+  { name: 'Willow Leaf Jacquard Tapestry', description: 'Handwoven Jacquard Cushion / Fabric with intricate beige and olive willow leaf trailing motif. High-density weave for long-lasting elegance.', category_id: 'showpieces', price: 1499, original_price: 1899, gst: 18, is_bestseller: true, is_trending: true, status: 'active' },
+  { name: 'Mandala Floral Twin Cushions', description: 'Pair of vibrant square cushions with ornate geometric mandala tile prints in turquoise, royal blue, and coral, framed with golden cord piping.', category_id: 'showpieces', price: 1999, original_price: 2499, gst: 18, is_bestseller: true, is_trending: true, status: 'active' },
+  { name: 'Metallic Vine Brocade Cushion', description: 'Luxurious silver and teal brocade cushion cover featuring intricate terracotta leaf borders and a subtle metallic sheen.', category_id: 'showpieces', price: 1699, original_price: 2199, gst: 18, is_bestseller: true, is_trending: true, status: 'active' },
+  { name: 'Botanical Damask Brocade', description: 'Premium terracotta brown and ivory damask tapestry cushion featuring classical floral vine embroidery and rich textural finish.', category_id: 'showpieces', price: 1599, original_price: 1999, gst: 18, is_bestseller: true, is_trending: false, status: 'active' },
+  { name: 'Ginkgo & Peacock Silk Jacquard', description: 'Imperial silk jacquard cushion displaying a majestic paradise bird (peacock) nestled amidst lush floral foliage and deep purple blooms.', category_id: 'showpieces', price: 2199, original_price: 2799, gst: 18, is_bestseller: true, is_trending: true, status: 'active' },
   { name: 'Brass Urli with Diyas', description: 'A stunning brass urli perfect for floating candles and flowers. Handcrafted with traditional techniques by local artisans.', category_id: 'showpieces', price: 1299, original_price: 1599, gst: 18, is_bestseller: true, is_trending: false, status: 'active' },
   { name: 'Ceramic Vases Trio', description: 'A set of three minimalist ceramic vases with elegant matte textures. Adds clean Nordic charm to any living room.', category_id: 'vases-planters', price: 1899, original_price: 2499, gst: 18, is_bestseller: true, is_trending: false, status: 'active' },
   { name: 'Terracotta Planters (3pcs)', description: 'Eco-friendly terracotta planters ideal for small indoor plants and succulents. Breathable natural clay.', category_id: 'vases-planters', price: 449, original_price: 649, gst: 18, is_bestseller: false, is_trending: false, status: 'active' },
@@ -50,6 +55,7 @@ export const seedProducts = [
   { name: 'Embroidered Macrame Wall Hanging', description: 'Boho-chic hand-knotted cotton rope wall hanging with colorful geometric embroidery details.', category_id: 'wall-decor', price: 799, original_price: 1099, gst: 18, is_bestseller: false, is_trending: false, status: 'active' },
   { name: 'Floral Wooden Carved Panel', description: 'Intricately carved mango wood panel with distressed white finish. Vintage rustic wall statement.', category_id: 'wall-decor', price: 1499, original_price: 1999, gst: 18, is_bestseller: false, is_trending: false, status: 'active' },
   { name: 'Luxury Marble Coasters (Set of 6)', description: 'Polished white and grey marble coasters with soft padded bottoms. Keeps surfaces water-ring free in style.', category_id: 'showpieces', price: 699, original_price: 999, gst: 18, is_bestseller: false, is_trending: false, status: 'active' },
+
 
   // === IDOLS ===
   { name: 'Marble Ganesha Idol', description: 'Beautifully handcrafted pure white marble Ganesha idol with intricate gold painted detailing. Ideal for home temple.', category_id: 'ganesha-idols', price: 1499, original_price: 1999, gst: 18, is_bestseller: true, is_trending: false, status: 'active' },
@@ -127,6 +133,11 @@ export const seedProducts = [
 // Product images seed data mapping products to images
 export const seedProductImages = [
   // Home Decor
+  { product_name: 'Willow Leaf Jacquard Tapestry', images: ['/cushions/paisley-jacquard-cushion.jpg'] },
+  { product_name: 'Mandala Floral Twin Cushions', images: ['/cushions/mandala-pair-cushions.jpg'] },
+  { product_name: 'Metallic Vine Brocade Cushion', images: ['/cushions/metallic-vine-brocade.jpg'] },
+  { product_name: 'Botanical Damask Brocade', images: ['/cushions/botanical-damask-tapestry.jpg'] },
+  { product_name: 'Ginkgo & Peacock Silk Jacquard', images: ['/cushions/ginkgo-silk-cushion.jpg'] },
   { product_name: 'Brass Urli with Diyas', images: ['https://images.unsplash.com/photo-1605806616949-1e87b487cb2a?auto=format&fit=crop&q=80&w=800'] },
   { product_name: 'Ceramic Vases Trio', images: ['https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&q=80&w=800'] },
   { product_name: 'Terracotta Planters (3pcs)', images: ['https://images.unsplash.com/photo-1578500494198-246f612d03b3?auto=format&fit=crop&q=80&w=800'] },

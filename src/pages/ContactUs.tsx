@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { MapPin, Phone, Mail } from 'lucide-react';
+import { STORE_CONTACT } from '../config/contact';
 
 export const ContactUs: React.FC = () => {
   return (
@@ -25,7 +26,7 @@ export const ContactUs: React.FC = () => {
               </div>
               <div>
                 <h3 style={{ marginBottom: '5px', color: 'var(--primary-color)' }}>Our Address</h3>
-                <p style={{ color: 'var(--text-muted)' }}>123 Gifting Boulevard, Premium Estate<br />New Delhi, India 110001</p>
+                <p style={{ color: 'var(--text-muted)' }}>{STORE_CONTACT.address}</p>
               </div>
             </div>
 
@@ -35,7 +36,7 @@ export const ContactUs: React.FC = () => {
               </div>
               <div>
                 <h3 style={{ marginBottom: '5px', color: 'var(--primary-color)' }}>Phone Number</h3>
-                <p style={{ color: 'var(--text-muted)' }}>+91 98765 43210</p>
+                <p style={{ color: 'var(--text-muted)' }}><a href={`tel:${STORE_CONTACT.phone}`} style={{ color: 'inherit', textDecoration: 'none' }}>{STORE_CONTACT.phone}</a></p>
               </div>
             </div>
 
@@ -45,7 +46,7 @@ export const ContactUs: React.FC = () => {
               </div>
               <div>
                 <h3 style={{ marginBottom: '5px', color: 'var(--primary-color)' }}>Email Address</h3>
-                <p style={{ color: 'var(--text-muted)' }}>hello@saugaat.com</p>
+                <p style={{ color: 'var(--text-muted)' }}><a href={`mailto:${STORE_CONTACT.email}`} style={{ color: 'inherit', textDecoration: 'none' }}>{STORE_CONTACT.email}</a></p>
               </div>
             </div>
           </div>
