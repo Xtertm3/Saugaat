@@ -33,6 +33,7 @@ export const ProductPage: React.FC = () => {
   const [newReviewComment, setNewReviewComment] = useState('');
   const [newReviewRating, setNewReviewRating] = useState(5);
   const [reviewSubmittedMsg, setReviewSubmittedMsg] = useState(false);
+  const [addedMsg, setAddedMsg] = useState(false);
   const { addToCart, toggleWishlist, isInWishlist } = useCart();
 
   useEffect(() => {
@@ -230,6 +231,12 @@ export const ProductPage: React.FC = () => {
               <button onClick={handleIncrease} style={{ padding: '10px 16px', cursor: 'pointer', background: 'transparent', border: 'none' }}><Plus size={16} /></button>
             </div>
           </div>
+
+          {addedMsg && (
+            <div style={{ backgroundColor: '#dcfce7', color: '#15803d', padding: '10px 16px', borderRadius: '4px', marginBottom: '15px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Check size={18} /> Added {quantity} unit(s) to your shopping cart!
+            </div>
+          )}
 
           {/* Action Buttons */}
           <div className="action-buttons" style={{ display: 'flex', gap: '15px', marginBottom: '35px' }}>
