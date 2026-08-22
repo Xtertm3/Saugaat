@@ -189,8 +189,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       return;
     }
 
-    if (!showNewSubInput && !formData.categoryId) {
-      setMessage({ type: 'error', text: 'Please select a subcategory.' });
+    const targetCategoryId = formData.categoryId || formData.parentCategoryId;
+    if (!showNewSubInput && !targetCategoryId) {
+      setMessage({ type: 'error', text: 'Please select a category.' });
       return;
     }
 
@@ -207,7 +208,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     setSubmitting(true);
 
     try {
-      let resolvedCategoryId = formData.categoryId;
+      let resolvedCategoryId = formData.categoryId || formData.parentCategoryId;
 
       // Handle inline parent category creation
       if (showNewParentInput) {
@@ -392,17 +393,16 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           </div>
 
           <div className="form-group">
-            <label>Sub-Category *</label>
+            <label>Sub-Category (Optional)</label>
             <select
               name="categoryId"
               value={formData.categoryId}
               onChange={handleChange}
               className="form-input"
-              required
               disabled={!formData.parentCategoryId}
             >
               <option value="">
-                {!formData.parentCategoryId ? 'Select parent category first' : 'Select a sub-category'}
+                {!formData.parentCategoryId ? 'Select parent category first' : 'None (Use Parent Category)'}
               </option>
               {subCategories.map((cat) => (
                 <option key={cat.id} value={cat.id}>
