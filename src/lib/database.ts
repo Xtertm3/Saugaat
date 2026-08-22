@@ -67,7 +67,7 @@ function getLocalCategories(): Category[] {
   }
 
   const now = new Date().toISOString();
-  const cats: Category[] = seedCategories.map((c, idx) => {
+  const cats: Category[] = seedCategories.map((c) => {
     const parent_id = c.parent_id ? slugify(c.parent_id) : null;
     const id = parent_id ? slugify(c.name) : slugify(c.name);
 
@@ -864,7 +864,7 @@ export interface OrderTrackingLog {
 export interface CalligraphyCard {
   message: string;
   font: 'vedic' | 'royal' | 'minimal';
-  ink: 'gold' | 'crimson' | 'navy' | 'fuchsia';
+  ink: 'gold' | 'crimson' | 'navy' | 'fuchsia' | 'cyan';
 }
 
 export interface Order {
