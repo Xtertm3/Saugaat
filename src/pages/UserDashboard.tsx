@@ -130,7 +130,7 @@ export const UserDashboard: React.FC = () => {
   // Calligraphy Greeting Card state
   const [cardMessage, setCardMessage] = useState('Wishing you health, wealth, and prosperity on this auspicious occasion!');
   const [cardFont, setCardFont] = useState<'vedic' | 'royal' | 'minimal'>('royal');
-  const [cardInk, setCardInk] = useState<'gold' | 'crimson' | 'navy' | 'fuchsia'>('gold');
+  const [cardInk, setCardInk] = useState<'gold' | 'crimson' | 'navy' | 'fuchsia' | 'cyan'>('gold');
 
   // Registry state
   const [registries, setRegistries] = useState([
@@ -1020,7 +1020,7 @@ export const UserDashboard: React.FC = () => {
                     <div 
                       className="card-message-body"
                       style={{
-                        color: cardInk === 'gold' ? '#D4AF37' : cardInk === 'crimson' ? '#C96A4A' : '#D9146D',
+                        color: cardInk === 'gold' ? '#0284c7' : cardInk === 'crimson' ? '#06b6d4' : cardInk === 'cyan' ? '#0891b2' : '#0891b2',
                         fontFamily: cardFont === 'royal' ? 'Georgia, serif' : cardFont === 'vedic' ? '"Playfair Display", serif' : '"Outfit", sans-serif',
                         fontStyle: cardFont === 'royal' ? 'italic' : 'normal',
                         fontWeight: cardFont === 'minimal' ? '400' : 'bold'
