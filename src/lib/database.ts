@@ -101,12 +101,6 @@ function getLocalCategories(): Category[] {
   return cats;
 }
 
-function saveLocalCategories(cats: Category[]) {
-  _categoriesMemoryCache = cats;
-  localStorage.setItem('saugaat_categories', JSON.stringify(cats));
-  window.dispatchEvent(new Event('storage'));
-}
-
 function getLocalProducts(): Product[] {
   if (_productsMemoryCache) return _productsMemoryCache;
   const stored = localStorage.getItem('saugaat_products');
@@ -160,84 +154,78 @@ function getLocalProducts(): Product[] {
   return prods;
 }
 
+function mergeCategories(remoteCats: Category[], localCats: Category[]): Category[] {
+  const map = new Map<string, Category>();
+  for (const c of localCats) {
+    map.set(c.id, c);
+  }
+  for (const c of remoteCats) {
+    if (!map.has(c.id)) {
+      map.set(c.id, c);
+    }
+  }
+  return Array.from(map.values());
+}
+
+function mergeProducts(remoteProds: Product[], localProds: Product[]): Product[] {
+  const map = new Map<string, Product>();
+  for (const p of localProds) {
+    map.set(p.id, p);
+  }
+  for (const p of remoteProds) {
+    if (!map.has(p.id)) {
+      map.set(p.id, p);
+    }
+  }
+  return Array.from(map.values());
+}
+
+function saveLocalCategories(cats: Category[]) {
+  _categoriesMemoryCache = cats;
+  localStorage.setItem('saugaat_categories', JSON.stringify(cats));
+  window.dispatchEvent(new CustomEvent('saugaat_catalog_updated'));
+}
+
 function saveLocalProducts(prods: Product[]) {
   _productsMemoryCache = prods;
   localStorage.setItem('saugaat_products', JSON.stringify(prods));
-  window.dispatchEvent(new Event('storage'));
+  window.dispatchEvent(new CustomEvent('saugaat_catalog_updated'));
 }
 
 // Category queries
 export async function getCategories() {
+  const localCats = getLocalCategories();
   if (supabase) {
     try {
       const { data, error } = await supabase
         .from('categories')
         .select('*')
         .order('sort_order', { ascending: true });
-      if (!error && data && data.length > 0) return data as Category[];
+      if (!error && data && data.length > 0) {
+        return mergeCategories(data as Category[], localCats);
+      }
     } catch (e) {
       console.error('Supabase query failed, falling back to LocalStorage', e);
     }
   }
-  return getLocalCategories();
+  return localCats;
 }
 
 export async function getParentCategories() {
-  if (supabase) {
-    try {
-      const { data, error } = await supabase
-        .from('categories')
-        .select('*')
-        .is('parent_id', null)
-        .order('sort_order', { ascending: true });
-      if (!error && data && data.length > 0) return data as Category[];
-    } catch (e) {
-      console.error(e);
-    }
-  }
-  return getLocalCategories().filter(c => c.parent_id === null);
+  const all = await getCategories();
+  return all.filter(c => c.parent_id === null);
 }
 
 export async function getSubCategories(parentId: string) {
-  if (supabase) {
-    try {
-      const { data, error } = await supabase
-        .from('categories')
-        .select('*')
-        .eq('parent_id', parentId)
-        .order('sort_order', { ascending: true });
-      if (!error && data && data.length > 0) return data as Category[];
-    } catch (e) {
-      console.error(e);
-    }
-  }
-  return getLocalCategories().filter(c => c.parent_id === parentId);
+  const all = await getCategories();
+  return all.filter(c => c.parent_id === parentId);
 }
 
 export async function createCategory(name: string, image_url: string, parent_id: string | null = null, description?: string) {
   const id = slugify(name);
   const now = new Date().toISOString();
-  
-  if (supabase) {
-    try {
-      const { data, error } = await supabase
-        .from('categories')
-        .insert([{ name, image_url, parent_id, description }])
-        .select()
-        .single();
-      if (!error && data) {
-        const cat = data as Category;
-        const localCats = getLocalCategories();
-        localCats.push(cat);
-        saveLocalCategories(localCats);
-        return cat;
-      }
-    } catch (e) {
-      console.error('Error creating category in Supabase:', e);
-    }
-  }
-
   const finalId = id || `cat-${Date.now()}`;
+  
   const newCat: Category = {
     id: finalId,
     name,
@@ -248,11 +236,29 @@ export async function createCategory(name: string, image_url: string, parent_id:
     created_at: now,
     updated_at: now
   };
+
   const localCats = getLocalCategories();
   if (!localCats.some(c => c.id === finalId)) {
     localCats.push(newCat);
     saveLocalCategories(localCats);
   }
+
+  if (supabase) {
+    try {
+      const { data, error } = await supabase
+        .from('categories')
+        .insert([{ name, image_url, parent_id, description }])
+        .select()
+        .single();
+      if (!error && data) {
+        const cat = data as Category;
+        return cat;
+      }
+    } catch (e) {
+      console.error('Error creating category in Supabase:', e);
+    }
+  }
+
   return newCat;
 }
 
@@ -303,6 +309,10 @@ export async function deleteCategory(id: string) {
 
 // Product queries
 export async function getProducts(limit?: number) {
+  const localCats = await getCategories();
+  const localProds = getLocalProducts().filter(p => p.status === 'active');
+  let merged: Product[] = localProds;
+
   if (supabase) {
     try {
       let query = supabase
@@ -318,19 +328,19 @@ export async function getProducts(limit?: number) {
       if (limit) query = query.limit(limit);
 
       const { data, error } = await query;
-      if (!error && data && data.length > 0) return data as Product[];
+      if (!error && data && data.length > 0) {
+        merged = mergeProducts(data as Product[], localProds);
+      }
     } catch (e) {
       console.error('Supabase query failed, falling back to LocalStorage', e);
     }
   }
 
-  const localCats = getLocalCategories();
-  const localProds = getLocalProducts().filter(p => p.status === 'active');
-  const mapped = localProds.map(p => {
+  const mapped = merged.map(p => {
     const cat = localCats.find(c => c.id === p.category_id);
     return {
       ...p,
-      categories: cat
+      categories: cat || p.categories
     };
   });
   
@@ -339,67 +349,23 @@ export async function getProducts(limit?: number) {
 }
 
 export async function getProductsByCategory(categoryId: string) {
-  if (supabase) {
-    try {
-      // 1. Fetch all categories to determine parent-child relationships and map slugs to UUIDs
-      const { data: allCategories, error: catError } = await supabase
-        .from('categories')
-        .select('*')
-        .order('sort_order', { ascending: true });
-
-      if (!catError && allCategories) {
-        // Resolve categoryId to a category record (handling either UUID match or slugified name match)
-        const resolvedCategory = allCategories.find(
-          c => c.id === categoryId || slugify(c.name) === categoryId
-        );
-
-        if (resolvedCategory) {
-          const isParent = resolvedCategory.parent_id === null;
-          const targetIds = isParent
-            ? [resolvedCategory.id, ...allCategories.filter(c => c.parent_id === resolvedCategory.id).map(c => c.id)]
-            : [resolvedCategory.id];
-
-          const { data, error } = await supabase
-            .from('products')
-            .select(`
-              *,
-              categories (id, name, parent_id),
-              product_images (*)
-            `)
-            .in('category_id', targetIds)
-            .eq('status', 'active');
-            
-          if (!error && data) return data as Product[];
-        }
-      }
-    } catch (e) {
-      console.error('Supabase query failed, falling back to LocalStorage', e);
-    }
-  }
-
-  const localCats = getLocalCategories();
-  const localProds = getLocalProducts().filter(p => p.status === 'active');
+  const allCats = await getCategories();
+  const allProds = await getProducts();
   
-  const resolvedCategory = localCats.find(
+  const resolvedCategory = allCats.find(
     c => c.id === categoryId || slugify(c.name) === categoryId
   );
   
-  if (!resolvedCategory) return [];
+  if (!resolvedCategory) {
+    return allProds.filter(p => p.category_id === categoryId || slugify(p.category_id) === categoryId);
+  }
 
   const isParent = resolvedCategory.parent_id === null;
   const targetCategoryIds = isParent
-    ? [resolvedCategory.id, ...localCats.filter(c => c.parent_id === resolvedCategory.id).map(c => c.id)]
+    ? [resolvedCategory.id, ...allCats.filter(c => c.parent_id === resolvedCategory.id).map(c => c.id)]
     : [resolvedCategory.id];
 
-  const filtered = localProds.filter(p => targetCategoryIds.includes(p.category_id));
-  
-  return filtered.map(p => {
-    const cat = localCats.find(c => c.id === p.category_id);
-    return {
-      ...p,
-      categories: cat
-    };
-  });
+  return allProds.filter(p => targetCategoryIds.includes(p.category_id) || slugify(p.category_id) === categoryId);
 }
 
 export async function searchProducts(query: string) {

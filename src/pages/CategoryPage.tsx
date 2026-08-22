@@ -47,6 +47,12 @@ export const CategoryPage: React.FC = () => {
 
     loadCategoryData();
     setSelectedSubcategory('all');
+    window.addEventListener('storage', loadCategoryData);
+    window.addEventListener('saugaat_catalog_updated', loadCategoryData);
+    return () => {
+      window.removeEventListener('storage', loadCategoryData);
+      window.removeEventListener('saugaat_catalog_updated', loadCategoryData);
+    };
   }, [categoryId]);
 
   const currentCategory = categories.find(c => c.id === categoryId || slugify(c.name) === categoryId);

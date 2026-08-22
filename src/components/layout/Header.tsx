@@ -3,7 +3,7 @@ import { Search, ShoppingBag, Heart, User, LogOut, BarChart3, Menu, X, LayoutDas
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
-import { getProducts, type Product } from '../../lib/database';
+import { getProducts, getCategories, type Product, type Category } from '../../lib/database';
 import './Header.css';
 
 export const Header: React.FC = () => {
@@ -12,27 +12,45 @@ export const Header: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const [dbCategories, setDbCategories] = useState<Category[]>([]);
   const [searchResults, setSearchResults] = useState<Product[]>([]);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const location = useLocation();
 
+  const fetchCatalogData = async () => {
+    try {
+      const [cats, prods] = await Promise.all([getCategories(), getProducts()]);
+      setDbCategories(cats);
+      setAllProducts(prods);
+    } catch (e) {
+      console.error('Error loading header catalog:', e);
+    }
+  };
+
+  useEffect(() => {
+    fetchCatalogData();
+    window.addEventListener('storage', fetchCatalogData);
+    window.addEventListener('saugaat_catalog_updated', fetchCatalogData);
+    return () => {
+      window.removeEventListener('storage', fetchCatalogData);
+      window.removeEventListener('saugaat_catalog_updated', fetchCatalogData);
+    };
+  }, []);
+
+  const parentCategories = dbCategories.filter(c => c.parent_id === null && c.id !== 'idols' && c.id !== 'toys');
   const navCategories = [
     { id: 'all', path: '/category/all', label: 'All Gifts' },
-    { id: 'home-decor', path: '/category/home-decor', label: 'Home Decor' },
-    { id: 'festivals', path: '/category/festivals', label: 'Festivals' },
-    { id: 'gift-packs', path: '/category/gift-packs', label: 'Gift Packs' },
-    { id: 'return-gifts', path: '/category/return-gifts', label: 'Return Gifts' },
-    { id: 'just-like-that', path: '/category/just-like-that', label: 'Just Like That' },
+    ...parentCategories.map(c => ({
+      id: c.id,
+      path: `/category/${c.id}`,
+      label: c.name
+    }))
   ];
 
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
   const wishlistCount = wishlist.length;
-
-  useEffect(() => {
-    getProducts().then(prods => setAllProducts(prods)).catch(console.error);
-  }, []);
 
   useEffect(() => {
     if (!searchQuery.trim()) {

@@ -50,6 +50,12 @@ export const Home: React.FC = () => {
     };
 
     loadHomeData();
+    window.addEventListener('storage', loadHomeData);
+    window.addEventListener('saugaat_catalog_updated', loadHomeData);
+    return () => {
+      window.removeEventListener('storage', loadHomeData);
+      window.removeEventListener('saugaat_catalog_updated', loadHomeData);
+    };
   }, []);
 
   const handleToggleWishlist = (product: Product) => {
