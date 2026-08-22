@@ -1,28 +1,33 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap');
 
 :root {
-  /* Cyan Blue Theme & High-Contrast Palette */
-  --primary-color: #0891b2; /* Deep Ocean Cyan Blue */
+  /* Cyan Blue Theme & Royal Gold/Slate Contrast Palette */
+  --primary-color: #0891b2; /* Deep Ocean Cyan Blue (Preserved) */
   --primary-dark: #0e7490;  /* Midnight Cyan Blue */
   --primary-light: #06b6d4; /* Vivid Bright Cyan */
-  --secondary-color: #0284c7; /* Electric Sky Cyan Blue */
-  --secondary-dark: #0369a1;  /* Deep Sky Blue */
-  --accent-color: #06b6d4; /* Electric Cyan Accent */
-  --bg-main: #f0f9ff; /* Soft Ice-Cyan Tinted Light Background */
+  
+  --secondary-color: #f59e0b; /* Luxe Amber / Royal Gold Accent */
+  --secondary-dark: #b45309;  /* Deep Warm Amber */
+  
+  --tertiary-color: #0f172a;  /* Midnight Slate Navy (Deep Luxury Contrast) */
+  --tertiary-light: #1e293b; /* Slate Card Surface */
+
+  --accent-color: #fbbf24; /* Sparkling Warm Gold Accent */
+  --bg-main: #f8fafc; /* Crisp Soft Light Background */
   --bg-card: #ffffff;
   --text-main: #0f172a; /* Deep Slate Navy for crisp high-contrast readability */
   --text-muted: #475569; /* Muted Slate Grey Text */
-  --border-color: #bae6fd; /* Soft Ice-Cyan Tinted Border */
+  --border-color: #cbd5e1; /* Soft Crisp Border */
 
   /* Typography */
   --font-heading: 'Playfair Display', serif;
   --font-body: 'Outfit', sans-serif;
 
-  /* Shadows with Cyan Tinted Glow */
-  --shadow-sm: 0 2px 8px rgba(6, 182, 212, 0.08);
-  --shadow-md: 0 4px 14px rgba(6, 182, 212, 0.15);
-  --shadow-lg: 0 12px 28px rgba(6, 182, 212, 0.22);
-  --shadow-glass: 0 8px 32px 0 rgba(8, 145, 178, 0.15);
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.06);
+  --shadow-md: 0 4px 14px rgba(15, 23, 42, 0.12);
+  --shadow-lg: 0 12px 28px rgba(15, 23, 42, 0.18);
+  --shadow-glass: 0 8px 32px 0 rgba(8, 145, 178, 0.12);
   /* Utilities */
   --radius-sm: 4px;
   --radius-md: 8px;

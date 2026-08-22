@@ -84,7 +84,7 @@ export const CategoryPage: React.FC = () => {
         </h1>
         <div className="title-underline" style={{ width: '60px', height: '3px', backgroundColor: 'var(--secondary-color)', margin: '0 auto' }}></div>
         <p className="text-muted mt-4" style={{ marginTop: '12px' }}>
-          {loading ? 'Fetching luxury items...' : `Displaying ${processedProducts.length} exquisite creations`}
+          {loading ? 'Fetching items...' : `Displaying ${processedProducts.length} exquisite creations`}
         </p>
       </div>
 

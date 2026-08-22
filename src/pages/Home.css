@@ -902,14 +902,15 @@
 /* Luxury Landing Page Hero */
 .luxury-hero {
   position: relative;
-  background-color: var(--primary-color);
-  min-height: 90vh;
+  background: linear-gradient(135deg, #0f172a 0%, #082f49 55%, #0891b2 100%);
+  min-height: 85vh;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
   text-align: center;
-  padding: 80px 0;
+  padding: 90px 0;
+  overflow: hidden;
 }
 
 /* Luxury Texture (Linen/Noise pattern) overlay */
@@ -919,19 +920,19 @@
   left: 0;
   width: 100%;
   height: 100%;
-  opacity: 0.04;
-  background-image: radial-gradient(var(--secondary-color) 0.5px, transparent 0.5px), radial-gradient(var(--secondary-color) 0.5px, var(--primary-color) 0.5px);
-  background-size: 20px 20px;
-  background-position: 0 0, 10px 10px;
+  opacity: 0.06;
+  background-image: radial-gradient(var(--secondary-color) 0.8px, transparent 0.8px), radial-gradient(var(--secondary-color) 0.8px, var(--tertiary-color) 0.8px);
+  background-size: 24px 24px;
+  background-position: 0 0, 12px 12px;
   pointer-events: none;
   z-index: 2;
 }
 
 .hero-radial-glow {
   position: absolute;
-  width: 800px;
-  height: 800px;
-  background: radial-gradient(circle, rgba(205, 168, 115, 0.12) 0%, transparent 60%);
+  width: 900px;
+  height: 900px;
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.18) 0%, rgba(6, 182, 212, 0.12) 40%, transparent 70%);
   border-radius: 50%;
   top: 50%;
   left: 50%;
@@ -947,80 +948,98 @@
 }
 
 .hero-main-content {
-  max-width: 900px;
+  max-width: 920px;
 }
 
 .hero-gold-badge {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: rgba(205, 168, 115, 0.12);
-  border: 1px solid rgba(205, 168, 115, 0.35);
-  color: var(--secondary-color);
-  padding: 6px 16px;
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.45);
+  color: #fbbf24;
+  padding: 8px 20px;
   border-radius: 50px;
   font-size: 0.85rem;
   font-weight: 600;
-  margin-bottom: 24px;
+  margin-bottom: 26px;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 1.5px;
+  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.1);
 }
 
 .luxury-hero-main-title {
   font-size: 4.8rem;
   font-weight: 700;
   line-height: 1.15;
-  color: white;
+  color: #ffffff;
   margin-bottom: 24px;
   font-family: var(--font-heading);
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 
 .gold-text {
-  color: var(--secondary-color);
-  background: linear-gradient(135deg, #fcebc2 0%, var(--secondary-color) 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #fef08a 35%, #f59e0b 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  display: inline-block;
+  filter: drop-shadow(0 4px 12px rgba(245, 158, 11, 0.3));
 }
 
 .luxury-hero-main-subtitle {
   font-size: 1.25rem;
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(241, 245, 249, 0.92);
   margin-bottom: 40px;
-  line-height: 1.6;
+  line-height: 1.65;
   font-weight: 300;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .hero-button-group {
   display: flex;
-  gap: 16px;
+  gap: 20px;
   justify-content: center;
 }
 
 .luxury-hero-btn {
-  padding: 14px 36px;
+  padding: 16px 40px;
   font-weight: 600;
   font-size: 0.95rem;
+  background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%);
+  color: #ffffff !important;
   border-radius: var(--radius-sm);
-  letter-spacing: 0.5px;
+  letter-spacing: 1px;
+  box-shadow: 0 6px 20px rgba(6, 182, 212, 0.35);
+  transition: all var(--transition-normal);
+}
+
+.luxury-hero-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(6, 182, 212, 0.5);
+  background: linear-gradient(135deg, #0e7490 0%, #0891b2 100%);
 }
 
 .btn-secondary.luxury-hero-btn-sec {
-  padding: 14px 36px;
+  padding: 16px 40px;
   font-weight: 600;
   font-size: 0.95rem;
-  background: transparent;
-  color: white !important;
-  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  background: rgba(15, 23, 42, 0.6) !important;
+  color: #fbbf24 !important;
+  border: 1.5px solid #f59e0b !important;
   border-radius: var(--radius-sm);
-  transition: all var(--transition-fast);
+  letter-spacing: 1px;
+  transition: all var(--transition-normal);
+  backdrop-filter: blur(8px);
 }
 
 .btn-secondary.luxury-hero-btn-sec:hover {
-  background: rgba(255, 255, 255, 0.1) !important;
-  color: white !important;
-  border-color: white !important;
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+  background: #f59e0b !important;
+  color: #0f172a !important;
+  border-color: #f59e0b !important;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(245, 158, 11, 0.35);
 }
 
 /* Elegant categories layout */
