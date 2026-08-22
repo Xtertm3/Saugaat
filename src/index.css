@@ -1,28 +1,28 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap');
 
 :root {
-  /* Colors */
-  --primary-color: #D9146D; /* Royal Fuchsia Pink */
-  --primary-dark: #9C0E4E;  /* Deep Fuchsia */
-  --primary-light: #F06292; /* Soft Fuchsia Pink */
-  --secondary-color: #D4AF37; /* Luxe Antique Gold */
-  --secondary-dark: #B89020;  /* Rich Dark Gold */
-  --accent-color: #E5C158; /* Sparkling Gold Accent */
-  --bg-main: #FFF7FA; /* Light Soft Rose/White Background */
+  /* Cyan Blue Theme & High-Contrast Palette */
+  --primary-color: #0891b2; /* Deep Ocean Cyan Blue */
+  --primary-dark: #0e7490;  /* Midnight Cyan Blue */
+  --primary-light: #06b6d4; /* Vivid Bright Cyan */
+  --secondary-color: #0284c7; /* Electric Sky Cyan Blue */
+  --secondary-dark: #0369a1;  /* Deep Sky Blue */
+  --accent-color: #06b6d4; /* Electric Cyan Accent */
+  --bg-main: #f0f9ff; /* Soft Ice-Cyan Tinted Light Background */
   --bg-card: #ffffff;
-  --text-main: #1F191D; /* Deep Charcoal for crisp contrast */
-  --text-muted: #6D646A; /* Soft Muted Mauve Text */
-  --border-color: #F3E2EA; /* Soft Pinkish Gold Tint Border */
+  --text-main: #0f172a; /* Deep Slate Navy for crisp high-contrast readability */
+  --text-muted: #475569; /* Muted Slate Grey Text */
+  --border-color: #bae6fd; /* Soft Ice-Cyan Tinted Border */
 
   /* Typography */
   --font-heading: 'Playfair Display', serif;
   --font-body: 'Outfit', sans-serif;
 
-  /* Shadows */
-  --shadow-sm: 0 2px 8px rgba(217, 20, 109, 0.05);
-  --shadow-md: 0 4px 14px rgba(217, 20, 109, 0.1);
-  --shadow-lg: 0 12px 28px rgba(217, 20, 109, 0.15);
-  --shadow-glass: 0 8px 32px 0 rgba(217, 20, 109, 0.12);
+  /* Shadows with Cyan Tinted Glow */
+  --shadow-sm: 0 2px 8px rgba(6, 182, 212, 0.08);
+  --shadow-md: 0 4px 14px rgba(6, 182, 212, 0.15);
+  --shadow-lg: 0 12px 28px rgba(6, 182, 212, 0.22);
+  --shadow-glass: 0 8px 32px 0 rgba(8, 145, 178, 0.15);
   /* Utilities */
   --radius-sm: 4px;
   --radius-md: 8px;

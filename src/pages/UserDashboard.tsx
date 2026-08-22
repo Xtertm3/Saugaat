@@ -993,11 +993,11 @@ export const UserDashboard: React.FC = () => {
                         ● Terracotta
                       </button>
                       <button 
-                        className={`ink-option-btn ${cardInk === 'fuchsia' ? 'active' : ''}`}
-                        onClick={() => setCardInk('fuchsia')}
-                        style={{ color: '#D9146D', borderColor: cardInk === 'fuchsia' ? '#D9146D' : '' }}
+                        className={`ink-option-btn ${cardInk === 'cyan' ? 'active' : ''}`}
+                        onClick={() => setCardInk('cyan')}
+                        style={{ color: '#008B8B', borderColor: cardInk === 'cyan' ? '#008B8B' : '' }}
                       >
-                        ● Royal Fuchsia
+                        ● Cyan Blue
                       </button>
                     </div>
                   </div>

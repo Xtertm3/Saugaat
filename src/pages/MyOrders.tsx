@@ -494,85 +494,74 @@ export const MyOrders: React.FC = () => {
             </div>
 
             {/* Printable Document Sheet */}
-            <div style={{ border: '2px solid #D9146D', padding: '30px', backgroundColor: '#fff7fa' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '2px solid #D4AF37', paddingBottom: '20px', marginBottom: '25px' }}>
+            <div style={{ border: '2px solid var(--primary-color)', padding: '30px', backgroundColor: 'var(--bg-main)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '2px solid var(--secondary-color)', paddingBottom: '20px', marginBottom: '25px' }}>
                 <div>
-                  <h1 style={{ fontFamily: 'Georgia, serif', color: '#D9146D', fontSize: '1.8rem', margin: 0 }}>SAUGAAT</h1>
-                  <p style={{ fontSize: '0.8rem', color: '#666', margin: '4px 0 0 0' }}>Luxury Gifting Studio Pvt Ltd</p>
-                  <p style={{ fontSize: '0.75rem', color: '#888', margin: '2px 0 0 0' }}>GSTIN: 27SAUGAAT8899F1Z9 | PAN: AAACS9988K</p>
+                  <h1 style={{ fontFamily: 'Georgia, serif', color: 'var(--primary-color)', fontSize: '1.8rem', margin: 0 }}>SAUGAAT</h1>
+                  <p style={{ margin: '4px 0 0 0', fontSize: '0.85rem', color: '#555' }}>Curated Luxury & Home Decor</p>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <h2 style={{ fontSize: '1.2rem', color: '#D4AF37', margin: 0, textTransform: 'uppercase', letterSpacing: '1px' }}>TAX INVOICE</h2>
-                  <p style={{ fontSize: '0.85rem', fontWeight: 'bold', margin: '6px 0 0 0' }}>#{selectedOrder.id}</p>
-                  <p style={{ fontSize: '0.8rem', color: '#666', margin: '2px 0 0 0' }}>Date: {new Date(selectedOrder.created_at).toLocaleDateString()}</p>
+                  <h2 style={{ fontSize: '1.2rem', color: 'var(--secondary-color)', margin: 0, textTransform: 'uppercase', letterSpacing: '1px' }}>TAX INVOICE</h2>
+                  <p style={{ margin: '4px 0 0 0', fontSize: '0.85rem', color: '#555' }}><strong>Invoice #:</strong> INV-{selectedOrder.id}</p>
+                  <p style={{ margin: '2px 0 0 0', fontSize: '0.85rem', color: '#555' }}><strong>Date:</strong> {new Date(selectedOrder.created_at).toLocaleDateString()}</p>
                 </div>
               </div>
 
-              {/* Billed To & Shipped To */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '25px', fontSize: '0.85rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px', marginBottom: '30px' }}>
                 <div>
-                  <strong style={{ color: '#D9146D', textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '1px' }}>Billed & Shipped To:</strong>
+                  <strong style={{ color: 'var(--primary-color)', textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '1px' }}>Billed & Shipped To:</strong>
                   <p style={{ margin: '6px 0 0 0', fontWeight: 600 }}>{user?.email ? user.email.split('@')[0].toUpperCase() : 'Valued Customer'}</p>
                   <p style={{ margin: '2px 0 0 0', color: '#555' }}>Email: {user?.email || 'customer@saugaat.com'}</p>
-                  <p style={{ margin: '2px 0 0 0', color: '#555' }}>123 Heritage Lane, Bandra West</p>
-                  <p style={{ margin: '2px 0 0 0', color: '#555' }}>Mumbai, Maharashtra - 400050</p>
+                  <p style={{ margin: '2px 0 0 0', color: '#555' }}>Address: Premium Residential Curation</p>
                 </div>
-                <div style={{ textAlign: 'right' }}>
-                  <strong style={{ color: '#D9146D', textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '1px' }}>Payment Info:</strong>
-                  <p style={{ margin: '6px 0 0 0', fontWeight: 600 }}>Status: PAID (Online)</p>
-                  <p style={{ margin: '2px 0 0 0', color: '#555' }}>Method: Razorpay Express UPI / Card</p>
-                  <p style={{ margin: '2px 0 0 0', color: '#555' }}>Delivery Method: Express Wooden Crate</p>
+                <div>
+                  <strong style={{ color: 'var(--primary-color)', textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '1px' }}>Payment Info:</strong>
+                  <p style={{ margin: '6px 0 0 0', color: '#555' }}><strong>Method:</strong> {selectedOrder.card ? 'Saugaat Calligraphy Card Included' : 'Standard Payment'}</p>
+                  <p style={{ margin: '2px 0 0 0', color: '#555' }}><strong>Status:</strong> <span style={{ color: '#2e7d32', fontWeight: 600 }}>PAID</span></p>
+                  <p style={{ margin: '2px 0 0 0', color: '#555' }}><strong>Tracking ID:</strong> {selectedOrder.id}</p>
                 </div>
               </div>
 
-              {/* Items Table */}
-              <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '25px', fontSize: '0.85rem' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '30px' }}>
                 <thead>
-                  <tr style={{ backgroundColor: '#D9146D', color: 'white', textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '1px' }}>
-                    <th style={{ padding: '10px', textAlign: 'left' }}>Item Description</th>
-                    <th style={{ padding: '10px', textAlign: 'center' }}>Qty</th>
-                    <th style={{ padding: '10px', textAlign: 'right' }}>Rate</th>
-                    <th style={{ padding: '10px', textAlign: 'right' }}>GST (18%)</th>
-                    <th style={{ padding: '10px', textAlign: 'right' }}>Amount</th>
+                  <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white', textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '1px' }}>
+                    <th style={{ padding: '10px 12px', textAlign: 'left' }}>Item Description</th>
+                    <th style={{ padding: '10px 12px', textAlign: 'center' }}>Qty</th>
+                    <th style={{ padding: '10px 12px', textAlign: 'right' }}>Price</th>
+                    <th style={{ padding: '10px 12px', textAlign: 'right' }}>Total</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr style={{ borderBottom: '1px solid #eee' }}>
-                    <td style={{ padding: '12px 10px', fontWeight: 600 }}>{selectedOrder.items}</td>
-                    <td style={{ padding: '12px 10px', textAlign: 'center' }}>1</td>
-                    <td style={{ padding: '12px 10px', textAlign: 'right' }}>₹{Math.round(selectedOrder.total * 0.847)}</td>
-                    <td style={{ padding: '12px 10px', textAlign: 'right' }}>₹{Math.round(selectedOrder.total * 0.153)}</td>
-                    <td style={{ padding: '12px 10px', textAlign: 'right', fontWeight: 'bold' }}>₹{selectedOrder.total}</td>
+                  <tr style={{ borderBottom: '1px solid #eee', fontSize: '0.9rem' }}>
+                    <td style={{ padding: '12px' }}>{selectedOrder.items}</td>
+                    <td style={{ padding: '12px', textAlign: 'center' }}>1</td>
+                    <td style={{ padding: '12px', textAlign: 'right' }}>₹{selectedOrder.total}</td>
+                    <td style={{ padding: '12px', textAlign: 'right' }}>₹{selectedOrder.total}</td>
                   </tr>
                 </tbody>
               </table>
 
-              {/* Total Calculation */}
-              <div style={{ display: 'flex', justifyContent: 'flex-end', borderTop: '2px solid #D4AF37', paddingTop: '15px' }}>
-                <div style={{ width: '240px', fontSize: '0.85rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                    <span>Taxable Value:</span>
-                    <span>₹{Math.round(selectedOrder.total * 0.847)}</span>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', borderTop: '2px solid var(--secondary-color)', paddingTop: '15px' }}>
+                <div style={{ width: '250px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', marginBottom: '6px' }}>
+                    <span>Subtotal:</span>
+                    <span>₹{selectedOrder.total}</span>
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                    <span>IGST (18%):</span>
-                    <span>₹{Math.round(selectedOrder.total * 0.153)}</span>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', marginBottom: '6px' }}>
+                    <span>Shipping Fee:</span>
+                    <span style={{ color: 'var(--primary-color)', fontWeight: 600 }}>FREE</span>
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                    <span>Shipping Charges:</span>
-                    <span style={{ color: '#D9146D', fontWeight: 600 }}>FREE</span>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.1rem', fontWeight: 'bold', color: '#D9146D', borderTop: '1px solid #ccc', paddingTop: '8px', marginTop: '6px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.1rem', fontWeight: 'bold', color: 'var(--primary-color)', borderTop: '1px solid #ccc', paddingTop: '8px', marginTop: '6px' }}>
                     <span>Grand Total:</span>
                     <span>₹{selectedOrder.total}</span>
                   </div>
                 </div>
               </div>
+            </div>
 
-              {/* Footer Stamp */}
-              <div style={{ marginTop: '30px', textAlign: 'center', borderTop: '1px dashed #ccc', paddingTop: '16px', fontSize: '0.75rem', color: '#777' }}>
-                Thank you for choosing Saugaat Luxury Gifting Studio. This is a computer-generated tax invoice.
-              </div>
+            {/* Footer Stamp */}
+            <div style={{ marginTop: '30px', textAlign: 'center', borderTop: '1px dashed #ccc', paddingTop: '16px', fontSize: '0.75rem', color: '#777' }}>
+              Thank you for choosing Saugaat Luxury Gifting Studio. This is a computer-generated tax invoice.
             </div>
           </div>
         </div>

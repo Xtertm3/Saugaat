@@ -221,7 +221,7 @@ export const CategoryPage: React.FC = () => {
                   <Heart size={18} fill={isWishlisted ? 'var(--accent-color)' : 'none'} color={isWishlisted ? 'var(--accent-color)' : 'currentColor'} />
                 </button>
                 <div className="product-image-container">
-                  <img src={featuredImg} alt={product.name} className="product-image" />
+                  <img src={featuredImg} alt={product.name} className="product-image" loading="lazy" decoding="async" />
                   <div className="product-actions">
                     <Link to={`/product/${product.id}`} className="btn btn-primary" style={{ flex: 1, textTransform: 'uppercase', fontSize: '0.8rem', textAlign: 'center', lineHeight: '2.5' }}>
                       View Details

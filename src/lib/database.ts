@@ -50,11 +50,17 @@ export function slugify(text: string): string {
 }
 
 // Local storage caching layer
+// High-performance In-Memory RAM Caches for 0ms catalog rendering
+let _categoriesMemoryCache: Category[] | null = null;
+let _productsMemoryCache: Product[] | null = null;
+
 function getLocalCategories(): Category[] {
+  if (_categoriesMemoryCache) return _categoriesMemoryCache;
   const stored = localStorage.getItem('saugaat_categories');
   if (stored) {
     try {
-      return JSON.parse(stored);
+      _categoriesMemoryCache = JSON.parse(stored);
+      return _categoriesMemoryCache!;
     } catch (e) {
       console.error('Error parsing local categories:', e);
     }
@@ -62,31 +68,22 @@ function getLocalCategories(): Category[] {
 
   const now = new Date().toISOString();
   const cats: Category[] = seedCategories.map((c, idx) => {
-    const id = slugify(c.name);
+    const parent_id = c.parent_id ? slugify(c.parent_id) : null;
+    const id = parent_id ? slugify(c.name) : slugify(c.name);
+
     return {
       id,
       name: c.name,
-      description: c.name + ' Collection',
+      description: `Curated ${c.name} collection for special gifting.`,
       image_url: c.image_url,
-      parent_id: c.parent_id ? slugify(c.parent_id) : null,
-      sort_order: c.sort_order || idx,
+      parent_id,
+      sort_order: c.sort_order,
       created_at: now,
       updated_at: now
     };
   });
 
-  // Ensure "just-like-that" is seeded if missing
-  if (!cats.some(c => c.id === 'just-like-that')) {
-    cats.push({
-      id: 'just-like-that',
-      name: 'Just Like That',
-      description: 'Spontaneous everyday gifting',
-      image_url: 'https://images.unsplash.com/photo-1513201099705-a9746e1e201f?auto=format&fit=crop&q=80&w=800',
-      parent_id: null,
-      sort_order: 7,
-      created_at: now,
-      updated_at: now
-    });
+  if (!cats.some(c => c.id === 'mugs')) {
     cats.push({
       id: 'mugs',
       name: 'Mugs',
@@ -97,32 +94,26 @@ function getLocalCategories(): Category[] {
       created_at: now,
       updated_at: now
     });
-    cats.push({
-      id: 'spontaneous-gifts',
-      name: 'Spontaneous Gifts',
-      description: 'Small tokens of appreciation',
-      image_url: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&q=80&w=800',
-      parent_id: 'just-like-that',
-      sort_order: 2,
-      created_at: now,
-      updated_at: now
-    });
   }
 
+  _categoriesMemoryCache = cats;
   localStorage.setItem('saugaat_categories', JSON.stringify(cats));
   return cats;
 }
 
 function saveLocalCategories(cats: Category[]) {
+  _categoriesMemoryCache = cats;
   localStorage.setItem('saugaat_categories', JSON.stringify(cats));
   window.dispatchEvent(new Event('storage'));
 }
 
 function getLocalProducts(): Product[] {
+  if (_productsMemoryCache) return _productsMemoryCache;
   const stored = localStorage.getItem('saugaat_products');
   if (stored) {
     try {
-      return JSON.parse(stored);
+      _productsMemoryCache = JSON.parse(stored);
+      return _productsMemoryCache!;
     } catch (e) {
       console.error('Error parsing local products:', e);
     }
@@ -164,11 +155,13 @@ function getLocalProducts(): Product[] {
     };
   });
 
+  _productsMemoryCache = prods;
   localStorage.setItem('saugaat_products', JSON.stringify(prods));
   return prods;
 }
 
 function saveLocalProducts(prods: Product[]) {
+  _productsMemoryCache = prods;
   localStorage.setItem('saugaat_products', JSON.stringify(prods));
   window.dispatchEvent(new Event('storage'));
 }

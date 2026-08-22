@@ -162,7 +162,7 @@ export const Home: React.FC = () => {
                 >
                   <Link to={`/category/${category.id}`} className="luxury-category-card">
                     <div className="category-image-circle">
-                      <img src={category.image_url} alt={category.name} className="category-image" />
+                      <img src={category.image_url} alt={category.name} className="category-image" loading="lazy" decoding="async" />
                       <div className="category-image-overlay"></div>
                     </div>
                     <span className="category-name-premium">{category.name}</span>
@@ -427,7 +427,7 @@ export const Home: React.FC = () => {
                       <Heart size={18} fill={isWishlisted ? 'var(--accent-color)' : 'none'} />
                     </button>
                     <div className="product-image-container">
-                      <img src={featuredImg} alt={product.name} className="product-image" />
+                      <img src={featuredImg} alt={product.name} className="product-image" loading="lazy" decoding="async" />
                       <div className="product-actions">
                         <Link to={`/product/${product.id}`} className="btn btn-primary" style={{ flex: 1, textTransform: 'uppercase', fontSize: '0.8rem', letterSpacing: '0.5px', textAlign: 'center', lineHeight: '2.5' }}>
                           View Details
