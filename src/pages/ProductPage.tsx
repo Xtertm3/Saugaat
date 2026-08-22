@@ -235,16 +235,16 @@ export const ProductPage: React.FC = () => {
           <div className="action-buttons" style={{ display: 'flex', gap: '15px', marginBottom: '35px' }}>
             <button 
               className="btn btn-primary" 
-              style={{ flex: 2, padding: '16px', fontWeight: 700 }}
+              style={{ flex: 1, padding: '16px', fontWeight: 700 }}
               onClick={() => {
-                for (let i = 0; i < quantity; i++) {
-                  addToCart({
-                    id: product.id,
-                    name: product.name,
-                    price: product.price,
-                    image: selectedImage || allImages[0]
-                  });
-                }
+                addToCart({
+                  id: product.id,
+                  name: product.name,
+                  price: product.price,
+                  image: selectedImage || allImages[0]
+                }, quantity);
+                setAddedMsg(true);
+                setTimeout(() => setAddedMsg(false), 3000);
               }}
             >
               ADD TO CART
@@ -264,14 +264,12 @@ export const ProductPage: React.FC = () => {
                 gap: '8px'
               }}
               onClick={() => {
-                for (let i = 0; i < quantity; i++) {
-                  addToCart({
-                    id: product.id,
-                    name: product.name,
-                    price: product.price,
-                    image: selectedImage || allImages[0]
-                  });
-                }
+                addToCart({
+                  id: product.id,
+                  name: product.name,
+                  price: product.price,
+                  image: selectedImage || allImages[0]
+                }, quantity);
                 
                 const waMessage = `*DIRECT BUY REQUEST - SAUGAAT*
 ------------------------------
@@ -283,7 +281,7 @@ export const ProductPage: React.FC = () => {
 Hi Saugaat Support, I would like to buy this item right now! Please guide me on payment and delivery details.`;
 
                 const whatsappUrl = `https://wa.me/${STORE_CONTACT.whatsappNumber}?text=${encodeURIComponent(waMessage)}`;
-                window.open(whatsappUrl, '_blank');
+                window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
               }}
             >
               <MessageSquare size={18} /> BUY IT NOW

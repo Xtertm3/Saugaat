@@ -19,7 +19,7 @@ export interface WishlistItem {
 interface CartContextType {
   cart: CartItem[];
   wishlist: WishlistItem[];
-  addToCart: (item: Omit<CartItem, 'quantity'>) => void;
+  addToCart: (item: Omit<CartItem, 'quantity'>, qty?: number) => void;
   removeFromCart: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
@@ -50,34 +50,44 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     localStorage.setItem('saugaat_cart', JSON.stringify(cart));
-    window.dispatchEvent(new Event('storage'));
   }, [cart]);
 
   useEffect(() => {
     localStorage.setItem('saugaat_wishlist', JSON.stringify(wishlist));
-    window.dispatchEvent(new Event('storage'));
   }, [wishlist]);
 
-  // Sync state between tabs/windows
+  // Sync state cleanly between external tabs without infinite loops
   useEffect(() => {
-    const handleStorageChange = () => {
-      const savedCart = localStorage.getItem('saugaat_cart');
-      const savedWishlist = localStorage.getItem('saugaat_wishlist');
-      if (savedCart) setCart(JSON.parse(savedCart));
-      if (savedWishlist) setWishlist(JSON.parse(savedWishlist));
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'saugaat_cart' && e.newValue) {
+        try {
+          const parsed = JSON.parse(e.newValue);
+          setCart(parsed);
+        } catch (err) {
+          console.error(err);
+        }
+      }
+      if (e.key === 'saugaat_wishlist' && e.newValue) {
+        try {
+          const parsed = JSON.parse(e.newValue);
+          setWishlist(parsed);
+        } catch (err) {
+          console.error(err);
+        }
+      }
     };
 
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
-  const addToCart = (item: Omit<CartItem, 'quantity'>) => {
+  const addToCart = (item: Omit<CartItem, 'quantity'>, qty: number = 1) => {
     setCart(prev => {
       const existing = prev.find(i => i.id === item.id);
       if (existing) {
-        return prev.map(i => i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i);
+        return prev.map(i => i.id === item.id ? { ...i, quantity: i.quantity + qty } : i);
       }
-      return [...prev, { ...item, quantity: 1 }];
+      return [...prev, { ...item, quantity: qty }];
     });
   };
 
