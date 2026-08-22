@@ -152,7 +152,7 @@ export const Home: React.FC = () => {
             </div>
           ) : (
             <div className="category-grid">
-              {categories.map((category, index) => (
+              {categories.filter(c => c.id !== 'idols' && c.id !== 'toys').map((category, index) => (
                 <motion.div
                   key={category.id}
                   initial={{ opacity: 0, scale: 0.9 }}

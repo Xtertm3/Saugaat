@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, ShoppingBag, Heart, User, LogOut, BarChart3, Menu, X, LayoutDashboard } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { getProducts, type Product } from '../../lib/database';
@@ -16,6 +16,16 @@ export const Header: React.FC = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const navCategories = [
+    { id: 'all', path: '/category/all', label: 'All Gifts' },
+    { id: 'home-decor', path: '/category/home-decor', label: 'Home Decor' },
+    { id: 'festivals', path: '/category/festivals', label: 'Festivals' },
+    { id: 'gift-packs', path: '/category/gift-packs', label: 'Gift Packs' },
+    { id: 'return-gifts', path: '/category/return-gifts', label: 'Return Gifts' },
+    { id: 'just-like-that', path: '/category/just-like-that', label: 'Just Like That' },
+  ];
 
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
   const wishlistCount = wishlist.length;
@@ -196,46 +206,19 @@ export const Header: React.FC = () => {
         {/* Clean Luxury Navigation Menu */}
         <nav className="main-nav" style={{ marginTop: '15px', borderTop: '1px solid rgba(0,0,0,0.05)', paddingTop: '12px' }}>
           <ul className="nav-list" style={{ display: 'flex', justifyContent: 'center', gap: '25px', listStyle: 'none', margin: 0, padding: 0, flexWrap: 'wrap' }}>
-            <li>
-              <Link to="/category/all" style={{ textDecoration: 'none', fontSize: '0.85rem', fontWeight: 700, color: 'var(--secondary-color)', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
-                All Gifts
-              </Link>
-            </li>
-            <li>
-              <Link to="/category/home-decor" style={{ textDecoration: 'none', fontSize: '0.85rem', fontWeight: 600, color: 'var(--primary-color)', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
-                Home Decor
-              </Link>
-            </li>
-            <li>
-              <Link to="/category/idols" style={{ textDecoration: 'none', fontSize: '0.85rem', fontWeight: 600, color: 'var(--primary-color)', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
-                Idols
-              </Link>
-            </li>
-            <li>
-              <Link to="/category/festivals" style={{ textDecoration: 'none', fontSize: '0.85rem', fontWeight: 600, color: 'var(--primary-color)', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
-                Festivals
-              </Link>
-            </li>
-            <li>
-              <Link to="/category/toys" style={{ textDecoration: 'none', fontSize: '0.85rem', fontWeight: 600, color: 'var(--primary-color)', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
-                Toys
-              </Link>
-            </li>
-            <li>
-              <Link to="/category/gift-packs" style={{ textDecoration: 'none', fontSize: '0.85rem', fontWeight: 600, color: 'var(--primary-color)', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
-                Gift Packs
-              </Link>
-            </li>
-            <li>
-              <Link to="/category/return-gifts" style={{ textDecoration: 'none', fontSize: '0.85rem', fontWeight: 600, color: 'var(--primary-color)', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
-                Return Gifts
-              </Link>
-            </li>
-            <li>
-              <Link to="/category/just-like-that" style={{ textDecoration: 'none', fontSize: '0.85rem', fontWeight: 600, color: 'var(--primary-color)', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
-                Just Like That
-              </Link>
-            </li>
+            {navCategories.map((cat) => {
+              const isActive = location.pathname === cat.path || (cat.id === 'all' && (location.pathname === '/' || location.pathname === '/category/all'));
+              return (
+                <li key={cat.id}>
+                  <Link 
+                    to={cat.path} 
+                    className={isActive ? 'active' : ''}
+                  >
+                    {cat.label}
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
         </nav>
       </div>
@@ -275,30 +258,21 @@ export const Header: React.FC = () => {
           
           <div className="mobile-nav-title">Categories</div>
           <ul className="mobile-nav-list">
-            <li>
-              <Link to="/category/all" onClick={() => setIsMobileMenuOpen(false)}>All Gifts Collection</Link>
-            </li>
-            <li>
-              <Link to="/category/home-decor" onClick={() => setIsMobileMenuOpen(false)}>Home Decor</Link>
-            </li>
-            <li>
-              <Link to="/category/idols" onClick={() => setIsMobileMenuOpen(false)}>Idols</Link>
-            </li>
-            <li>
-              <Link to="/category/festivals" onClick={() => setIsMobileMenuOpen(false)}>Festivals</Link>
-            </li>
-            <li>
-              <Link to="/category/toys" onClick={() => setIsMobileMenuOpen(false)}>Toys</Link>
-            </li>
-            <li>
-              <Link to="/category/gift-packs" onClick={() => setIsMobileMenuOpen(false)}>Gift Packs</Link>
-            </li>
-            <li>
-              <Link to="/category/return-gifts" onClick={() => setIsMobileMenuOpen(false)}>Return Gifts</Link>
-            </li>
-            <li>
-              <Link to="/category/just-like-that" onClick={() => setIsMobileMenuOpen(false)}>Just Like That</Link>
-            </li>
+            {navCategories.map((cat) => {
+              const isActive = location.pathname === cat.path || (cat.id === 'all' && (location.pathname === '/' || location.pathname === '/category/all'));
+              return (
+                <li key={cat.id}>
+                  <Link 
+                    to={cat.path} 
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={isActive ? 'active' : ''}
+                    style={{ color: isActive ? 'var(--secondary-color)' : 'var(--primary-color)', fontWeight: isActive ? 700 : 500 }}
+                  >
+                    {cat.label}
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
         </div>
       </div>
