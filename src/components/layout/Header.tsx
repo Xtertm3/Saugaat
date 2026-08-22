@@ -3,7 +3,7 @@ import { Search, ShoppingBag, Heart, User, LogOut, BarChart3, Menu, X, LayoutDas
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
-import { getProducts, getCategories, type Product, type Category } from '../../lib/database';
+import { getProducts, getCategories, slugify, type Product, type Category } from '../../lib/database';
 import './Header.css';
 
 export const Header: React.FC = () => {
@@ -39,10 +39,26 @@ export const Header: React.FC = () => {
     };
   }, []);
 
-  const parentCategories = dbCategories.filter(c => c.parent_id === null && c.id !== 'idols' && c.id !== 'toys');
+  const hiddenCategoryKeys = ['idols', 'toys'];
+  const parentCategories = dbCategories.filter(c => {
+    if (c.parent_id !== null) return false;
+    const slug = slugify(c.name);
+    return !hiddenCategoryKeys.includes(c.id.toLowerCase()) && !hiddenCategoryKeys.includes(slug);
+  });
+
+  const uniqueParentCategories: Category[] = [];
+  const seenCategorySlugs = new Set<string>();
+  for (const cat of parentCategories) {
+    const slug = slugify(cat.name);
+    if (!seenCategorySlugs.has(slug)) {
+      seenCategorySlugs.add(slug);
+      uniqueParentCategories.push(cat);
+    }
+  }
+
   const navCategories = [
     { id: 'all', path: '/category/all', label: 'All Gifts' },
-    ...parentCategories.map(c => ({
+    ...uniqueParentCategories.map(c => ({
       id: c.id,
       path: `/category/${c.id}`,
       label: c.name

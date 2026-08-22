@@ -157,11 +157,13 @@ function getLocalProducts(): Product[] {
 function mergeCategories(remoteCats: Category[], localCats: Category[]): Category[] {
   const map = new Map<string, Category>();
   for (const c of localCats) {
-    map.set(c.id, c);
+    const key = slugify(c.name) || c.id;
+    map.set(key, c);
   }
   for (const c of remoteCats) {
-    if (!map.has(c.id)) {
-      map.set(c.id, c);
+    const key = slugify(c.name) || c.id;
+    if (!map.has(key)) {
+      map.set(key, c);
     }
   }
   return Array.from(map.values());
@@ -181,8 +183,14 @@ function mergeProducts(remoteProds: Product[], localProds: Product[]): Product[]
 }
 
 function saveLocalCategories(cats: Category[]) {
-  _categoriesMemoryCache = cats;
-  localStorage.setItem('saugaat_categories', JSON.stringify(cats));
+  const map = new Map<string, Category>();
+  for (const c of cats) {
+    const key = slugify(c.name) || c.id;
+    map.set(key, c);
+  }
+  const deduped = Array.from(map.values());
+  _categoriesMemoryCache = deduped;
+  localStorage.setItem('saugaat_categories', JSON.stringify(deduped));
   window.dispatchEvent(new CustomEvent('saugaat_catalog_updated'));
 }
 
