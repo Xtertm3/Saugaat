@@ -112,12 +112,16 @@
 
 .newsletter-form .btn {
   background-color: var(--secondary-color);
-  color: var(--primary-color);
+  color: var(--primary-dark, #1a362b);
   font-weight: 600;
+  transition: all var(--transition-normal);
 }
 
 .newsletter-form .btn:hover {
-  background-color: white;
+  background-color: #ffffff !important;
+  color: var(--primary-dark, #1a362b) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .footer-bottom {
