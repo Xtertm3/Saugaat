@@ -15,16 +15,29 @@ import {
   Box,
   CheckCircle2
 } from 'lucide-react';
-import { getParentCategories, getTrendingProducts, type Category, type Product } from '../lib/database';
+import { 
+  getParentCategories, 
+  getTrendingProducts, 
+  getSyncCategories, 
+  getSyncTrendingProducts, 
+  type Category, 
+  type Product 
+} from '../lib/database';
 import { useCart } from '../context/CartContext';
+import { getOptimizedImageUrl } from '../utils/imageOptimizer';
+import { preloadCatalogImages } from '../utils/imagePreloader';
 import './Home.css';
 
 export const Home: React.FC = () => {
   const { user, points } = useAuth();
   const { toggleWishlist, isInWishlist, addToCart } = useCart();
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [trendingProducts, setTrendingProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [categories, setCategories] = useState<Category[]>(() => 
+    getSyncCategories().filter(c => c.parent_id === null)
+  );
+  const [trendingProducts, setTrendingProducts] = useState<Product[]>(() => 
+    getSyncTrendingProducts(4)
+  );
+  const [loading, _setLoading] = useState(false);
   const navigate = useNavigate();
 
   // Custom Hamper Builder Preview state
@@ -32,9 +45,13 @@ export const Home: React.FC = () => {
   const [selectedBoxStyle, setSelectedBoxStyle] = useState<'velvet' | 'wooden' | 'gold'>('velvet');
   const [hamperItemsCount, setHamperItemsCount] = useState<number>(3);
 
+  // Preload catalog images in background
+  useEffect(() => {
+    preloadCatalogImages(trendingProducts, categories);
+  }, [categories, trendingProducts]);
+
   useEffect(() => {
     const loadHomeData = async () => {
-      setLoading(true);
       try {
         const [parentCats, trendingProds] = await Promise.all([
           getParentCategories(),
@@ -44,8 +61,6 @@ export const Home: React.FC = () => {
         setTrendingProducts(trendingProds);
       } catch (err) {
         console.error('Error loading home page catalog data:', err);
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -57,6 +72,7 @@ export const Home: React.FC = () => {
       window.removeEventListener('saugaat_catalog_updated', loadHomeData);
     };
   }, []);
+
 
   const handleToggleWishlist = (product: Product) => {
     const featuredImg = product.product_images && product.product_images.length > 0
@@ -168,7 +184,13 @@ export const Home: React.FC = () => {
                 >
                   <Link to={`/category/${category.id}`} className="luxury-category-card">
                     <div className="category-image-circle">
-                      <img src={category.image_url} alt={category.name} className="category-image" loading="lazy" decoding="async" />
+                      <img 
+                        src={getOptimizedImageUrl(category.image_url, { width: 300, quality: 75 })} 
+                        alt={category.name} 
+                        className="category-image" 
+                        loading="eager" 
+                        decoding="async" 
+                      />
                       <div className="category-image-overlay"></div>
                     </div>
                     <span className="category-name-premium">{category.name}</span>
@@ -376,11 +398,11 @@ export const Home: React.FC = () => {
             className="heritage-visual-block"
           >
             <div className="visual-card-large shadow-lg">
-              <img src="https://images.unsplash.com/photo-1605806616949-1e87b487cb2a?auto=format&fit=crop&q=80&w=800" alt="Brass Artisan Craft" />
+              <img src={getOptimizedImageUrl("https://images.unsplash.com/photo-1605806616949-1e87b487cb2a", { width: 500, quality: 68 })} alt="Brass Artisan Craft" loading="lazy" decoding="async" />
               <div className="visual-card-glow"></div>
             </div>
             <div className="visual-card-small shadow-lg">
-              <img src="https://images.unsplash.com/photo-1513201099705-a9746e1e201f?auto=format&fit=crop&q=80&w=800" alt="Ribbon Packing" />
+              <img src={getOptimizedImageUrl("https://images.unsplash.com/photo-1513201099705-a9746e1e201f", { width: 400, quality: 68 })} alt="Ribbon Packing" loading="lazy" decoding="async" />
             </div>
           </motion.div>
         </div>
@@ -409,22 +431,17 @@ export const Home: React.FC = () => {
                 const isWishlisted = isInWishlist(product.id);
                 const featuredImg = product.product_images && product.product_images.length > 0
                   ? product.product_images.find(img => img.is_featured)?.image_url || product.product_images[0].image_url
-                  : 'https://images.unsplash.com/photo-1513201099705-a9746e1e201f?auto=format&fit=crop&q=80&w=800';
+                  : 'https://images.unsplash.com/photo-1513201099705-a9746e1e201f?auto=format,compress&fit=crop&q=68&w=400&fm=webp';
 
                 return (
                   <motion.div
                     key={product.id}
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: index * 0.05 }}
+                    transition={{ duration: 0.4, delay: index * 0.05 }}
                     viewport={{ once: true }}
-                    className="premium-product-card"
+                    className="product-card"
                   >
-                    {product.discount_percentage > 0 ? (
-                      <div className="product-badge">{product.discount_percentage}% OFF</div>
-                    ) : (
-                      <div className="product-badge">TRENDING</div>
-                    )}
                     <button 
                       className={`wishlist-toggle-btn ${isWishlisted ? 'active' : ''}`}
                       onClick={() => handleToggleWishlist(product)}
@@ -433,7 +450,13 @@ export const Home: React.FC = () => {
                       <Heart size={18} fill={isWishlisted ? 'var(--accent-color)' : 'none'} />
                     </button>
                     <div className="product-image-container">
-                      <img src={featuredImg} alt={product.name} className="product-image" loading="lazy" decoding="async" />
+                      <img 
+                        src={getOptimizedImageUrl(featuredImg, { width: 400, quality: 68 })} 
+                        alt={product.name} 
+                        className="product-image" 
+                        loading="lazy" 
+                        decoding="async" 
+                      />
                       <div className="product-actions">
                         <Link to={`/product/${product.id}`} className="btn btn-primary" style={{ flex: 1, textTransform: 'uppercase', fontSize: '0.8rem', letterSpacing: '0.5px', textAlign: 'center', lineHeight: '2.5' }}>
                           View Details

@@ -4,6 +4,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { getProducts, getCategories, slugify, type Product, type Category } from '../../lib/database';
+import { getOptimizedImageUrl } from '../../utils/imageOptimizer';
 import './Header.css';
 
 export const Header: React.FC = () => {
@@ -114,7 +115,7 @@ export const Header: React.FC = () => {
               <Menu size={24} />
             </button>
             <Link to="/" className="logo" style={{ display: 'inline-block' }}>
-              <img src="/logo.png" alt="Saugaat Logo" style={{ height: '54px', width: 'auto', objectFit: 'contain' }} />
+              <img src="/logo.webp" onError={(e) => { (e.target as HTMLImageElement).src = '/logo.png'; }} alt="Saugaat Logo" loading="eager" decoding="async" style={{ height: '54px', width: 'auto', objectFit: 'contain' }} />
             </Link>
           </div>
 
@@ -183,7 +184,7 @@ export const Header: React.FC = () => {
                             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(200, 169, 107, 0.08)'}
                             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                           >
-                            <img src={img} alt={p.name} style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px' }} />
+                            <img src={getOptimizedImageUrl(img, { width: 80, quality: 70 })} alt={p.name} loading="lazy" decoding="async" style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px' }} />
                             <div style={{ flex: 1, minWidth: 0 }}>
                               <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--primary-color)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name}</div>
                               <div style={{ fontSize: '0.75rem', color: 'var(--secondary-color)', fontWeight: 'bold' }}>₹{p.price}</div>
@@ -268,7 +269,7 @@ export const Header: React.FC = () => {
         >
           <div className="mobile-menu-header">
             <h2 className="logo" style={{ margin: 0 }}>
-              <img src="/logo.png" alt="Saugaat Logo" style={{ height: '44px', width: 'auto', objectFit: 'contain' }} />
+              <img src="/logo.webp" onError={(e) => { (e.target as HTMLImageElement).src = '/logo.png'; }} alt="Saugaat Logo" loading="lazy" decoding="async" style={{ height: '44px', width: 'auto', objectFit: 'contain' }} />
             </h2>
             <button 
               onClick={() => setIsMobileMenuOpen(false)} 

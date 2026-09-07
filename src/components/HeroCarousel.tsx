@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, ShoppingCart, Heart } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { getOptimizedImageUrl } from '../utils/imageOptimizer';
+import { preloadImages } from '../utils/imagePreloader';
 
 interface Product {
   id: string;
@@ -21,6 +23,13 @@ interface HeroCarouselProps {
 export const HeroCarousel: React.FC<HeroCarouselProps> = ({ products }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isHovering, setIsHovering] = useState(false);
+
+  // Preload all carousel slide images immediately into RAM
+  useEffect(() => {
+    if (!products || products.length === 0) return;
+    const slideUrls = products.map((p) => p.product_images?.[0]?.image_url).filter(Boolean);
+    preloadImages(slideUrls, { width: 650, quality: 70 });
+  }, [products]);
 
   // Auto-advance carousel every 5 seconds unless hovering
   useEffect(() => {
@@ -52,7 +61,8 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({ products }) => {
   }
 
   const currentProduct = products[currentIndex];
-  const imageUrl = currentProduct.product_images?.[0]?.image_url || 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&q=80&w=800';
+  const rawImageUrl = currentProduct.product_images?.[0]?.image_url || 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format,compress&fit=crop&q=70&w=650&fm=webp';
+  const imageUrl = getOptimizedImageUrl(rawImageUrl, { width: 650, quality: 70 });
   const discountPercentage = Math.round(
     ((currentProduct.original_price - currentProduct.price) / currentProduct.original_price) * 100
   );
@@ -106,12 +116,16 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({ products }) => {
             <img
               src={imageUrl}
               alt={currentProduct.name}
+              loading="eager"
+              decoding="sync"
               style={{
                 width: '100%',
                 height: '100%',
                 objectFit: 'cover',
+                display: 'block',
               }}
             />
+
             {/* Discount badge */}
             <div
               style={{

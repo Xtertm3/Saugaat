@@ -20,6 +20,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
+import { getOptimizedImageUrl } from '../utils/imageOptimizer';
 import { getCustomerOrders, attachCardToOrder, createOrder, getProducts } from '../lib/database';
 import type { Order } from '../lib/database';
 import './Home.css';
@@ -421,7 +422,7 @@ export const UserDashboard: React.FC = () => {
           <Heart size={18} fill={isWishlisted ? 'var(--accent-color)' : 'none'} />
         </button>
         <div className="product-image-container">
-          <img src={product.image} alt={product.name} className="product-image" />
+          <img src={getOptimizedImageUrl(product.image, { width: 400, quality: 68 })} alt={product.name} className="product-image" loading="lazy" decoding="async" />
           <div className="product-actions">
             <button 
               className="btn btn-primary" 

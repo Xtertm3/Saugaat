@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { getOptimizedImageUrl } from '../utils/imageOptimizer';
 import { Heart, ArrowLeft, Star } from 'lucide-react';
 import './Home.css';
 
@@ -55,7 +56,13 @@ export const WishlistPage: React.FC = () => {
                 </button>
 
                 <div className="product-image-container">
-                  <img src={item.image} alt={item.name} className="product-image" />
+                  <img 
+                    src={getOptimizedImageUrl(item.image, { width: 400, quality: 68 })} 
+                    alt={item.name} 
+                    className="product-image" 
+                    loading="lazy" 
+                    decoding="async" 
+                  />
                   <div className="product-actions">
                     <button 
                       className="btn btn-primary" 

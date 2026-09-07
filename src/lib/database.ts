@@ -522,6 +522,70 @@ export async function getProductById(id: string) {
   };
 }
 
+// Synchronous 0ms RAM catalog getters for initial state rendering
+export function getSyncCategories(): Category[] {
+  return getLocalCategories();
+}
+
+export function getSyncProducts(limit?: number): Product[] {
+  const localCats = getLocalCategories();
+  const prods = getLocalProducts()
+    .filter(p => p.status === 'active')
+    .map(p => ({
+      ...p,
+      categories: localCats.find(c => c.id === p.category_id)
+    }))
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  return limit ? prods.slice(0, limit) : prods;
+}
+
+export function getSyncProductsByCategory(categoryId: string): Product[] {
+  const allCats = getLocalCategories();
+  const allProds = getSyncProducts();
+  const resolved = allCats.find(c => c.id === categoryId || slugify(c.name) === categoryId);
+  if (!resolved) {
+    return allProds.filter(p => p.category_id === categoryId || slugify(p.category_id) === categoryId);
+  }
+  const isParent = resolved.parent_id === null;
+  const targetCategoryIds = isParent
+    ? [resolved.id, ...allCats.filter(c => c.parent_id === resolved.id).map(c => c.id)]
+    : [resolved.id];
+  return allProds.filter(p => targetCategoryIds.includes(p.category_id) || slugify(p.category_id) === categoryId);
+}
+
+export function getSyncBestsellers(limit = 10): Product[] {
+  const localCats = getLocalCategories();
+  return getLocalProducts()
+    .filter(p => p.is_bestseller && p.status === 'active')
+    .map(p => ({
+      ...p,
+      categories: localCats.find(c => c.id === p.category_id)
+    }))
+    .slice(0, limit);
+}
+
+export function getSyncTrendingProducts(limit = 10): Product[] {
+  const localCats = getLocalCategories();
+  return getLocalProducts()
+    .filter(p => p.is_trending && p.status === 'active')
+    .map(p => ({
+      ...p,
+      categories: localCats.find(c => c.id === p.category_id)
+    }))
+    .slice(0, limit);
+}
+
+export function getSyncProductById(id: string): Product | null {
+  const localCats = getLocalCategories();
+  const prod = getLocalProducts().find(p => p.id === id);
+  if (!prod) return null;
+  return {
+    ...prod,
+    categories: localCats.find(c => c.id === prod.category_id)
+  };
+}
+
+
 export async function createProduct(product: {
   name: string;
   description: string;

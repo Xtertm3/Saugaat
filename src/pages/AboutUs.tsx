@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { getOptimizedImageUrl } from '../utils/imageOptimizer';
 
 export const AboutUs: React.FC = () => {
   return (
@@ -16,8 +17,10 @@ export const AboutUs: React.FC = () => {
         className="content-body"
       >
         <img 
-          src="https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&q=80&w=1200" 
+          src={getOptimizedImageUrl("https://images.unsplash.com/photo-1549465220-1a8b9238cd48", { width: 700, quality: 70 })} 
           alt="Saugaat Gifting" 
+          loading="lazy"
+          decoding="async"
           style={{ width: '100%', borderRadius: 'var(--radius-md)', marginBottom: '30px', boxShadow: 'var(--shadow-md)' }} 
         />
         

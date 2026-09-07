@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import { getOptimizedImageUrl } from '../utils/imageOptimizer';
 import { Trash2, Plus, Minus, ArrowLeft, ShoppingBag, CreditCard } from 'lucide-react';
 import './Home.css';
 
@@ -92,7 +93,13 @@ export const CartPage: React.FC = () => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               {cart.map((item) => (
                 <div key={item.id} className="glass" style={{ display: 'flex', gap: '20px', padding: '20px', borderRadius: 'var(--radius-md)', alignItems: 'center' }}>
-                  <img src={item.image} alt={item.name} style={{ width: '80px', height: '80px', borderRadius: '4px', objectFit: 'cover', border: '1px solid var(--border-color)' }} />
+                  <img 
+                    src={getOptimizedImageUrl(item.image, { width: 120, quality: 68 })} 
+                    alt={item.name} 
+                    loading="lazy" 
+                    decoding="async" 
+                    style={{ width: '80px', height: '80px', borderRadius: '4px', objectFit: 'cover', border: '1px solid var(--border-color)' }} 
+                  />
                   <div style={{ flex: 1 }}>
                     <h3 style={{ fontSize: '1.05rem', margin: '0 0 4px 0', color: 'var(--primary-color)', fontFamily: 'var(--font-heading)' }}>{item.name}</h3>
                     <div style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--secondary-color)' }}>₹{item.price}</div>

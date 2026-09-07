@@ -3,7 +3,19 @@ import { useParams, Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Heart, Star, Sparkles, RefreshCw, ArrowUpDown } from 'lucide-react';
 import { useCart } from '../context/CartContext';
-import { getCategories, getProductsByCategory, getProducts, slugify, type Category, type Product } from '../lib/database';
+import { 
+  getCategories, 
+  getProductsByCategory, 
+  getProducts, 
+  getSyncCategories, 
+  getSyncProducts, 
+  getSyncProductsByCategory, 
+  slugify, 
+  type Category, 
+  type Product 
+} from '../lib/database';
+import { getOptimizedImageUrl } from '../utils/imageOptimizer';
+import { preloadCatalogImages } from '../utils/imagePreloader';
 
 export const CategoryPage: React.FC = () => {
   const { categoryId } = useParams<{ categoryId: string }>();
@@ -13,11 +25,18 @@ export const CategoryPage: React.FC = () => {
 
   const { toggleWishlist, isInWishlist } = useCart();
   const [selectedSubcategory, setSelectedSubcategory] = useState('all');
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [productsList, setProductsList] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [categories, setCategories] = useState<Category[]>(() => getSyncCategories());
+  const [productsList, setProductsList] = useState<Product[]>(() => 
+    categoryId === 'all' || !categoryId ? getSyncProducts() : getSyncProductsByCategory(categoryId)
+  );
+  const [loading, _setLoading] = useState(false);
   const [sortBy, setSortBy] = useState<'featured' | 'price-low' | 'price-high' | 'discount'>('featured');
   const [searchFilter, setSearchFilter] = useState(initialSearchQuery);
+
+  // Preload product images for fast rendering
+  useEffect(() => {
+    preloadCatalogImages(productsList, categories);
+  }, [productsList, categories]);
 
   useEffect(() => {
     const q = new URLSearchParams(location.search).get('search') || '';
@@ -26,7 +45,6 @@ export const CategoryPage: React.FC = () => {
 
   useEffect(() => {
     const loadCategoryData = async () => {
-      setLoading(true);
       try {
         const allCats = await getCategories();
         setCategories(allCats);
@@ -40,8 +58,6 @@ export const CategoryPage: React.FC = () => {
         }
       } catch (err) {
         console.error('Error loading category page data:', err);
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -227,7 +243,13 @@ export const CategoryPage: React.FC = () => {
                   <Heart size={18} fill={isWishlisted ? 'var(--accent-color)' : 'none'} color={isWishlisted ? 'var(--accent-color)' : 'currentColor'} />
                 </button>
                 <div className="product-image-container">
-                  <img src={featuredImg} alt={product.name} className="product-image" loading="lazy" decoding="async" />
+                  <img 
+                    src={getOptimizedImageUrl(featuredImg, { width: 400, quality: 68 })} 
+                    alt={product.name} 
+                    className="product-image" 
+                    loading="lazy" 
+                    decoding="async" 
+                  />
                   <div className="product-actions">
                     <Link to={`/product/${product.id}`} className="btn btn-primary" style={{ flex: 1, textTransform: 'uppercase', fontSize: '0.8rem', textAlign: 'center', lineHeight: '2.5' }}>
                       View Details

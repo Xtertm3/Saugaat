@@ -10,7 +10,7 @@ export const Footer: React.FC = () => {
         <div className="footer-grid">
           {/* Brand Info */}
           <div className="footer-col brand-info">
-            <img src="/logo.png" alt="Saugaat Logo" style={{ height: '150px', width: 'auto', marginBottom: '15px', objectFit: 'contain' }} />
+            <img src="/logo.webp" onError={(e) => { (e.target as HTMLImageElement).src = '/logo.png'; }} alt="Saugaat Logo" loading="lazy" decoding="async" style={{ height: '150px', width: 'auto', marginBottom: '15px', objectFit: 'contain' }} />
             <p className="footer-desc">
               Curated luxury gifting and premium home decor for every special occasion. 
               Celebrate life's moments with elegance.
@@ -21,9 +21,32 @@ export const Footer: React.FC = () => {
               <div style={{ marginTop: '4px' }}>✉️ <a href={`mailto:${STORE_CONTACT.email}`} style={{ color: 'inherit' }}>{STORE_CONTACT.email}</a></div>
             </div>
             <div className="social-links" style={{ marginTop: '15px' }}>
-              <a href="#" className="social-icon">IG</a>
-              <a href="#" className="social-icon">FB</a>
-              <a href="#" className="social-icon">TW</a>
+              <a 
+                href={STORE_CONTACT.social.instagram} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="social-icon"
+                aria-label="Instagram"
+                title="Follow us on Instagram"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect width="20" height="20" x="2" y="2" rx="5" ry="5"/>
+                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+                  <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>
+                </svg>
+              </a>
+              <a 
+                href={STORE_CONTACT.social.facebook} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="social-icon"
+                aria-label="Facebook"
+                title="Follow us on Facebook"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+                </svg>
+              </a>
             </div>
           </div>
 

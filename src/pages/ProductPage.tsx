@@ -3,8 +3,10 @@ import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Minus, Plus, Heart, Truck, RefreshCw, Star, ShieldCheck, Sparkles, MessageSquare, Check } from 'lucide-react';
 import { useCart } from '../context/CartContext';
-import { getProductById, getProductsByCategory, type Product } from '../lib/database';
+import { getProductById, getProductsByCategory, getSyncProductById, getSyncProductsByCategory, type Product } from '../lib/database';
 import { STORE_CONTACT } from '../config/contact';
+import { getOptimizedImageUrl } from '../utils/imageOptimizer';
+import { preloadImages } from '../utils/imagePreloader';
 
 interface Review {
   id: string;
@@ -17,11 +19,34 @@ interface Review {
 export const ProductPage: React.FC = () => {
   const { productId } = useParams<{ productId: string }>();
   const [quantity, setQuantity] = useState(1);
-  const [product, setProduct] = useState<Product | null>(null);
-  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [selectedImage, setSelectedImage] = useState<string>('');
+  const [product, setProduct] = useState<Product | null>(() => 
+    productId ? getSyncProductById(productId) : null
+  );
+  const [relatedProducts, setRelatedProducts] = useState<Product[]>(() => {
+    const syncProd = productId ? getSyncProductById(productId) : null;
+    return syncProd?.category_id ? getSyncProductsByCategory(syncProd.category_id).filter(p => p.id !== syncProd.id).slice(0, 4) : [];
+  });
+  const [loading, _setLoading] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string>(() => {
+    const syncProd = productId ? getSyncProductById(productId) : null;
+    if (syncProd && syncProd.product_images && syncProd.product_images.length > 0) {
+      return syncProd.product_images.find(img => img.is_featured)?.image_url || syncProd.product_images[0].image_url;
+    }
+    return 'https://images.unsplash.com/photo-1513201099705-a9746e1e201f?auto=format,compress&fit=crop&q=80&w=800&fm=webp';
+  });
   const [activeTab, setActiveTab] = useState<'details' | 'specs' | 'reviews'>('details');
+
+  // Preload all images for this product gallery and related items
+  useEffect(() => {
+    if (product?.product_images) {
+      const urls = product.product_images.map(img => img.image_url);
+      preloadImages(urls, { width: 800, quality: 80 });
+    }
+    if (relatedProducts.length > 0) {
+      const relUrls = relatedProducts.map(p => p.product_images?.[0]?.image_url).filter(Boolean);
+      preloadImages(relUrls, { width: 400, quality: 75 });
+    }
+  }, [product, relatedProducts]);
 
   // Reviews state
   const [reviews, setReviews] = useState<Review[]>([
@@ -39,15 +64,13 @@ export const ProductPage: React.FC = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       if (!productId) return;
-      setLoading(true);
       try {
         const prod = await getProductById(productId);
-        setProduct(prod);
-
         if (prod) {
+          setProduct(prod);
           const featured = prod.product_images && prod.product_images.length > 0
             ? prod.product_images.find(img => img.is_featured)?.image_url || prod.product_images[0].image_url
-            : 'https://images.unsplash.com/photo-1513201099705-a9746e1e201f?auto=format&fit=crop&q=80&w=800';
+            : 'https://images.unsplash.com/photo-1513201099705-a9746e1e201f?auto=format,compress&fit=crop&q=80&w=800&fm=webp';
           setSelectedImage(featured);
 
           // Fetch related
@@ -58,8 +81,6 @@ export const ProductPage: React.FC = () => {
         }
       } catch (err) {
         console.error('Error fetching product detail:', err);
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -67,19 +88,10 @@ export const ProductPage: React.FC = () => {
     setQuantity(1);
   }, [productId]);
 
-  if (loading) {
+  if (loading && !product) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
         <RefreshCw size={36} className="spin-anim" style={{ color: 'var(--secondary-color)' }} />
-        <style>{`
-          .spin-anim {
-            animation: spin 1s linear infinite;
-          }
-          @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-          }
-        `}</style>
       </div>
     );
   }
@@ -146,8 +158,10 @@ export const ProductPage: React.FC = () => {
         >
           <div className="product-image-large" style={{ position: 'relative', overflow: 'hidden', borderRadius: 'var(--radius-md)', boxShadow: 'var(--shadow-md)' }}>
             <img 
-              src={selectedImage || allImages[0]} 
+              src={getOptimizedImageUrl(selectedImage || allImages[0], { width: 600, quality: 70 })} 
               alt={product.name} 
+              loading="eager"
+              decoding="sync"
               style={{ width: '100%', maxHeight: '520px', objectFit: 'cover', display: 'block' }} 
             />
             {product.discount_percentage > 0 && (
@@ -163,9 +177,11 @@ export const ProductPage: React.FC = () => {
               {allImages.map((img, idx) => (
                 <img
                   key={idx}
-                  src={img}
+                  src={getOptimizedImageUrl(img, { width: 120, quality: 68 })}
                   alt={`${product.name} thumbnail ${idx}`}
                   onClick={() => setSelectedImage(img)}
+                  loading="eager"
+                  decoding="async"
                   style={{
                     width: '70px',
                     height: '70px',
@@ -501,7 +517,13 @@ Hi Saugaat Support, I would like to buy this item right now! Please guide me on 
               return (
                 <div key={rel.id} className="premium-product-card">
                   <div className="product-image-container">
-                    <img src={relImg} alt={rel.name} className="product-image" />
+                    <img 
+                      src={getOptimizedImageUrl(relImg, { width: 400, quality: 68 })} 
+                      alt={rel.name} 
+                      className="product-image" 
+                      loading="lazy" 
+                      decoding="async" 
+                    />
                     <div className="product-actions">
                       <Link to={`/product/${rel.id}`} className="btn btn-primary" style={{ flex: 1, fontSize: '0.8rem' }}>
                         View Details
