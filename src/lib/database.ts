@@ -464,6 +464,23 @@ export async function getTrendingProducts(limit = 10) {
     .slice(0, limit);
 }
 
+export async function getFeaturedHeroProducts(limit = 6): Promise<Product[]> {
+  const trending = await getTrendingProducts(limit);
+  if (trending && trending.length > 0) return trending;
+  const bestsellers = await getBestsellers(limit);
+  if (bestsellers && bestsellers.length > 0) return bestsellers;
+  return getFeaturedProducts(limit);
+}
+
+export function getSyncFeaturedHeroProducts(limit = 6): Product[] {
+  const allProds = getSyncProducts();
+  const heroItems = allProds.filter(p => p.is_trending && p.status === 'active');
+  if (heroItems.length > 0) return heroItems.slice(0, limit);
+  const bestsellers = allProds.filter(p => p.is_bestseller && p.status === 'active');
+  if (bestsellers.length > 0) return bestsellers.slice(0, limit);
+  return allProds.slice(0, limit);
+}
+
 export async function getFeaturedProducts(limit = 5) {
   if (supabase) {
     try {

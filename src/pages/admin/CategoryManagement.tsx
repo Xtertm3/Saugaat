@@ -2,7 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { AdminLayout } from './AdminLayout';
 import { Edit, Trash2, Plus, RefreshCw } from 'lucide-react';
 import { getCategories, createCategory, updateCategory, deleteCategory, type Category } from '../../lib/database';
+import { getOptimizedImageUrl } from '../../utils/imageOptimizer';
 import '../Admin.css';
+
+const PRESET_CATEGORY_IMAGES = [
+  { name: 'Home Decor', url: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format,compress&fit=crop&q=70&w=400&fm=webp' },
+  { name: 'Idols & Divine', url: 'https://images.unsplash.com/photo-1621252179027-94459d278660?auto=format,compress&fit=crop&q=70&w=400&fm=webp' },
+  { name: 'Festivals', url: 'https://images.unsplash.com/photo-1601379326928-10db74191d90?auto=format,compress&fit=crop&q=70&w=400&fm=webp' },
+  { name: 'Toys & Craft', url: 'https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?auto=format,compress&fit=crop&q=70&w=400&fm=webp' },
+  { name: 'Gift Hampers', url: 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format,compress&fit=crop&q=70&w=400&fm=webp' },
+  { name: 'Return Gifts', url: 'https://images.unsplash.com/photo-1512909006721-3d6018887383?auto=format,compress&fit=crop&q=70&w=400&fm=webp' },
+];
 
 export const CategoryManagement: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -67,7 +77,7 @@ export const CategoryManagement: React.FC = () => {
       } else {
         await createCategory(
           formData.name,
-          formData.image_url || 'https://images.unsplash.com/photo-1513201099705-a9746e1e201f?auto=format&fit=crop&q=80&w=800',
+          formData.image_url || 'https://images.unsplash.com/photo-1513201099705-a9746e1e201f?auto=format,compress&fit=crop&q=70&w=400&fm=webp',
           formData.parent_id || null,
           `${formData.name} Collection`
         );
@@ -104,7 +114,7 @@ export const CategoryManagement: React.FC = () => {
           padding: '30px',
           borderRadius: 'var(--radius-lg)',
           boxShadow: 'var(--shadow-sm)',
-          maxWidth: '600px',
+          maxWidth: '650px',
         }}>
           <button
             onClick={() => setShowForm(false)}
@@ -133,7 +143,7 @@ export const CategoryManagement: React.FC = () => {
                 type="text"
                 value={formData.name}
                 onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
-                placeholder="e.g., Vases"
+                placeholder="e.g., Vases & Planters"
                 className="form-input"
                 required
               />
@@ -156,14 +166,57 @@ export const CategoryManagement: React.FC = () => {
             </div>
 
             <div className="form-group">
-              <label>Category Image URL (Optional)</label>
+              <label>Category Preview Image URL</label>
               <input
                 type="text"
                 value={formData.image_url}
                 onChange={(e) => setFormData((prev) => ({ ...prev, image_url: e.target.value }))}
-                placeholder="Image URL"
+                placeholder="https://images.unsplash.com/..."
                 className="form-input"
               />
+              
+              {/* Quick Presets */}
+              <div style={{ marginTop: '10px' }}>
+                <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>
+                  Or select a curated preset preview image:
+                </span>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                  {PRESET_CATEGORY_IMAGES.map((preset) => (
+                    <button
+                      key={preset.name}
+                      type="button"
+                      onClick={() => setFormData((prev) => ({ ...prev, image_url: preset.url }))}
+                      style={{
+                        padding: '4px 10px',
+                        fontSize: '0.75rem',
+                        borderRadius: 'var(--radius-sm)',
+                        border: '1px solid var(--border-color)',
+                        backgroundColor: formData.image_url === preset.url ? 'var(--secondary-color)' : 'var(--bg-main)',
+                        color: formData.image_url === preset.url ? 'white' : 'var(--text-main)',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                      }}
+                    >
+                      {preset.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Live Preview Box */}
+              {formData.image_url && (
+                <div style={{ marginTop: '14px', display: 'flex', alignItems: 'center', gap: '15px', padding: '12px', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--bg-main)', border: '1px solid var(--border-color)' }}>
+                  <img
+                    src={getOptimizedImageUrl(formData.image_url, { width: 100, quality: 75 })}
+                    alt="Category Preview"
+                    style={{ width: '60px', height: '60px', borderRadius: '8px', objectFit: 'cover' }}
+                  />
+                  <div>
+                    <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--primary-color)', display: 'block' }}>Preview Selected</span>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', wordBreak: 'break-all' }}>{formData.image_url.slice(0, 50)}...</span>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
@@ -238,12 +291,20 @@ export const CategoryManagement: React.FC = () => {
                     onClick={() => setExpandedParent(isExpanded ? null : parent.id)}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      <span style={{ fontWeight: 600, color: 'var(--text-main)' }}>
-                        {parent.name}
-                      </span>
-                      <span style={{ color: 'var(--text-muted)', fontSize: '12px' }}>
-                        ({subcats.length} subcategories)
-                      </span>
+                      <img 
+                        src={getOptimizedImageUrl(parent.image_url, { width: 80, quality: 70 })} 
+                        alt={parent.name} 
+                        style={{ width: '40px', height: '40px', borderRadius: '8px', objectFit: 'cover', border: '1px solid var(--border-color)' }}
+                        onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1513201099705-a9746e1e201f?auto=format,compress&fit=crop&q=70&w=80&fm=webp'; }}
+                      />
+                      <div>
+                        <span style={{ fontWeight: 600, color: 'var(--text-main)', display: 'block' }}>
+                          {parent.name}
+                        </span>
+                        <span style={{ color: 'var(--text-muted)', fontSize: '12px' }}>
+                          {subcats.length} subcategories
+                        </span>
+                      </div>
                     </div>
                     <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                       <button
@@ -286,7 +347,15 @@ export const CategoryManagement: React.FC = () => {
                             alignItems: 'center',
                           }}
                         >
-                          <span style={{ color: 'var(--text-main)' }}>{subcat.name}</span>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <img 
+                              src={getOptimizedImageUrl(subcat.image_url, { width: 60, quality: 70 })} 
+                              alt={subcat.name} 
+                              style={{ width: '32px', height: '32px', borderRadius: '6px', objectFit: 'cover', border: '1px solid var(--border-color)' }}
+                              onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1513201099705-a9746e1e201f?auto=format,compress&fit=crop&q=70&w=60&fm=webp'; }}
+                            />
+                            <span style={{ color: 'var(--text-main)', fontWeight: 500 }}>{subcat.name}</span>
+                          </div>
                           <div style={{ display: 'flex', gap: '8px' }}>
                             <button
                               className="btn-icon"

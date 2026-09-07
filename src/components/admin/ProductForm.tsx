@@ -17,7 +17,11 @@ interface ProductFormData {
   price: number;
   originalPrice: number;
   discountPercentage: number;
+  manualDiscountOverride: boolean;
+  manualDiscount: number;
+  basePrice: number;
   gst: number;
+  manualGstAmount: number;
   isBestseller: boolean;
   isTrending: boolean;
   status: 'active' | 'draft' | 'hidden';
@@ -45,7 +49,11 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     price: 0,
     originalPrice: 0,
     discountPercentage: 0,
+    manualDiscountOverride: false,
+    manualDiscount: 0,
+    basePrice: 0,
     gst: 18,
+    manualGstAmount: 0,
     isBestseller: false,
     isTrending: false,
     status: 'active',
@@ -82,15 +90,24 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         }
       }
 
+      const initPrice = initialData.price || 0;
+      const initGst = initialData.gst || 18;
+      const initBase = initPrice > 0 ? Math.round((initPrice / (1 + initGst / 100)) * 100) / 100 : 0;
+      const initGstAmt = Math.round((initPrice - initBase) * 100) / 100;
+
       setFormData({
         name: initialData.name,
         description: initialData.description,
         parentCategoryId: parentId,
         categoryId: subCatId,
-        price: initialData.price,
+        price: initPrice,
         originalPrice: initialData.original_price || 0,
         discountPercentage: initialData.discount_percentage || 0,
-        gst: initialData.gst || 18,
+        manualDiscountOverride: false,
+        manualDiscount: initialData.discount_percentage || 0,
+        basePrice: initBase,
+        gst: initGst,
+        manualGstAmount: initGstAmt,
         isBestseller: initialData.is_bestseller || false,
         isTrending: initialData.is_trending || false,
         status: (initialData.status as any) || 'active',
@@ -270,7 +287,11 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           price: 0,
           originalPrice: 0,
           discountPercentage: 0,
+          manualDiscountOverride: false,
+          manualDiscount: 0,
+          basePrice: 0,
           gst: 18,
+          manualGstAmount: 0,
           isBestseller: false,
           isTrending: false,
           status: 'active',
@@ -431,86 +452,245 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         </div>
       </div>
 
-      {/* Pricing Section */}
+      {/* Pricing & Tax Section */}
       <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-sm)' }}>
-        <h3 style={{ margin: '0 0 20px 0', fontSize: '18px', fontWeight: 600, color: 'var(--text-main)' }}>
-          Pricing & Tax
-        </h3>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+          <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 600, color: 'var(--text-main)' }}>
+            💰 Pricing & Tax (GST) Configuration
+          </h3>
+          <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Set selling prices, manual discounts, and GST rates</span>
+        </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px', marginBottom: '20px' }}>
+          {/* Sale Price */}
           <div className="form-group">
-            <label>Sale Price (₹) *</label>
+            <label style={{ fontWeight: 600 }}>Final Sale Price (₹) *</label>
             <input
               type="number"
               name="price"
               value={formData.price}
-              onChange={handleChange}
-              placeholder="0"
+              onChange={(e) => {
+                const newPrice = parseFloat(e.target.value) || 0;
+                const newBase = newPrice > 0 ? Math.round((newPrice / (1 + formData.gst / 100)) * 100) / 100 : 0;
+                const newGstAmt = Math.round((newPrice - newBase) * 100) / 100;
+                setFormData(prev => ({
+                  ...prev,
+                  price: newPrice,
+                  basePrice: newBase,
+                  manualGstAmount: newGstAmt,
+                }));
+              }}
+              placeholder="e.g. 1499"
               className="form-input"
               step="0.01"
               min="0"
               required
             />
+            <small style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>Price customer pays at checkout</small>
           </div>
 
+          {/* Original MRP */}
           <div className="form-group">
-            <label>Original Price (₹)</label>
+            <label style={{ fontWeight: 600 }}>Original MRP Price (₹)</label>
             <input
               type="number"
               name="originalPrice"
               value={formData.originalPrice}
               onChange={handleChange}
-              placeholder="0"
+              placeholder="e.g. 2199"
               className="form-input"
               step="0.01"
               min="0"
             />
+            <small style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>Original price for discount comparison</small>
           </div>
 
+          {/* Discount % */}
           <div className="form-group">
-            <label>Discount %</label>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <label style={{ fontWeight: 600 }}>Discount %</label>
+              <label style={{ fontSize: '0.75rem', color: 'var(--primary-color)', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={formData.manualDiscountOverride}
+                  onChange={(e) => setFormData(prev => ({ ...prev, manualDiscountOverride: e.target.checked }))}
+                  style={{ marginRight: '4px' }}
+                />
+                Manual Override
+              </label>
+            </div>
+            
+            {formData.manualDiscountOverride ? (
               <input
                 type="number"
-                value={calculateDiscount()}
-                readOnly
-                placeholder="Auto-calculated"
+                name="manualDiscount"
+                value={formData.manualDiscount}
+                onChange={(e) => setFormData(prev => ({ ...prev, manualDiscount: parseFloat(e.target.value) || 0 }))}
+                placeholder="Enter discount %"
                 className="form-input"
-                disabled
-                style={{ backgroundColor: '#f5f5f5', cursor: 'not-allowed', flex: 1 }}
+                min="0"
+                max="100"
               />
-              {calculateDiscount() > 0 && (
-                <span style={{
-                  padding: '6px 12px',
+            ) : (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <input
+                  type="number"
+                  value={calculateDiscount()}
+                  readOnly
+                  className="form-input"
+                  disabled
+                  style={{ backgroundColor: '#f5f5f5', cursor: 'not-allowed', flex: 1 }}
+                />
+                {calculateDiscount() > 0 && (
+                  <span style={{
+                    padding: '6px 12px',
+                    borderRadius: 'var(--radius-sm)',
+                    backgroundColor: 'var(--accent-color)',
+                    color: 'white',
+                    fontWeight: 'bold',
+                    fontSize: '13px',
+                    whiteSpace: 'nowrap'
+                  }}>
+                    {calculateDiscount()}% OFF
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* GST Section */}
+        <div style={{ padding: '16px', backgroundColor: 'var(--bg-main)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', marginBottom: '20px' }}>
+          <h4 style={{ margin: '0 0 12px 0', fontSize: '14px', color: 'var(--primary-color)' }}>🏷️ GST & Base Price Breakdown</h4>
+          
+          {/* Quick GST Presets */}
+          <div style={{ marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+            <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Quick GST Rates:</span>
+            {[0, 5, 12, 18, 28].map((rate) => (
+              <button
+                key={rate}
+                type="button"
+                onClick={() => {
+                  const newBase = formData.price > 0 ? Math.round((formData.price / (1 + rate / 100)) * 100) / 100 : 0;
+                  const newGstAmt = Math.round((formData.price - newBase) * 100) / 100;
+                  setFormData(prev => ({
+                    ...prev,
+                    gst: rate,
+                    basePrice: newBase,
+                    manualGstAmount: newGstAmt,
+                  }));
+                }}
+                style={{
+                  padding: '4px 12px',
                   borderRadius: 'var(--radius-sm)',
-                  backgroundColor: 'var(--accent-color)',
-                  color: 'white',
-                  fontWeight: 'bold',
-                  fontSize: '13px',
-                  whiteSpace: 'nowrap'
-                }}>
-                  {calculateDiscount()}% OFF
-                </span>
-              )}
-            </div>
-            <small style={{ color: 'var(--text-muted)', marginTop: '4px', display: 'block' }}>
-              Calculated automatically from pricing
-            </small>
+                  border: '1px solid var(--border-color)',
+                  backgroundColor: formData.gst === rate ? 'var(--secondary-color)' : 'white',
+                  color: formData.gst === rate ? 'white' : 'var(--text-main)',
+                  fontWeight: 600,
+                  fontSize: '0.8rem',
+                  cursor: 'pointer',
+                }}
+              >
+                {rate}% GST
+              </button>
+            ))}
           </div>
 
-          <div className="form-group">
-            <label>GST Rate (%)</label>
-            <input
-              type="number"
-              name="gst"
-              value={formData.gst}
-              onChange={handleChange}
-              placeholder="18"
-              className="form-input"
-              step="0.01"
-              min="0"
-            />
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px' }}>
+            <div className="form-group">
+              <label style={{ fontSize: '0.85rem' }}>GST Rate (%)</label>
+              <input
+                type="number"
+                name="gst"
+                value={formData.gst}
+                onChange={(e) => {
+                  const newRate = parseFloat(e.target.value) || 0;
+                  const newBase = formData.price > 0 ? Math.round((formData.price / (1 + newRate / 100)) * 100) / 100 : 0;
+                  const newGstAmt = Math.round((formData.price - newBase) * 100) / 100;
+                  setFormData(prev => ({
+                    ...prev,
+                    gst: newRate,
+                    basePrice: newBase,
+                    manualGstAmount: newGstAmt,
+                  }));
+                }}
+                placeholder="18"
+                className="form-input"
+                step="0.01"
+                min="0"
+              />
+            </div>
+
+            <div className="form-group">
+              <label style={{ fontSize: '0.85rem' }}>Manual Net Base Price (Excl. Tax) ₹</label>
+              <input
+                type="number"
+                name="basePrice"
+                value={formData.basePrice}
+                onChange={(e) => {
+                  const newBase = parseFloat(e.target.value) || 0;
+                  const newGstAmt = Math.round((newBase * (formData.gst / 100)) * 100) / 100;
+                  const newSale = Math.round((newBase + newGstAmt) * 100) / 100;
+                  setFormData(prev => ({
+                    ...prev,
+                    basePrice: newBase,
+                    manualGstAmount: newGstAmt,
+                    price: newSale,
+                  }));
+                }}
+                placeholder="0"
+                className="form-input"
+                step="0.01"
+                min="0"
+              />
+            </div>
+
+            <div className="form-group">
+              <label style={{ fontSize: '0.85rem' }}>Manual GST Tax Amount ₹</label>
+              <input
+                type="number"
+                name="manualGstAmount"
+                value={formData.manualGstAmount}
+                onChange={(e) => {
+                  const newGstAmt = parseFloat(e.target.value) || 0;
+                  setFormData(prev => ({
+                    ...prev,
+                    manualGstAmount: newGstAmt,
+                    price: Math.round((prev.basePrice + newGstAmt) * 100) / 100,
+                  }));
+                }}
+                placeholder="0"
+                className="form-input"
+                step="0.01"
+                min="0"
+              />
+            </div>
           </div>
+        </div>
+
+        {/* Financial Summary Badge */}
+        <div style={{
+          padding: '12px 18px',
+          borderRadius: 'var(--radius-sm)',
+          backgroundColor: '#f8faf9',
+          border: '1px solid var(--border-color)',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '10px'
+        }}>
+          <div>
+            <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Financial Summary: </span>
+            <strong style={{ color: 'var(--primary-color)', fontSize: '0.95rem' }}>
+              Base: ₹{formData.basePrice.toFixed(2)} + GST ({formData.gst}%): ₹{formData.manualGstAmount.toFixed(2)} = Total Price: ₹{formData.price.toFixed(2)}
+            </strong>
+          </div>
+          {formData.originalPrice > formData.price && (
+            <span style={{ fontSize: '0.85rem', color: '#2e7d32', fontWeight: 600 }}>
+              Discount: {formData.manualDiscountOverride ? formData.manualDiscount : calculateDiscount()}% OFF
+            </span>
+          )}
         </div>
       </div>
 
@@ -538,22 +718,10 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       {/* Visibility & Placements Section */}
       <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-sm)' }}>
         <h3 style={{ margin: '0 0 20px 0', fontSize: '18px', fontWeight: 600, color: 'var(--text-main)' }}>
-          Page Placements & Promotion
+          ⭐ Page Placements & Featured Promotions
         </h3>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer', fontWeight: 500 }}>
-            <input
-              type="checkbox"
-              name="isBestseller"
-              checked={formData.isBestseller}
-              onChange={handleChange}
-              style={{ width: '20px', height: '20px', cursor: 'pointer' }}
-            />
-            <span>Mark as Bestseller (Featured Section)</span>
-            <small style={{ color: 'var(--text-muted)', fontWeight: 'normal' }}>(Display in the "Featured Products" grid on home page)</small>
-          </label>
-
           <label style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer', fontWeight: 500 }}>
             <input
               type="checkbox"
@@ -562,8 +730,24 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               onChange={handleChange}
               style={{ width: '20px', height: '20px', cursor: 'pointer' }}
             />
-            <span>Mark as Trending (Hero Carousel)</span>
-            <small style={{ color: 'var(--text-muted)', fontWeight: 'normal' }}>(Display in the Hero Slider/Carousel on home page)</small>
+            <span style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--primary-color)' }}>
+              👑 Feature in Home Page Hero Slider / Carousel
+            </span>
+            <small style={{ color: 'var(--text-muted)', fontWeight: 'normal' }}>(Display in the main Hero Slider at the top of the home page)</small>
+          </label>
+
+          <label style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer', fontWeight: 500 }}>
+            <input
+              type="checkbox"
+              name="isBestseller"
+              checked={formData.isBestseller}
+              onChange={handleChange}
+              style={{ width: '20px', height: '20px', cursor: 'pointer' }}
+            />
+            <span style={{ fontSize: '0.95rem', fontWeight: 600 }}>
+              🔥 Feature as Bestseller / Seasonal Favorite
+            </span>
+            <small style={{ color: 'var(--text-muted)', fontWeight: 'normal' }}>(Display in the "Trending & Bestsellers" product grid on home page)</small>
           </label>
         </div>
       </div>

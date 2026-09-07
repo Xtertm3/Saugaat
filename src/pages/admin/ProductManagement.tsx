@@ -234,11 +234,19 @@ export const ProductManagement: React.FC = () => {
                             {product.status}
                           </span>
                         </td>
-                        <td style={{ textAlign: 'center', fontWeight: 'bold', color: product.is_bestseller ? 'var(--secondary-color)' : '#ccc' }}>
-                          {product.is_bestseller ? '✓' : '-'}
+                        <td style={{ textAlign: 'center' }}>
+                          {product.is_bestseller ? (
+                            <span style={{ padding: '4px 8px', borderRadius: '4px', backgroundColor: 'var(--secondary-color)', color: 'white', fontSize: '11px', fontWeight: 600 }}>🔥 BESTSELLER</span>
+                          ) : (
+                            <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>-</span>
+                          )}
                         </td>
-                        <td style={{ textAlign: 'center', fontWeight: 'bold', color: product.is_trending ? 'var(--secondary-color)' : '#ccc' }}>
-                          {product.is_trending ? '✓' : '-'}
+                        <td style={{ textAlign: 'center' }}>
+                          {product.is_trending ? (
+                            <span style={{ padding: '4px 8px', borderRadius: '4px', backgroundColor: 'var(--primary-color)', color: 'white', fontSize: '11px', fontWeight: 600 }}>⭐ HERO</span>
+                          ) : (
+                            <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>-</span>
+                          )}
                         </td>
                         <td>
                           <div className="action-buttons">

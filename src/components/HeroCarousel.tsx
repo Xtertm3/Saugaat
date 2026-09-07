@@ -3,18 +3,7 @@ import { ChevronLeft, ChevronRight, ShoppingCart, Heart } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getOptimizedImageUrl } from '../utils/imageOptimizer';
 import { preloadImages } from '../utils/imagePreloader';
-
-interface Product {
-  id: string;
-  name: string;
-  price: number;
-  original_price: number;
-  description: string;
-  product_images?: Array<{ image_url: string; is_featured?: boolean }>;
-  is_bestseller?: boolean;
-  is_trending?: boolean;
-  discount_percentage?: number;
-}
+import { type Product } from '../lib/database';
 
 interface HeroCarouselProps {
   products: Product[];
@@ -63,9 +52,9 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({ products }) => {
   const currentProduct = products[currentIndex];
   const rawImageUrl = currentProduct.product_images?.[0]?.image_url || 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format,compress&fit=crop&q=70&w=650&fm=webp';
   const imageUrl = getOptimizedImageUrl(rawImageUrl, { width: 650, quality: 70 });
-  const discountPercentage = Math.round(
-    ((currentProduct.original_price - currentProduct.price) / currentProduct.original_price) * 100
-  );
+  const discountPercentage = currentProduct.original_price && currentProduct.original_price > currentProduct.price
+    ? Math.round(((currentProduct.original_price - currentProduct.price) / currentProduct.original_price) * 100)
+    : (currentProduct.discount_percentage || 0);
 
   return (
     <div
@@ -230,15 +219,17 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({ products }) => {
               >
                 ₹{currentProduct.price.toLocaleString()}
               </span>
-              <span
-                style={{
-                  fontSize: '1.2rem',
-                  color: 'var(--text-muted)',
-                  textDecoration: 'line-through',
-                }}
-              >
-                ₹{currentProduct.original_price.toLocaleString()}
-              </span>
+              {currentProduct.original_price && currentProduct.original_price > currentProduct.price && (
+                <span
+                  style={{
+                    fontSize: '1.2rem',
+                    color: 'var(--text-muted)',
+                    textDecoration: 'line-through',
+                  }}
+                >
+                  ₹{currentProduct.original_price.toLocaleString()}
+                </span>
+              )}
             </div>
 
             {/* Action buttons */}

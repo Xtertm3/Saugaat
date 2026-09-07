@@ -18,11 +18,14 @@ import {
 import { 
   getParentCategories, 
   getTrendingProducts, 
+  getFeaturedHeroProducts,
   getSyncCategories, 
   getSyncTrendingProducts, 
+  getSyncFeaturedHeroProducts,
   type Category, 
   type Product 
 } from '../lib/database';
+import { HeroCarousel } from '../components/HeroCarousel';
 import { useCart } from '../context/CartContext';
 import { getOptimizedImageUrl } from '../utils/imageOptimizer';
 import { preloadCatalogImages } from '../utils/imagePreloader';
@@ -36,6 +39,9 @@ export const Home: React.FC = () => {
   );
   const [trendingProducts, setTrendingProducts] = useState<Product[]>(() => 
     getSyncTrendingProducts(4)
+  );
+  const [heroProducts, setHeroProducts] = useState<Product[]>(() => 
+    getSyncFeaturedHeroProducts(5)
   );
   const [loading, _setLoading] = useState(false);
   const navigate = useNavigate();
@@ -53,12 +59,14 @@ export const Home: React.FC = () => {
   useEffect(() => {
     const loadHomeData = async () => {
       try {
-        const [parentCats, trendingProds] = await Promise.all([
+        const [parentCats, trendingProds, heroProds] = await Promise.all([
           getParentCategories(),
-          getTrendingProducts(4)
+          getTrendingProducts(4),
+          getFeaturedHeroProducts(5)
         ]);
         setCategories(parentCats);
         setTrendingProducts(trendingProds);
+        setHeroProducts(heroProds);
       } catch (err) {
         console.error('Error loading home page catalog data:', err);
       }
@@ -124,40 +132,44 @@ export const Home: React.FC = () => {
         </div>
       )}
 
-      {/* Luxury Hero Section */}
-      <section className="luxury-hero">
-        <div className="hero-texture-overlay"></div>
-        <div className="hero-radial-glow"></div>
-        <div className="container relative z-10 hero-inner">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="hero-main-content"
-          >
-            <span className="hero-gold-badge">
-              <Sparkles size={14} style={{ color: 'var(--secondary-color)' }} />
-              Handcrafted Gifting Curation
-            </span>
-            <h1 className="luxury-hero-main-title">
-              The Art of <br />
-              <span className="gold-text">Thoughtful Gifting</span>
-            </h1>
-            <p className="luxury-hero-main-subtitle">
-              Discover and share exquisite home decor, divine spiritual essentials, <br />
-              and premium handcrafted gift hampers curated for lifetime memories.
-            </p>
-            <div className="hero-button-group">
-              <Link to="/category/all" className="btn btn-primary luxury-hero-btn">
-                Explore Curation
-              </Link>
-              <Link to="/about" className="btn btn-secondary luxury-hero-btn-sec">
-                Our Story
-              </Link>
-            </div>
-          </motion.div>
-        </div>
-      </section>
+      {/* Luxury Hero Carousel Section */}
+      {heroProducts && heroProducts.length > 0 ? (
+        <HeroCarousel products={heroProducts} />
+      ) : (
+        <section className="luxury-hero">
+          <div className="hero-texture-overlay"></div>
+          <div className="hero-radial-glow"></div>
+          <div className="container relative z-10 hero-inner">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+              className="hero-main-content"
+            >
+              <span className="hero-gold-badge">
+                <Sparkles size={14} style={{ color: 'var(--secondary-color)' }} />
+                Handcrafted Gifting Curation
+              </span>
+              <h1 className="luxury-hero-main-title">
+                The Art of <br />
+                <span className="gold-text">Thoughtful Gifting</span>
+              </h1>
+              <p className="luxury-hero-main-subtitle">
+                Discover and share exquisite home decor, divine spiritual essentials, <br />
+                and premium handcrafted gift hampers curated for lifetime memories.
+              </p>
+              <div className="hero-button-group">
+                <Link to="/category/all" className="btn btn-primary luxury-hero-btn">
+                  Explore Curation
+                </Link>
+                <Link to="/about" className="btn btn-secondary luxury-hero-btn-sec">
+                  Our Story
+                </Link>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+      )}
 
       {/* Shop By Category Section with textures */}
       <section className="section-padding bg-linen-texture">
