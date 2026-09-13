@@ -103,51 +103,111 @@ function getLocalCategories(): Category[] {
 
 function getLocalProducts(): Product[] {
   if (_productsMemoryCache) return _productsMemoryCache;
+  const now = new Date().toISOString();
   const stored = localStorage.getItem('saugaat_products');
+  let prods: Product[] = [];
+  
   if (stored) {
     try {
-      _productsMemoryCache = JSON.parse(stored);
-      return _productsMemoryCache!;
+      prods = JSON.parse(stored);
     } catch (e) {
       console.error('Error parsing local products:', e);
     }
   }
 
-  const now = new Date().toISOString();
-  const prods: Product[] = seedProducts.map((p, idx) => {
-    const id = `p-${idx + 1}`;
-    const category_id = slugify(p.category_id);
-    
-    const imgMatch = seedProductImages.find(img => img.product_name === p.name);
-    const imagesList = imgMatch ? imgMatch.images : ['https://images.unsplash.com/photo-1513201099705-a9746e1e201f?auto=format&fit=crop&q=80&w=800'];
-    
-    const product_images = imagesList.map((url, i) => ({
-      id: `img-${id}-${i}`,
-      product_id: id,
-      image_url: url,
-      is_featured: i === 0,
-      display_order: i,
-      created_at: now
-    }));
+  if (!prods || prods.length === 0) {
+    prods = seedProducts.map((p, idx) => {
+      const id = `p-${idx + 1}`;
+      const category_id = slugify(p.category_id);
+      const imgMatch = seedProductImages.find(img => img.product_name.toLowerCase() === p.name.toLowerCase());
+      const imagesList = imgMatch ? imgMatch.images : ['https://images.unsplash.com/photo-1513201099705-a9746e1e201f?auto=format&fit=crop&q=80&w=800'];
+      
+      const product_images = imagesList.map((url, i) => ({
+        id: `img-${id}-${i}`,
+        product_id: id,
+        image_url: url,
+        is_featured: i === 0,
+        display_order: i,
+        created_at: now
+      }));
 
-    return {
-      id,
-      name: p.name,
-      description: p.description,
-      category_id,
-      price: p.price,
-      original_price: p.original_price,
-      discount_percentage: p.original_price ? Math.round(((p.original_price - p.price) / p.original_price) * 100) : 0,
-      gst: p.gst || 18,
-      is_bestseller: p.is_bestseller || false,
-      is_trending: p.is_trending || false,
-      status: p.status || 'active',
-      created_by: 'admin',
-      product_images,
-      created_at: now,
-      updated_at: now
-    };
-  });
+      return {
+        id,
+        name: p.name,
+        description: p.description,
+        category_id,
+        price: p.price,
+        original_price: p.original_price,
+        discount_percentage: p.original_price ? Math.round(((p.original_price - p.price) / p.original_price) * 100) : 0,
+        gst: p.gst || 18,
+        is_bestseller: p.is_bestseller || false,
+        is_trending: p.is_trending || false,
+        status: p.status || 'active',
+        created_by: 'admin',
+        product_images,
+        created_at: now,
+        updated_at: now
+      };
+    });
+  } else {
+    // Synchronize product images for seed products so legacy cached fallback images get upgraded
+    prods = prods.map((p) => {
+      const imgMatch = seedProductImages.find(img => 
+        img.product_name.toLowerCase() === p.name.toLowerCase() || 
+        p.name.toLowerCase().includes(img.product_name.toLowerCase())
+      );
+      if (imgMatch && imgMatch.images && imgMatch.images.length > 0) {
+        const currentImg = p.product_images?.[0]?.image_url;
+        if (!currentImg || currentImg.includes('photo-1513201099705-a9746e1e201f') || p.category_id === 'curtains' || slugify(p.category_id) === 'curtains') {
+          const product_images = imgMatch.images.map((url, i) => ({
+            id: `img-${p.id}-${i}`,
+            product_id: p.id,
+            image_url: url,
+            is_featured: i === 0,
+            display_order: i,
+            created_at: p.created_at || now
+          }));
+          return { ...p, product_images };
+        }
+      }
+      return p;
+    });
+
+    // Ensure all seed curtain products exist
+    seedProducts.filter(sp => sp.category_id === 'curtains').forEach((sp, idx) => {
+      if (!prods.some(p => p.name.toLowerCase() === sp.name.toLowerCase())) {
+        const id = `p-curtain-${idx + 1}`;
+        const category_id = 'curtains';
+        const imgMatch = seedProductImages.find(img => img.product_name === sp.name);
+        const imagesList = imgMatch ? imgMatch.images : ['/curtains/botanical-damask-tapestry.jpg'];
+        const product_images = imagesList.map((url, i) => ({
+          id: `img-${id}-${i}`,
+          product_id: id,
+          image_url: url,
+          is_featured: i === 0,
+          display_order: i,
+          created_at: now
+        }));
+        prods.unshift({
+          id,
+          name: sp.name,
+          description: sp.description,
+          category_id,
+          price: sp.price,
+          original_price: sp.original_price,
+          discount_percentage: 0,
+          gst: sp.gst || 18,
+          is_bestseller: sp.is_bestseller || false,
+          is_trending: sp.is_trending || false,
+          status: sp.status || 'active',
+          created_by: 'admin',
+          product_images,
+          created_at: now,
+          updated_at: now
+        });
+      }
+    });
+  }
 
   _productsMemoryCache = prods;
   localStorage.setItem('saugaat_products', JSON.stringify(prods));

@@ -207,20 +207,32 @@ button {
 
 .product-actions {
   position: absolute;
-  bottom: -50px;
+  bottom: 0;
   left: 0;
   width: 100%;
   display: flex;
   justify-content: center;
-  gap: 10px;
-  padding: 10px;
-  background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
-  transition: bottom var(--transition-normal);
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  background: linear-gradient(to top, rgba(15, 23, 42, 0.88), rgba(15, 23, 42, 0.3) 70%, transparent);
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all var(--transition-normal);
   z-index: 2;
 }
 
-.product-card:hover .product-actions {
-  bottom: 0;
+.product-card:hover .product-actions,
+.premium-product-card:hover .product-actions {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.product-actions .btn {
+  white-space: nowrap !important;
+  font-size: 0.72rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.5px !important;
 }
 
 .product-info {

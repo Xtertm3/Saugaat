@@ -253,9 +253,26 @@ export const CategoryPage: React.FC = () => {
                     loading="lazy" 
                     decoding="async" 
                   />
-                  <div className="product-actions" style={{ gap: '6px' }}>
-                    <Link to={`/product/${product.id}`} className="btn btn-primary" style={{ flex: 1, textTransform: 'uppercase', fontSize: '0.78rem', textAlign: 'center', lineHeight: '2.5' }}>
-                      View Details
+                  <div className="product-actions" style={{ gap: '6px', padding: '8px' }}>
+                    <Link 
+                      to={`/product/${product.id}`} 
+                      className="btn btn-primary" 
+                      style={{ 
+                        flex: 1, 
+                        textTransform: 'uppercase', 
+                        fontSize: '0.72rem', 
+                        fontWeight: 700, 
+                        padding: '8px 4px', 
+                        lineHeight: '1.2', 
+                        whiteSpace: 'nowrap',
+                        letterSpacing: '0.5px',
+                        textAlign: 'center',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}
+                    >
+                      Details
                     </Link>
                     {(product.price === 0 || product.category_id === 'curtains' || slugify(product.category_id) === 'curtains') && (
                       <a 
@@ -263,9 +280,25 @@ export const CategoryPage: React.FC = () => {
                         target="_blank" 
                         rel="noopener noreferrer" 
                         className="btn btn-secondary" 
-                        style={{ flex: 1.2, textTransform: 'uppercase', fontSize: '0.78rem', textAlign: 'center', backgroundColor: '#25D366', color: 'white', borderColor: '#25D366', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
+                        style={{ 
+                          flex: 1.3, 
+                          textTransform: 'uppercase', 
+                          fontSize: '0.72rem', 
+                          fontWeight: 700, 
+                          padding: '8px 4px', 
+                          lineHeight: '1.2', 
+                          whiteSpace: 'nowrap',
+                          letterSpacing: '0.5px',
+                          backgroundColor: '#25D366', 
+                          color: 'white', 
+                          borderColor: '#25D366', 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          justifyContent: 'center', 
+                          gap: '3px' 
+                        }}
                       >
-                        <MessageSquare size={14} /> Get Quote
+                        <MessageSquare size={13} /> Get Quote
                       </a>
                     )}
                   </div>
