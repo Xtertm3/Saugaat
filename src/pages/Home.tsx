@@ -493,9 +493,15 @@ export const Home: React.FC = () => {
                         <Link to={`/product/${product.id}`}>{product.name}</Link>
                       </h3>
                       <div className="premium-product-price-wrapper">
-                        <span className="product-price">₹{product.price}</span>
-                        {product.original_price && product.original_price > product.price && (
-                          <span className="product-original-price">₹{product.original_price}</span>
+                        {product.price === 0 || product.category_id === 'curtains' ? (
+                          <span className="product-price" style={{ fontSize: '0.95rem', color: 'var(--primary-color)', fontWeight: 700 }}>Price on Request</span>
+                        ) : (
+                          <>
+                            <span className="product-price">₹{product.price}</span>
+                            {product.original_price && product.original_price > product.price && (
+                              <span className="product-original-price">₹{product.original_price}</span>
+                            )}
+                          </>
                         )}
                       </div>
                     </div>

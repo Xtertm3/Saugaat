@@ -5,6 +5,7 @@ export const seedCategories = [
   { name: 'Wall Decor', image_url: 'https://images.unsplash.com/photo-1578500494198-246f612d03b3?auto=format&fit=crop&q=80&w=800', parent_id: 'home-decor', sort_order: 1 },
   { name: 'Showpieces', image_url: 'https://images.unsplash.com/photo-1572186192734-1779ef884240?auto=format&fit=crop&q=80&w=800', parent_id: 'home-decor', sort_order: 2 },
   { name: 'Vases & Planters', image_url: 'https://images.unsplash.com/photo-1485955900006-10f4d324d411?auto=format&fit=crop&q=80&w=800', parent_id: 'home-decor', sort_order: 3 },
+  { name: 'Curtains', image_url: '/curtains/botanical-damask-tapestry.jpg', parent_id: 'home-decor', sort_order: 4 },
 
   // Idols parent
   { name: 'Idols', image_url: 'https://images.unsplash.com/photo-1621252179027-94459d278660?auto=format&fit=crop&q=80&w=800', parent_id: null, sort_order: 2 },
@@ -45,6 +46,14 @@ export const seedProducts = [
   { name: 'Metallic Vine Brocade Cushion', description: 'Luxurious silver and teal brocade cushion cover featuring intricate terracotta leaf borders and a subtle metallic sheen.', category_id: 'showpieces', price: 1699, original_price: 2199, gst: 18, is_bestseller: true, is_trending: true, status: 'active' },
   { name: 'Botanical Damask Brocade', description: 'Premium terracotta brown and ivory damask tapestry cushion featuring classical floral vine embroidery and rich textural finish.', category_id: 'showpieces', price: 1599, original_price: 1999, gst: 18, is_bestseller: true, is_trending: false, status: 'active' },
   { name: 'Ginkgo & Peacock Silk Jacquard', description: 'Imperial silk jacquard cushion displaying a majestic paradise bird (peacock) nestled amidst lush floral foliage and deep purple blooms.', category_id: 'showpieces', price: 2199, original_price: 2799, gst: 18, is_bestseller: true, is_trending: true, status: 'active' },
+
+  // Curtains Collection (Quote-based)
+  { name: 'Botanical Damask Tapestry Valance Curtain', description: 'Hand-tailored classical damask valance curtains with ornate pelmet header, thick woven blackout drape lining, and matching tiebacks.', category_id: 'curtains', price: 0, original_price: 0, gst: 18, is_bestseller: true, is_trending: true, status: 'active' },
+  { name: 'Chevron Jacquard Pelmet Drapes', description: 'Modern luxury herringbone and chevron patterned jacquard drapes with structured scalloped pelmet and custom border trim.', category_id: 'curtains', price: 0, original_price: 0, gst: 18, is_bestseller: true, is_trending: false, status: 'active' },
+  { name: 'Gilded Silk Sheer & Velvet Drapes', description: 'Opulent cream silk & velvet curtains featuring central lace trim accents, scalloped valance, and sheer inner backdrop.', category_id: 'curtains', price: 0, original_price: 0, gst: 18, is_bestseller: false, is_trending: true, status: 'active' },
+  { name: 'Terracotta Floral Brocade Curtains', description: 'Rich terracotta floral brocade pelmet curtains with cream blackout side drapes and vintage ornamental tie-backs.', category_id: 'curtains', price: 0, original_price: 0, gst: 18, is_bestseller: false, is_trending: false, status: 'active' },
+  { name: 'Imperial Floral Jacquard Valance Drapes', description: 'Royal taupe and beige floral jacquard drapes with multi-panel valance header and luxurious heavy drop fabric.', category_id: 'curtains', price: 0, original_price: 0, gst: 18, is_bestseller: true, is_trending: true, status: 'active' },
+
   { name: 'Brass Urli with Diyas', description: 'A stunning brass urli perfect for floating candles and flowers. Handcrafted with traditional techniques by local artisans.', category_id: 'showpieces', price: 1299, original_price: 1599, gst: 18, is_bestseller: true, is_trending: false, status: 'active' },
   { name: 'Ceramic Vases Trio', description: 'A set of three minimalist ceramic vases with elegant matte textures. Adds clean Nordic charm to any living room.', category_id: 'vases-planters', price: 1899, original_price: 2499, gst: 18, is_bestseller: true, is_trending: false, status: 'active' },
   { name: 'Terracotta Planters (3pcs)', description: 'Eco-friendly terracotta planters ideal for small indoor plants and succulents. Breathable natural clay.', category_id: 'vases-planters', price: 449, original_price: 649, gst: 18, is_bestseller: false, is_trending: false, status: 'active' },
@@ -138,6 +147,13 @@ export const seedProductImages = [
   { product_name: 'Metallic Vine Brocade Cushion', images: ['/cushions/metallic-vine-brocade.jpg'] },
   { product_name: 'Botanical Damask Brocade', images: ['/cushions/botanical-damask-tapestry.jpg'] },
   { product_name: 'Ginkgo & Peacock Silk Jacquard', images: ['/cushions/ginkgo-silk-cushion.jpg'] },
+
+  // Curtains
+  { product_name: 'Botanical Damask Tapestry Valance Curtain', images: ['/curtains/botanical-damask-tapestry.jpg'] },
+  { product_name: 'Chevron Jacquard Pelmet Drapes', images: ['/curtains/chevron-jacquard-pelmet.jpg'] },
+  { product_name: 'Gilded Silk Sheer & Velvet Drapes', images: ['/curtains/gilded-silk-sheer.jpg'] },
+  { product_name: 'Terracotta Floral Brocade Curtains', images: ['/curtains/terracotta-floral-brocade.jpg'] },
+  { product_name: 'Imperial Floral Jacquard Valance Drapes', images: ['/curtains/imperial-floral-jacquard.jpg'] },
   { product_name: 'Brass Urli with Diyas', images: ['https://images.unsplash.com/photo-1605806616949-1e87b487cb2a?auto=format&fit=crop&q=80&w=800'] },
   { product_name: 'Ceramic Vases Trio', images: ['https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&q=80&w=800'] },
   { product_name: 'Terracotta Planters (3pcs)', images: ['https://images.unsplash.com/photo-1578500494198-246f612d03b3?auto=format&fit=crop&q=80&w=800'] },

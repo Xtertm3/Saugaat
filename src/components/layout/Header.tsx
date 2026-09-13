@@ -187,7 +187,9 @@ export const Header: React.FC = () => {
                             <img src={getOptimizedImageUrl(img, { width: 80, quality: 70 })} alt={p.name} loading="lazy" decoding="async" style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px' }} />
                             <div style={{ flex: 1, minWidth: 0 }}>
                               <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--primary-color)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name}</div>
-                              <div style={{ fontSize: '0.75rem', color: 'var(--secondary-color)', fontWeight: 'bold' }}>₹{p.price}</div>
+                              <div style={{ fontSize: '0.75rem', color: 'var(--secondary-color)', fontWeight: 'bold' }}>
+                                {p.price === 0 || p.category_id === 'curtains' ? 'Price on Request' : `₹${p.price}`}
+                              </div>
                             </div>
                           </div>
                         );

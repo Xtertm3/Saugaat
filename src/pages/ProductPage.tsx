@@ -225,76 +225,128 @@ export const ProductPage: React.FC = () => {
           
           {/* Price Container */}
           <div className="price-container" style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '24px', paddingBottom: '16px', borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
-            <span style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--primary-color)' }}>₹{product.price}</span>
-            {product.original_price && product.original_price > product.price && (
-              <span style={{ fontSize: '1.2rem', textDecoration: 'line-through', color: 'var(--text-muted)' }}>₹{product.original_price}</span>
+            {product.price === 0 || product.category_id === 'curtains' ? (
+              <>
+                <span style={{ fontSize: '1.8rem', fontWeight: '700', color: 'var(--primary-color)' }}>Price on Request</span>
+                <span style={{ fontSize: '0.8rem', color: '#1e40af', backgroundColor: '#dbeafe', padding: '4px 10px', borderRadius: '4px', fontWeight: 600 }}>
+                  Bespoke Tailoring & Measurements
+                </span>
+              </>
+            ) : (
+              <>
+                <span style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--primary-color)' }}>₹{product.price}</span>
+                {product.original_price && product.original_price > product.price && (
+                  <span style={{ fontSize: '1.2rem', textDecoration: 'line-through', color: 'var(--text-muted)' }}>₹{product.original_price}</span>
+                )}
+                <span style={{ fontSize: '0.8rem', color: '#15803d', backgroundColor: '#dcfce7', padding: '2px 8px', borderRadius: '4px', fontWeight: 600 }}>
+                  Inclusive of all taxes (GST)
+                </span>
+              </>
             )}
-            <span style={{ fontSize: '0.8rem', color: '#15803d', backgroundColor: '#dcfce7', padding: '2px 8px', borderRadius: '4px', fontWeight: 600 }}>
-              Inclusive of all taxes (GST)
-            </span>
           </div>
 
           <p style={{ color: 'var(--text-main)', marginBottom: '30px', fontSize: '1.05rem', lineHeight: '1.7' }}>
             {product.description}
           </p>
 
-          {/* Quantity Selector */}
-          <div className="quantity-selector" style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '24px' }}>
-            <span style={{ fontWeight: '600', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Quantity</span>
-            <div style={{ display: 'flex', alignItems: 'center', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)', backgroundColor: 'white' }}>
-              <button onClick={handleDecrease} style={{ padding: '10px 16px', cursor: 'pointer', background: 'transparent', border: 'none' }}><Minus size={16} /></button>
-              <span style={{ padding: '0 16px', fontWeight: '700', fontSize: '1.1rem' }}>{quantity}</span>
-              <button onClick={handleIncrease} style={{ padding: '10px 16px', cursor: 'pointer', background: 'transparent', border: 'none' }}><Plus size={16} /></button>
-            </div>
-          </div>
-
-          {addedMsg && (
-            <div style={{ backgroundColor: '#dcfce7', color: '#15803d', padding: '10px 16px', borderRadius: '4px', marginBottom: '15px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Check size={18} /> Added {quantity} unit(s) to your shopping cart!
-            </div>
-          )}
-
-          {/* Action Buttons */}
-          <div className="action-buttons" style={{ display: 'flex', gap: '15px', marginBottom: '35px' }}>
-            <button 
-              className="btn btn-primary" 
-              style={{ flex: 1, padding: '16px', fontWeight: 700 }}
-              onClick={() => {
-                addToCart({
+          {product.price === 0 || product.category_id === 'curtains' ? (
+            <div className="action-buttons" style={{ display: 'flex', gap: '15px', marginBottom: '35px' }}>
+              <a 
+                href={`https://wa.me/${STORE_CONTACT.whatsappNumber}?text=${encodeURIComponent(`*CUSTOM CURTAIN QUOTATION ENQUIRY - SAUGAAT*\n------------------------------\n🖼️ *Product:* ${product.name}\n📍 *Category:* Luxury Curtains & Drapes\n------------------------------\nHi Saugaat Support, I am interested in purchasing "${product.name}". Please share pricing options, custom stitching guidelines, and window measurement assistance.`)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-primary"
+                style={{
+                  flex: 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '10px',
+                  padding: '16px',
+                  fontSize: '1rem',
+                  fontWeight: 700,
+                  backgroundColor: '#25D366',
+                  borderColor: '#25D366',
+                  color: 'white',
+                  textDecoration: 'none'
+                }}
+              >
+                <MessageSquare size={20} /> GET QUOTATION VIA WHATSAPP
+              </a>
+              <button 
+                className="btn btn-secondary" 
+                style={{ padding: '16px', width: '54px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                onClick={() => toggleWishlist({
                   id: product.id,
                   name: product.name,
                   price: product.price,
-                  image: selectedImage || allImages[0]
-                }, quantity);
-                setAddedMsg(true);
-                setTimeout(() => setAddedMsg(false), 3000);
-              }}
-            >
-              ADD TO CART
-            </button>
-            <button 
-              className="btn btn-secondary" 
-              style={{ 
-                flex: 1, 
-                padding: '16px', 
-                fontWeight: 700, 
-                backgroundColor: '#25D366', 
-                color: 'white', 
-                borderColor: '#25D366',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px'
-              }}
-              onClick={() => {
-                addToCart({
-                  id: product.id,
-                  name: product.name,
-                  price: product.price,
-                  image: selectedImage || allImages[0]
-                }, quantity);
-                
-                const waMessage = `*DIRECT BUY REQUEST - SAUGAAT*
+                  image: selectedImage || allImages[0],
+                  description: product.description || ''
+                })}
+                title={isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist'}
+              >
+                <Heart size={20} fill={isWishlisted ? 'var(--accent-color)' : 'none'} color={isWishlisted ? 'var(--accent-color)' : 'currentColor'} />
+              </button>
+            </div>
+          ) : (
+            <>
+              {/* Quantity Selector */}
+              <div className="quantity-selector" style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '24px' }}>
+                <span style={{ fontWeight: '600', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Quantity</span>
+                <div style={{ display: 'flex', alignItems: 'center', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)', backgroundColor: 'white' }}>
+                  <button onClick={handleDecrease} style={{ padding: '10px 16px', cursor: 'pointer', background: 'transparent', border: 'none' }}><Minus size={16} /></button>
+                  <span style={{ padding: '0 16px', fontWeight: '700', fontSize: '1.1rem' }}>{quantity}</span>
+                  <button onClick={handleIncrease} style={{ padding: '10px 16px', cursor: 'pointer', background: 'transparent', border: 'none' }}><Plus size={16} /></button>
+                </div>
+              </div>
+
+              {addedMsg && (
+                <div style={{ backgroundColor: '#dcfce7', color: '#15803d', padding: '10px 16px', borderRadius: '4px', marginBottom: '15px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Check size={18} /> Added {quantity} unit(s) to your shopping cart!
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="action-buttons" style={{ display: 'flex', gap: '15px', marginBottom: '35px' }}>
+                <button 
+                  className="btn btn-primary" 
+                  style={{ flex: 1, padding: '16px', fontWeight: 700 }}
+                  onClick={() => {
+                    addToCart({
+                      id: product.id,
+                      name: product.name,
+                      price: product.price,
+                      image: selectedImage || allImages[0]
+                    }, quantity);
+                    setAddedMsg(true);
+                    setTimeout(() => setAddedMsg(false), 3000);
+                  }}
+                >
+                  ADD TO CART
+                </button>
+                <button 
+                  className="btn btn-secondary" 
+                  style={{ 
+                    flex: 1, 
+                    padding: '16px', 
+                    fontWeight: 700, 
+                    backgroundColor: '#25D366', 
+                    color: 'white', 
+                    borderColor: '#25D366',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px'
+                  }}
+                  onClick={() => {
+                    addToCart({
+                      id: product.id,
+                      name: product.name,
+                      price: product.price,
+                      image: selectedImage || allImages[0]
+                    }, quantity);
+                    
+                    const waMessage = `*DIRECT BUY REQUEST - SAUGAAT*
 ------------------------------
 🎁 *Product:* ${product.name}
 🔢 *Quantity:* ${quantity}
@@ -303,27 +355,29 @@ export const ProductPage: React.FC = () => {
 ------------------------------
 Hi Saugaat Support, I would like to buy this item right now! Please guide me on payment and delivery details.`;
 
-                const whatsappUrl = `https://wa.me/${STORE_CONTACT.whatsappNumber}?text=${encodeURIComponent(waMessage)}`;
-                window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
-              }}
-            >
-              <MessageSquare size={18} /> BUY IT NOW
-            </button>
-            <button 
-              className="btn btn-secondary" 
-              style={{ padding: '16px', width: '54px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-              onClick={() => toggleWishlist({
-                id: product.id,
-                name: product.name,
-                price: product.price,
-                image: selectedImage || allImages[0],
-                description: product.description || ''
-              })}
-              title={isWishlisted ? 'Remove from Wishlist' : 'Save to Wishlist'}
-            >
-              <Heart size={22} fill={isWishlisted ? 'var(--accent-color)' : 'none'} color={isWishlisted ? 'var(--accent-color)' : 'currentColor'} />
-            </button>
-          </div>
+                    const whatsappUrl = `https://wa.me/${STORE_CONTACT.whatsappNumber}?text=${encodeURIComponent(waMessage)}`;
+                    window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+                  }}
+                >
+                  <MessageSquare size={18} /> BUY IT NOW
+                </button>
+                <button 
+                  className="btn btn-secondary" 
+                  style={{ padding: '16px', width: '54px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                  onClick={() => toggleWishlist({
+                    id: product.id,
+                    name: product.name,
+                    price: product.price,
+                    image: selectedImage || allImages[0],
+                    description: product.description || ''
+                  })}
+                  title={isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist'}
+                >
+                  <Heart size={20} fill={isWishlisted ? 'var(--accent-color)' : 'none'} color={isWishlisted ? 'var(--accent-color)' : 'currentColor'} />
+                </button>
+              </div>
+            </>
+          )}
 
           {/* Trust Guarantees */}
           <div className="product-features" style={{ display: 'flex', flexDirection: 'column', gap: '14px', padding: '20px', backgroundColor: 'rgba(255,255,255,0.7)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)' }}>

@@ -176,10 +176,39 @@ function mergeProducts(remoteProds: Product[], localProds: Product[]): Product[]
   }
   for (const p of remoteProds) {
     if (!map.has(p.id)) {
-      map.set(p.id, p);
+      const existingByName = Array.from(map.values()).find(lp => lp.name === p.name);
+      if (!existingByName) {
+        map.set(p.id, p);
+      }
     }
   }
   return Array.from(map.values());
+}
+
+function getMatchingCategoryKeys(resolvedCat: Category, allCats: Category[]): Set<string> {
+  const keys = new Set<string>();
+  const addKeys = (c: Category) => {
+    if (c.id) {
+      keys.add(c.id);
+      keys.add(slugify(c.id));
+    }
+    if (c.name) {
+      keys.add(c.name);
+      keys.add(slugify(c.name));
+    }
+  };
+
+  addKeys(resolvedCat);
+
+  if (!resolvedCat.parent_id) {
+    const parentKeys = new Set([resolvedCat.id, slugify(resolvedCat.id), slugify(resolvedCat.name)]);
+    const subCats = allCats.filter(c => c.parent_id && (parentKeys.has(c.parent_id) || parentKeys.has(slugify(c.parent_id))));
+    for (const sub of subCats) {
+      addKeys(sub);
+    }
+  }
+
+  return keys;
 }
 
 function saveLocalCategories(cats: Category[]) {
@@ -359,21 +388,30 @@ export async function getProducts(limit?: number) {
 export async function getProductsByCategory(categoryId: string) {
   const allCats = await getCategories();
   const allProds = await getProducts();
+  const targetCatSlug = slugify(categoryId);
   
   const resolvedCategory = allCats.find(
-    c => c.id === categoryId || slugify(c.name) === categoryId
+    c => c.id === categoryId || slugify(c.id) === targetCatSlug || slugify(c.name) === targetCatSlug
   );
   
   if (!resolvedCategory) {
-    return allProds.filter(p => p.category_id === categoryId || slugify(p.category_id) === categoryId);
+    return allProds.filter(p => {
+      const pCatSlug = slugify(p.category_id);
+      return p.category_id === categoryId || pCatSlug === targetCatSlug || (p.categories && (p.categories.id === categoryId || slugify(p.categories.name) === targetCatSlug));
+    });
   }
 
-  const isParent = resolvedCategory.parent_id === null;
-  const targetCategoryIds = isParent
-    ? [resolvedCategory.id, ...allCats.filter(c => c.parent_id === resolvedCategory.id).map(c => c.id)]
-    : [resolvedCategory.id];
+  const matchKeys = getMatchingCategoryKeys(resolvedCategory, allCats);
+  matchKeys.add(categoryId);
+  matchKeys.add(targetCatSlug);
 
-  return allProds.filter(p => targetCategoryIds.includes(p.category_id) || slugify(p.category_id) === categoryId);
+  return allProds.filter(p => {
+    if (matchKeys.has(p.category_id) || matchKeys.has(slugify(p.category_id))) return true;
+    if (p.categories) {
+      if (matchKeys.has(p.categories.id) || matchKeys.has(slugify(p.categories.name))) return true;
+    }
+    return false;
+  });
 }
 
 export async function searchProducts(query: string) {
@@ -559,15 +597,25 @@ export function getSyncProducts(limit?: number): Product[] {
 export function getSyncProductsByCategory(categoryId: string): Product[] {
   const allCats = getLocalCategories();
   const allProds = getSyncProducts();
-  const resolved = allCats.find(c => c.id === categoryId || slugify(c.name) === categoryId);
+  const targetCatSlug = slugify(categoryId);
+  const resolved = allCats.find(c => c.id === categoryId || slugify(c.id) === targetCatSlug || slugify(c.name) === targetCatSlug);
   if (!resolved) {
-    return allProds.filter(p => p.category_id === categoryId || slugify(p.category_id) === categoryId);
+    return allProds.filter(p => {
+      const pCatSlug = slugify(p.category_id);
+      return p.category_id === categoryId || pCatSlug === targetCatSlug || (p.categories && (p.categories.id === categoryId || slugify(p.categories.name) === targetCatSlug));
+    });
   }
-  const isParent = resolved.parent_id === null;
-  const targetCategoryIds = isParent
-    ? [resolved.id, ...allCats.filter(c => c.parent_id === resolved.id).map(c => c.id)]
-    : [resolved.id];
-  return allProds.filter(p => targetCategoryIds.includes(p.category_id) || slugify(p.category_id) === categoryId);
+  const matchKeys = getMatchingCategoryKeys(resolved, allCats);
+  matchKeys.add(categoryId);
+  matchKeys.add(targetCatSlug);
+
+  return allProds.filter(p => {
+    if (matchKeys.has(p.category_id) || matchKeys.has(slugify(p.category_id))) return true;
+    if (p.categories) {
+      if (matchKeys.has(p.categories.id) || matchKeys.has(slugify(p.categories.name))) return true;
+    }
+    return false;
+  });
 }
 
 export function getSyncBestsellers(limit = 10): Product[] {

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Heart, Star, Sparkles, RefreshCw, ArrowUpDown } from 'lucide-react';
+import { Heart, Star, Sparkles, RefreshCw, ArrowUpDown, MessageSquare } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { STORE_CONTACT } from '../config/contact';
 import { 
   getCategories, 
   getProductsByCategory, 
@@ -224,7 +225,9 @@ export const CategoryPage: React.FC = () => {
                 transition={{ duration: 0.5, delay: index * 0.05 }}
                 className="premium-product-card"
               >
-                {product.discount_percentage > 0 ? (
+                {product.price === 0 || product.category_id === 'curtains' || slugify(product.category_id) === 'curtains' ? (
+                  <div className="product-badge" style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>PRICE ON REQUEST</div>
+                ) : product.discount_percentage > 0 ? (
                   <div className="product-badge">{product.discount_percentage}% OFF</div>
                 ) : (
                   <div className="product-badge">CURATED</div>
@@ -250,10 +253,21 @@ export const CategoryPage: React.FC = () => {
                     loading="lazy" 
                     decoding="async" 
                   />
-                  <div className="product-actions">
-                    <Link to={`/product/${product.id}`} className="btn btn-primary" style={{ flex: 1, textTransform: 'uppercase', fontSize: '0.8rem', textAlign: 'center', lineHeight: '2.5' }}>
+                  <div className="product-actions" style={{ gap: '6px' }}>
+                    <Link to={`/product/${product.id}`} className="btn btn-primary" style={{ flex: 1, textTransform: 'uppercase', fontSize: '0.78rem', textAlign: 'center', lineHeight: '2.5' }}>
                       View Details
                     </Link>
+                    {(product.price === 0 || product.category_id === 'curtains' || slugify(product.category_id) === 'curtains') && (
+                      <a 
+                        href={`https://wa.me/${STORE_CONTACT.whatsappNumber}?text=${encodeURIComponent(`*PRICE QUOTATION ENQUIRY - SAUGAAT CURTAINS*\n------------------------------\n🖼️ *Product:* ${product.name}\n📍 *Category:* Luxury Curtains & Drapes\n------------------------------\nHi Saugaat Support, I would like to request custom tailoring prices and measurement details for this curtain design.`)}`}
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="btn btn-secondary" 
+                        style={{ flex: 1.2, textTransform: 'uppercase', fontSize: '0.78rem', textAlign: 'center', backgroundColor: '#25D366', color: 'white', borderColor: '#25D366', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
+                      >
+                        <MessageSquare size={14} /> Get Quote
+                      </a>
+                    )}
                   </div>
                 </div>
                 <div className="premium-product-info">
@@ -263,15 +277,21 @@ export const CategoryPage: React.FC = () => {
                         <Star key={i} size={12} fill={i < 4 ? 'var(--secondary-color)' : 'none'} color="var(--secondary-color)" />
                       ))}
                     </div>
-                    <span className="rating-text">4.8 (32)</span>
+                    <span className="rating-text">4.9 (28)</span>
                   </div>
                   <h3 className="premium-product-title">
                     <Link to={`/product/${product.id}`}>{product.name}</Link>
                   </h3>
                   <div className="premium-product-price-wrapper">
-                    <span className="product-price">₹{product.price}</span>
-                    {product.original_price && product.original_price > product.price && (
-                      <span className="product-original-price">₹{product.original_price}</span>
+                    {product.price === 0 || product.category_id === 'curtains' || slugify(product.category_id) === 'curtains' ? (
+                      <span className="product-price" style={{ fontSize: '0.95rem', color: 'var(--primary-color)', fontWeight: 700 }}>Price on Request</span>
+                    ) : (
+                      <>
+                        <span className="product-price">₹{product.price}</span>
+                        {product.original_price && product.original_price > product.price && (
+                          <span className="product-original-price">₹{product.original_price}</span>
+                        )}
+                      </>
                     )}
                   </div>
                 </div>
