@@ -812,6 +812,10 @@ export async function updateProduct(id: string, updates: Partial<Product> & { im
 }
 
 export async function getAllProducts() {
+  const localCats = await getCategories();
+  const localProds = getLocalProducts();
+  let merged: Product[] = localProds;
+
   if (supabase) {
     try {
       const { data, error } = await supabase
@@ -822,19 +826,23 @@ export async function getAllProducts() {
           product_images (*)
         `)
         .order('created_at', { ascending: false });
-      if (!error && data && data.length > 0) return data as Product[];
+      if (!error && data && data.length > 0) {
+        merged = mergeProducts(data as Product[], localProds);
+      }
     } catch (e) {
-      console.error(e);
+      console.error('Error fetching all products from Supabase:', e);
     }
   }
 
-  const localCats = getLocalCategories();
-  return getLocalProducts()
-    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-    .map(p => ({
+  const mapped = merged.map(p => {
+    const cat = localCats.find(c => c.id === p.category_id || slugify(c.name) === slugify(p.category_id) || slugify(c.id) === slugify(p.category_id));
+    return {
       ...p,
-      categories: localCats.find(c => c.id === p.category_id)
-    }));
+      categories: cat || p.categories
+    };
+  });
+
+  return mapped.sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
 }
 
 export async function deleteProduct(id: string) {

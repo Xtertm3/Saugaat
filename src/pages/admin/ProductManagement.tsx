@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { AdminLayout } from './AdminLayout';
 import { ProductForm } from '../../components/admin/ProductForm';
 import { Edit, Trash2, Plus, RefreshCw } from 'lucide-react';
-import { getAllProducts, getCategories, createProduct, updateProduct, deleteProduct, type Product, type Category } from '../../lib/database';
+import { getAllProducts, getCategories, createProduct, updateProduct, deleteProduct, slugify, type Product, type Category } from '../../lib/database';
 import '../Admin.css';
 
 export const ProductManagement: React.FC = () => {
@@ -11,6 +11,7 @@ export const ProductManagement: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [sortBy, setSortBy] = useState<'latest' | 'name-asc' | 'name-desc' | 'price-high' | 'price-low' | 'oldest'>('latest');
   const [loading, setLoading] = useState(false);
 
   const fetchData = async () => {
@@ -68,21 +69,38 @@ export const ProductManagement: React.FC = () => {
     setShowForm(true);
   };
 
-  const filteredProducts = products.filter((p) =>
-    p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.description.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
   const getCategoryName = (categoryId: string) => {
-    const category = categories.find((c) => c.id === categoryId);
-    if (!category) return 'Uncategorized';
+    if (!categoryId) return 'Uncategorized';
+    const targetSlug = slugify(categoryId);
+    const category = categories.find((c) => c.id === categoryId || slugify(c.id) === targetSlug || slugify(c.name) === targetSlug);
+    if (!category) return categoryId.charAt(0).toUpperCase() + categoryId.slice(1);
     
     if (category.parent_id) {
-      const parent = categories.find((c) => c.id === category.parent_id);
+      const parentSlug = slugify(category.parent_id);
+      const parent = categories.find((c) => c.id === category.parent_id || slugify(c.id) === parentSlug || slugify(c.name) === parentSlug);
       return parent ? `${parent.name} > ${category.name}` : category.name;
     }
     return category.name;
   };
+
+  let filteredProducts = products.filter((p) =>
+    p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    p.description.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  if (sortBy === 'latest') {
+    filteredProducts.sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
+  } else if (sortBy === 'oldest') {
+    filteredProducts.sort((a, b) => new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime());
+  } else if (sortBy === 'name-asc') {
+    filteredProducts.sort((a, b) => a.name.localeCompare(b.name));
+  } else if (sortBy === 'name-desc') {
+    filteredProducts.sort((a, b) => b.name.localeCompare(a.name));
+  } else if (sortBy === 'price-high') {
+    filteredProducts.sort((a, b) => b.price - a.price);
+  } else if (sortBy === 'price-low') {
+    filteredProducts.sort((a, b) => a.price - b.price);
+  }
 
   return (
     <AdminLayout title="Products">
@@ -130,17 +148,33 @@ export const ProductManagement: React.FC = () => {
         <>
           <div className="admin-table-container">
             <div className="admin-table-header">
-              <h2 className="admin-table-title">Product Inventory</h2>
-              <div className="admin-table-actions">
+              <h2 className="admin-table-title">Product Inventory ({filteredProducts.length})</h2>
+              <div className="admin-table-actions" style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
                 <button 
                   onClick={fetchData} 
                   className="btn-icon" 
                   title="Reload Inventory"
                   disabled={loading}
-                  style={{ marginRight: '8px', padding: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                  style={{ padding: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                 >
                   <RefreshCw size={18} className={loading ? 'spin-anim' : ''} />
                 </button>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)' }}>Sort:</span>
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value as any)}
+                    className="search-input"
+                    style={{ minWidth: '170px', padding: '8px 12px', cursor: 'pointer', backgroundColor: 'white' }}
+                  >
+                    <option value="latest">Latest Added First</option>
+                    <option value="name-asc">Alphabetical (A - Z)</option>
+                    <option value="name-desc">Alphabetical (Z - A)</option>
+                    <option value="price-high">Price: High to Low</option>
+                    <option value="price-low">Price: Low to High</option>
+                    <option value="oldest">Oldest First</option>
+                  </select>
+                </div>
                 <input
                   type="text"
                   placeholder="Search products..."
@@ -204,7 +238,15 @@ export const ProductManagement: React.FC = () => {
                         </td>
                         <td style={{ fontWeight: 600, color: 'var(--primary-color)' }}>{product.name}</td>
                         <td style={{ fontSize: '0.85rem' }}>{getCategoryName(product.category_id)}</td>
-                        <td><strong>₹{product.price}</strong></td>
+                        <td>
+                          <strong>
+                            {product.price === 0 || product.category_id === 'curtains' ? (
+                              <span style={{ color: 'var(--primary-color)', fontSize: '0.85rem' }}>Price on Request</span>
+                            ) : (
+                              `₹${product.price}`
+                            )}
+                          </strong>
+                        </td>
                         <td>
                           {product.original_price && product.original_price > product.price ? (
                             <span style={{ 
