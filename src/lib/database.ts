@@ -149,16 +149,8 @@ function getLocalProducts(): Product[] {
     };
   });
 
-  // Filter out stale demo products (old p-1..p-20 demo products)
-  const validSeedNames = new Set(seedProducts.map(sp => sp.name.toLowerCase()));
-  const filteredLocalProds = prods.filter(p => {
-    // Keep custom added products by user/admin (non-seed IDs not starting with p-1..p-20)
-    const isOldDemoId = /^p-\d+$/.test(p.id);
-    if (isOldDemoId && !validSeedNames.has(p.name.toLowerCase())) {
-      return false; // Remove old demo items
-    }
-    return true;
-  });
+  // Filter out stale demo products
+  const filteredLocalProds = prods.filter(p => !isDummyProduct(p));
 
   // Ensure all seed products (Being Well + Curtains) exist in product list
   for (const sp of seedProdList) {
@@ -197,16 +189,63 @@ function mergeCategories(remoteCats: Category[], localCats: Category[]): Categor
   return Array.from(map.values());
 }
 
+const KNOWN_DUMMY_NAMES = new Set([
+  'brass urli with diyas', 'ceramic vases trio', 'terracotta planters (3pcs)',
+  'handwoven basket set', 'brass candle holders (pair)', 'pendant light fixture',
+  'geometric metal wall art', 'embroidered macrame wall hanging', 'floral wooden carved panel',
+  'luxury marble coasters (set of 6)', 'marble ganesha idol', 'krishna flute statue',
+  'deity figurine set', 'brass dancing ganesha', 'radha krishna love statue',
+  'terracotta sitting ganesha', 'sandstone meditating buddha', 'silver plated laxmi ganesha set',
+  'makrana marble bal gopal', 'handcarved wooden krishna', 'diwali festive pooja thali',
+  'brass diyas set (5pcs)', 'lantern decoration', 'festival fabric pack',
+  'organic gulal gift box (set of 4)', 'herbal holi colors in pouches',
+  'handcrafted clay diya set (12pcs)', 'toran door hanging', 'pichkari and gulal combo set',
+  'festive rangoli stencils kit', 'wooden educational toy set', 'puzzle box toy',
+  'building blocks set', 'handpainted wooden peg dolls', 'montessori shape sorter',
+  'wooden balancing cactus game', 'forest animals wooden set', 'wooden alphabets puzzle',
+  'classic wooden toy train set', 'handcrafted wooden rocking horse',
+  'premium occasion gift pack', 'surprise coffee mug set', 'sweets & almonds pack',
+  'luxury dry fruits & diya hamper', 'royal chocolate & cookie gift box',
+  'organic herbal tea collection box', 'wellness & spa relaxation hamper',
+  'corporate desktop organiser hamper', 'gourmet snack & dip celebration pack',
+  'maharaja gold gift hamper', 'set of 10 assorted potlis', 'handcrafted shubh labh hangings',
+  'scented votive candles (set of 6)', 'silver plated coin in velvet box',
+  'miniature meenakari boxes (set of 4)', 'personalized leather keyrings (pack of 5)',
+  'assorted handmade soap bars (set of 4)', 'wooden coasters with stand (pack of 4)',
+  'decorative kankavati (sindoor box)', 'embroidered silk clutches (pack of 3)',
+  'handpainted ceramic tea mug', 'pastel ceramic coffee mug', 'motivational quotes mug',
+  'handcrafted leather notebook', 'rose scented soy candle in jar', 'brass bookmark & pen set',
+  'pocket perfume roll-on set', 'minimalist key organiser', 'ceramic mug with wooden lid',
+  'lavender pillow mist & eye mask', 'brass peacock diya stand', 'saraswati marble idol',
+  'handmade rakhi hamper set', 'handcrafted wooden train', 'royal saffron gifting tray',
+  'silver plated shanti bowls', 'handpainted ceramic coffee mug', 'terracotta hanging lamps set',
+  'radha krishna marble murti', 'luxury incense sticks pack', 'wooden animal stacker toy',
+  'luxury assorted dry fruits box'
+]);
+
+function isDummyProduct(p: { name: string; id: string }): boolean {
+  const lowerName = p.name.toLowerCase();
+  const validSeedNames = new Set(seedProducts.map(sp => sp.name.toLowerCase()));
+  if (validSeedNames.has(lowerName)) return false;
+  if (KNOWN_DUMMY_NAMES.has(lowerName)) return true;
+  if (/^p-\d+$/.test(p.id)) return true;
+  return false;
+}
+
 function mergeProducts(remoteProds: Product[], localProds: Product[]): Product[] {
   const map = new Map<string, Product>();
   for (const p of localProds) {
-    map.set(p.id, p);
+    if (!isDummyProduct(p)) {
+      map.set(p.id, p);
+    }
   }
   for (const p of remoteProds) {
-    if (!map.has(p.id)) {
-      const existingByName = Array.from(map.values()).find(lp => lp.name === p.name);
-      if (!existingByName) {
-        map.set(p.id, p);
+    if (!isDummyProduct(p)) {
+      if (!map.has(p.id)) {
+        const existingByName = Array.from(map.values()).find(lp => lp.name.toLowerCase() === p.name.toLowerCase());
+        if (!existingByName) {
+          map.set(p.id, p);
+        }
       }
     }
   }

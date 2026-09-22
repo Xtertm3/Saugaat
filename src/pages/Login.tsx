@@ -111,15 +111,7 @@ export const Login: React.FC = () => {
     }
   };
 
-  const triggerQuickLogin = (role: 'user' | 'admin') => {
-    if (role === 'admin') {
-      loginMock('admin@saugaat.com', 'admin');
-      navigate('/admin/dashboard');
-    } else {
-      loginMock('customer@saugaat.com', 'user');
-      navigate('/');
-    }
-  };
+
 
   return (
     <div className="section-padding container" style={{ minHeight: '80vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -319,56 +311,6 @@ export const Login: React.FC = () => {
             </button>
           </>
         )}
-
-        {/* Demo Fast Login Buttons */}
-        <div style={{ 
-          marginTop: '30px', 
-          padding: '16px', 
-          backgroundColor: 'rgba(200, 169, 107, 0.08)',
-          border: '1px dashed var(--secondary-color)',
-          borderRadius: 'var(--radius-md)',
-          textAlign: 'center'
-        }}>
-          <h4 style={{ margin: '0 0 10px 0', fontSize: '0.85rem', fontWeight: 600, color: 'var(--primary-color)' }}>
-            ⚡ Fast Testing & Curation Mock Logins
-          </h4>
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <button 
-              type="button" 
-              onClick={() => triggerQuickLogin('user')}
-              style={{
-                flex: 1,
-                padding: '8px',
-                fontSize: '0.75rem',
-                fontWeight: 600,
-                backgroundColor: 'white',
-                border: '1px solid var(--border-color)',
-                color: 'var(--primary-color)',
-                borderRadius: '4px',
-                cursor: 'pointer'
-              }}
-            >
-              Demo Client
-            </button>
-            <button 
-              type="button" 
-              onClick={() => triggerQuickLogin('admin')}
-              style={{
-                flex: 1,
-                padding: '8px',
-                fontSize: '0.75rem',
-                fontWeight: 600,
-                backgroundColor: 'white',
-                border: '1px solid var(--border-color)',
-                color: 'var(--accent-color)',
-                borderRadius: '4px',
-                cursor: 'pointer'
-              }}
-            >
-              Demo Admin
-            </button>
-          </div>
-        </div>
 
         {/* Toggle between Signup / Login */}
         <div style={{ textAlign: 'center', marginTop: '24px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
