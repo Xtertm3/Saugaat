@@ -56,25 +56,15 @@ let _productsMemoryCache: Product[] | null = null;
 
 function getLocalCategories(): Category[] {
   if (_categoriesMemoryCache) return _categoriesMemoryCache;
-  const stored = localStorage.getItem('saugaat_categories');
-  if (stored) {
-    try {
-      _categoriesMemoryCache = JSON.parse(stored);
-      return _categoriesMemoryCache!;
-    } catch (e) {
-      console.error('Error parsing local categories:', e);
-    }
-  }
-
   const now = new Date().toISOString();
-  const cats: Category[] = seedCategories.map((c) => {
+  const seedCats: Category[] = seedCategories.map((c) => {
     const parent_id = c.parent_id ? slugify(c.parent_id) : null;
     const id = parent_id ? slugify(c.name) : slugify(c.name);
 
     return {
       id,
       name: c.name,
-      description: `Curated ${c.name} collection for special gifting.`,
+      description: `Curated ${c.name} collection for wholesome lifestyle and gifting.`,
       image_url: c.image_url,
       parent_id,
       sort_order: c.sort_order,
@@ -83,22 +73,31 @@ function getLocalCategories(): Category[] {
     };
   });
 
-  if (!cats.some(c => c.id === 'mugs')) {
-    cats.push({
-      id: 'mugs',
-      name: 'Mugs',
-      description: 'Handpainted ceramic mugs',
-      image_url: 'https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?auto=format&fit=crop&q=80&w=800',
-      parent_id: 'just-like-that',
-      sort_order: 1,
-      created_at: now,
-      updated_at: now
-    });
+  const stored = localStorage.getItem('saugaat_categories');
+  let cats: Category[] = [];
+  if (stored) {
+    try {
+      cats = JSON.parse(stored);
+    } catch (e) {
+      console.error('Error parsing local categories:', e);
+    }
   }
 
-  _categoriesMemoryCache = cats;
-  localStorage.setItem('saugaat_categories', JSON.stringify(cats));
-  return cats;
+  // Merge seed categories with local categories ensuring Being Well is top priority
+  const map = new Map<string, Category>();
+  for (const sc of seedCats) {
+    map.set(sc.id, sc);
+  }
+  for (const c of cats) {
+    if (!map.has(c.id)) {
+      map.set(c.id, c);
+    }
+  }
+
+  const finalCats = Array.from(map.values()).sort((a, b) => a.sort_order - b.sort_order);
+  _categoriesMemoryCache = finalCats;
+  localStorage.setItem('saugaat_categories', JSON.stringify(finalCats));
+  return finalCats;
 }
 
 function getLocalProducts(): Product[] {
@@ -115,103 +114,72 @@ function getLocalProducts(): Product[] {
     }
   }
 
-  if (!prods || prods.length === 0) {
-    prods = seedProducts.map((p, idx) => {
-      const id = `p-${idx + 1}`;
-      const category_id = slugify(p.category_id);
-      const imgMatch = seedProductImages.find(img => img.product_name.toLowerCase() === p.name.toLowerCase());
-      const imagesList = imgMatch ? imgMatch.images : ['https://images.unsplash.com/photo-1513201099705-a9746e1e201f?auto=format&fit=crop&q=80&w=800'];
-      
-      const product_images = imagesList.map((url, i) => ({
-        id: `img-${id}-${i}`,
-        product_id: id,
-        image_url: url,
-        is_featured: i === 0,
-        display_order: i,
-        created_at: now
-      }));
+  // Generate seed product list for Being Well & Curtains
+  const seedProdList: Product[] = seedProducts.map((p, idx) => {
+    const id = `p-seed-${idx + 1}`;
+    const category_id = slugify(p.category_id);
+    const imgMatch = seedProductImages.find(img => img.product_name.toLowerCase() === p.name.toLowerCase());
+    const imagesList = imgMatch ? imgMatch.images : ['/being-well/rose-herbal-tea.jpg'];
+    
+    const product_images = imagesList.map((url, i) => ({
+      id: `img-${id}-${i}`,
+      product_id: id,
+      image_url: url,
+      is_featured: i === 0,
+      display_order: i,
+      created_at: now
+    }));
 
-      return {
-        id,
-        name: p.name,
-        description: p.description,
-        category_id,
-        price: p.price,
-        original_price: p.original_price,
-        discount_percentage: p.original_price ? Math.round(((p.original_price - p.price) / p.original_price) * 100) : 0,
-        gst: p.gst || 18,
-        is_bestseller: p.is_bestseller || false,
-        is_trending: p.is_trending || false,
-        status: p.status || 'active',
-        created_by: 'admin',
-        product_images,
-        created_at: now,
-        updated_at: now
+    return {
+      id,
+      name: p.name,
+      description: p.description,
+      category_id,
+      price: p.price,
+      original_price: p.original_price,
+      discount_percentage: p.original_price && p.original_price > p.price ? Math.round(((p.original_price - p.price) / p.original_price) * 100) : 0,
+      gst: p.gst || 18,
+      is_bestseller: p.is_bestseller || false,
+      is_trending: p.is_trending || false,
+      status: p.status || 'active',
+      created_by: 'admin',
+      product_images,
+      created_at: now,
+      updated_at: now
+    };
+  });
+
+  // Filter out stale demo products (old p-1..p-20 demo products)
+  const validSeedNames = new Set(seedProducts.map(sp => sp.name.toLowerCase()));
+  const filteredLocalProds = prods.filter(p => {
+    // Keep custom added products by user/admin (non-seed IDs not starting with p-1..p-20)
+    const isOldDemoId = /^p-\d+$/.test(p.id);
+    if (isOldDemoId && !validSeedNames.has(p.name.toLowerCase())) {
+      return false; // Remove old demo items
+    }
+    return true;
+  });
+
+  // Ensure all seed products (Being Well + Curtains) exist in product list
+  for (const sp of seedProdList) {
+    const existingIndex = filteredLocalProds.findIndex(p => p.name.toLowerCase() === sp.name.toLowerCase());
+    if (existingIndex !== -1) {
+      // Update existing seed product details & images
+      filteredLocalProds[existingIndex] = {
+        ...filteredLocalProds[existingIndex],
+        price: sp.price,
+        original_price: sp.original_price,
+        description: sp.description,
+        product_images: sp.product_images
       };
-    });
-  } else {
-    // Synchronize product images for seed products so legacy cached fallback images get upgraded
-    prods = prods.map((p) => {
-      const imgMatch = seedProductImages.find(img => 
-        img.product_name.toLowerCase() === p.name.toLowerCase() || 
-        p.name.toLowerCase().includes(img.product_name.toLowerCase())
-      );
-      if (imgMatch && imgMatch.images && imgMatch.images.length > 0) {
-        const currentImg = p.product_images?.[0]?.image_url;
-        if (!currentImg || currentImg.includes('photo-1513201099705-a9746e1e201f') || p.category_id === 'curtains' || slugify(p.category_id) === 'curtains') {
-          const product_images = imgMatch.images.map((url, i) => ({
-            id: `img-${p.id}-${i}`,
-            product_id: p.id,
-            image_url: url,
-            is_featured: i === 0,
-            display_order: i,
-            created_at: p.created_at || now
-          }));
-          return { ...p, product_images };
-        }
-      }
-      return p;
-    });
-
-    // Ensure all seed curtain products exist
-    seedProducts.filter(sp => sp.category_id === 'curtains').forEach((sp, idx) => {
-      if (!prods.some(p => p.name.toLowerCase() === sp.name.toLowerCase())) {
-        const id = `p-curtain-${idx + 1}`;
-        const category_id = 'curtains';
-        const imgMatch = seedProductImages.find(img => img.product_name === sp.name);
-        const imagesList = imgMatch ? imgMatch.images : ['/curtains/botanical-damask-tapestry.jpg'];
-        const product_images = imagesList.map((url, i) => ({
-          id: `img-${id}-${i}`,
-          product_id: id,
-          image_url: url,
-          is_featured: i === 0,
-          display_order: i,
-          created_at: now
-        }));
-        prods.unshift({
-          id,
-          name: sp.name,
-          description: sp.description,
-          category_id,
-          price: sp.price,
-          original_price: sp.original_price,
-          discount_percentage: 0,
-          gst: sp.gst || 18,
-          is_bestseller: sp.is_bestseller || false,
-          is_trending: sp.is_trending || false,
-          status: sp.status || 'active',
-          created_by: 'admin',
-          product_images,
-          created_at: now,
-          updated_at: now
-        });
-      }
-    });
+    } else {
+      filteredLocalProds.unshift(sp);
+    }
   }
 
-  _productsMemoryCache = prods;
-  localStorage.setItem('saugaat_products', JSON.stringify(prods));
-  return prods;
+  _productsMemoryCache = filteredLocalProds;
+  localStorage.setItem('saugaat_products', JSON.stringify(filteredLocalProds));
+  return filteredLocalProds;
 }
 
 function mergeCategories(remoteCats: Category[], localCats: Category[]): Category[] {

@@ -57,6 +57,8 @@ export const Header: React.FC = () => {
     }
   }
 
+  uniqueParentCategories.sort((a, b) => (a.sort_order || 99) - (b.sort_order || 99));
+
   const navCategories = [
     { id: 'all', path: '/category/all', label: 'All Gifts' },
     ...uniqueParentCategories.map(c => ({

@@ -1,23 +1,13 @@
 export const categories = [
   {
+    id: "being-well",
+    name: "Being Well",
+    image: "/being-well/rose-herbal-tea.jpg",
+  },
+  {
     id: "home-decor",
     name: "Home Decor",
     image: "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&q=80&w=800",
-  },
-  {
-    id: "idols",
-    name: "Idols",
-    image: "https://images.unsplash.com/photo-1621252179027-94459d278660?auto=format&fit=crop&q=80&w=800",
-  },
-  {
-    id: "festivals",
-    name: "Festivals",
-    image: "https://images.unsplash.com/photo-1601379326928-10db74191d90?auto=format&fit=crop&q=80&w=800",
-  },
-  {
-    id: "toys",
-    name: "Toys",
-    image: "https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?auto=format&fit=crop&q=80&w=800",
   },
   {
     id: "gift-packs",
@@ -28,213 +18,68 @@ export const categories = [
     id: "return-gifts",
     name: "Return Gifts",
     image: "https://images.unsplash.com/photo-1512909006721-3d6018887383?auto=format&fit=crop&q=80&w=800",
-  },
-  {
-    id: "just-like-that",
-    name: "Just Like That",
-    image: "https://images.unsplash.com/photo-1513201099705-a9746e1e201f?auto=format&fit=crop&q=80&w=800",
   }
 ];
 
 export const products = [
   {
-    id: "p1",
-    name: "Brass Urli with Diyas",
-    price: 1299,
-    originalPrice: 1599,
+    id: "bw1",
+    name: "Rose Herbal Tea",
+    price: 235,
+    originalPrice: 299,
+    discount: "21% OFF",
+    category: "being-well",
+    image: "/being-well/rose-herbal-tea.jpg",
+    description: "Pure herbal wellness in every sip. Crafted with 100% natural damask rose petals, naturally caffeine-free. Promotes glowing skin, natural detox, and deep relaxation. Net Wt.: 50g."
+  },
+  {
+    id: "bw2",
+    name: "Immunity Herbal Tea",
+    price: 230,
+    originalPrice: 280,
     discount: "18% OFF",
-    category: "home-decor",
-    image: "https://images.unsplash.com/photo-1605806616949-1e87b487cb2a?auto=format&fit=crop&q=80&w=800",
-    description: "A stunning brass urli perfect for floating candles and flowers."
+    category: "being-well",
+    image: "/being-well/immunity-herbal-tea.jpg",
+    description: "Formulated to strengthen body defenses with potent traditional herbs and antioxidants. 100% natural, caffeine-free infusion to fight seasonal illness and boost daily vitality. Net Wt.: 50g."
   },
   {
-    id: "p2",
-    name: "Marble Ganesha Idol",
-    price: 1499,
-    originalPrice: 1999,
-    discount: "25% OFF",
-    category: "idols",
-    image: "https://images.unsplash.com/photo-1621252179027-94459d278660?auto=format&fit=crop&q=80&w=800",
-    description: "Beautifully handcrafted marble Ganesha idol with intricate detailing."
-  },
-  {
-    id: "p3",
-    name: "Diwali Festive Pooja Thali",
-    price: 899,
-    originalPrice: 1299,
-    discount: "30% OFF",
-    category: "festivals",
-    image: "https://images.unsplash.com/photo-1601379326928-10db74191d90?auto=format&fit=crop&q=80&w=800",
-    description: "Complete Pooja Thali set perfect for the festive season."
-  },
-  {
-    id: "p4",
-    name: "Wooden Educational Toy Set",
-    price: 599,
-    originalPrice: 899,
-    discount: "33% OFF",
-    category: "toys",
-    image: "https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?auto=format&fit=crop&q=80&w=800",
-    description: "Eco-friendly wooden toys designed to inspire creativity in children."
-  },
-  {
-    id: "p5",
-    name: "Premium Occasion Gift Pack",
-    price: 2499,
-    originalPrice: 2999,
-    discount: "16% OFF",
-    category: "gift-packs",
-    image: "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&q=80&w=800",
-    description: "A luxurious curated gift pack filled with sweets, dry fruits, and small decor items."
-  },
-  {
-    id: "p6",
-    name: "Set of 10 Assorted Potlis",
-    price: 999,
-    originalPrice: 1499,
-    discount: "33% OFF",
-    category: "return-gifts",
-    image: "https://images.unsplash.com/photo-1512909006721-3d6018887383?auto=format&fit=crop&q=80&w=800",
-    description: "Elegant potli bags, perfect as return gifts for weddings and parties."
-  },
-  {
-    id: "p7",
-    name: "Surprise Coffee Mug Set",
-    price: 499,
-    originalPrice: 699,
-    discount: "28% OFF",
-    category: "just-like-that",
-    image: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&q=80&w=800",
-    description: "A spontaneous gift to bring a smile to someone's face 'just like that'."
-  },
-  {
-    id: "p8",
-    name: "Ceramic Vases Trio",
-    price: 1899,
-    originalPrice: 2499,
-    discount: "24% OFF",
-    category: "home-decor",
-    image: "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&q=80&w=800",
-    description: "A set of three minimalist ceramic vases."
-  },
-  {
-    id: "p9",
-    name: "Brass Peacock Diya Stand",
-    price: 3499,
-    originalPrice: 4299,
-    discount: "18% OFF",
-    category: "home-decor",
-    image: "https://images.unsplash.com/photo-1603561591411-07134e71a2a9?auto=format&fit=crop&q=80&w=800",
-    description: "A majestic peacock engraved brass diya stand for lighting up dark corners."
-  },
-  {
-    id: "p10",
-    name: "Saraswati Marble Idol",
-    price: 2799,
-    originalPrice: 3499,
+    id: "bw3",
+    name: "Tulsi Green Tea",
+    price: 200,
+    originalPrice: 250,
     discount: "20% OFF",
-    category: "idols",
-    image: "https://images.unsplash.com/photo-1608976328267-e673d3ec06ce?auto=format&fit=crop&q=80&w=800",
-    description: "Intricately detailed marble statue of Goddess Saraswati representing wisdom and arts."
+    category: "being-well",
+    image: "/being-well/tulsi-green-tea.jpg",
+    description: "Revitalizing blend of pure holy basil (tulsi) and fine green tea leaves. Rich in protective antioxidants, aids natural weight loss and daily body detox. Net Wt.: 50g."
   },
   {
-    id: "p11",
-    name: "Handmade Rakhi Hamper Set",
-    price: 799,
-    originalPrice: 999,
-    discount: "20% OFF",
-    category: "festivals",
-    image: "https://images.unsplash.com/photo-1628144662497-a64ee7111053?auto=format&fit=crop&q=80&w=800",
-    description: "A beautiful handmade Rakhi with roli-chawal, almonds, and traditional sweets."
-  },
-  {
-    id: "p12",
-    name: "Handcrafted Wooden Train",
-    price: 699,
-    originalPrice: 999,
-    discount: "30% OFF",
-    category: "toys",
-    image: "https://images.unsplash.com/photo-1587654780291-39c9404d746b?auto=format&fit=crop&q=80&w=800",
-    description: "A timeless wooden toy train handcrafted by Indian village artisans."
-  },
-  {
-    id: "p13",
-    name: "Royal Saffron Gifting Tray",
-    price: 3899,
-    originalPrice: 4999,
-    discount: "22% OFF",
-    category: "gift-packs",
-    image: "https://images.unsplash.com/photo-1584269600464-37b1b58a9fe7?auto=format&fit=crop&q=80&w=800",
-    description: "A gold-gilded tray containing organic Kashmiri Saffron and select raw honey."
-  },
-  {
-    id: "p14",
-    name: "Silver Plated Shanti Bowls",
-    price: 1199,
-    originalPrice: 1799,
-    discount: "33% OFF",
-    category: "return-gifts",
-    image: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&q=80&w=800",
-    description: "A set of two silver plated dessert bowls, highly popular as return gifts."
-  },
-  {
-    id: "p15",
-    name: "Handpainted Ceramic Coffee Mug",
-    price: 399,
-    originalPrice: 499,
-    discount: "20% OFF",
-    category: "just-like-that",
-    image: "https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?auto=format&fit=crop&q=80&w=800",
-    description: "A beautiful handpainted mug for daily brews, gifted spontaneously."
-  },
-  {
-    id: "p16",
-    name: "Terracotta Hanging Lamps Set",
-    price: 999,
-    originalPrice: 1399,
-    discount: "28% OFF",
+    id: "c1",
+    name: "Botanical Damask Tapestry Valance Curtain",
+    price: 0,
+    originalPrice: 0,
+    discount: "QUOTE ON REQUEST",
     category: "home-decor",
-    image: "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&q=80&w=800",
-    description: "A set of three traditional terracotta hanging lamps with warm glow filters."
+    image: "/curtains/botanical-damask-tapestry.jpg",
+    description: "Hand-tailored classical damask valance curtains with ornate pelmet header, thick woven blackout drape lining, and matching tiebacks."
   },
   {
-    id: "p17",
-    name: "Radha Krishna Marble Murti",
-    price: 4500,
-    originalPrice: 5999,
-    discount: "25% OFF",
-    category: "idols",
-    image: "https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&q=80&w=800",
-    description: "A majestic divine couple Radha Krishna idol carved in white marble."
+    id: "c2",
+    name: "Chevron Jacquard Pelmet Drapes",
+    price: 0,
+    originalPrice: 0,
+    discount: "QUOTE ON REQUEST",
+    category: "home-decor",
+    image: "/curtains/chevron-jacquard-pelmet.jpg",
+    description: "Modern luxury herringbone and chevron patterned jacquard drapes with structured scalloped pelmet and custom border trim."
   },
   {
-    id: "p18",
-    name: "Luxury Incense Sticks Pack",
-    price: 299,
-    originalPrice: 399,
-    discount: "25% OFF",
-    category: "festivals",
-    image: "https://images.unsplash.com/photo-1612204787971-6138933b664d?auto=format&fit=crop&q=80&w=800",
-    description: "Premium organic charcoal-free incense sticks made of temple flowers."
-  },
-  {
-    id: "p19",
-    name: "Wooden Animal Stacker Toy",
-    price: 499,
-    originalPrice: 799,
-    discount: "37% OFF",
-    category: "toys",
-    image: "https://images.unsplash.com/photo-1537655780520-1e392edd816a?auto=format&fit=crop&q=80&w=800",
-    description: "Educational sorting and stacking toy with animal character designs."
-  },
-  {
-    id: "p20",
-    name: "Luxury Assorted Dry Fruits Box",
-    price: 1999,
-    originalPrice: 2499,
-    discount: "20% OFF",
-    category: "gift-packs",
-    image: "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&q=80&w=800",
-    description: "Curated wood box filled with Cashews, Almonds, Pistachios, and Figs."
+    id: "c3",
+    name: "Gilded Silk Sheer & Velvet Drapes",
+    price: 0,
+    originalPrice: 0,
+    discount: "QUOTE ON REQUEST",
+    category: "home-decor",
+    image: "/curtains/gilded-silk-sheer.jpg",
+    description: "Opulent cream silk & velvet curtains featuring central lace trim accents, scalloped valance, and sheer inner backdrop."
   }
 ];
