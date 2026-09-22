@@ -10,12 +10,16 @@ export const seedCategories = [
   { name: 'Showpieces', image_url: 'https://images.unsplash.com/photo-1572186192734-1779ef884240?auto=format&fit=crop&q=80&w=800', parent_id: 'home-decor', sort_order: 3 },
   { name: 'Vases & Planters', image_url: 'https://images.unsplash.com/photo-1485955900006-10f4d324d411?auto=format&fit=crop&q=80&w=800', parent_id: 'home-decor', sort_order: 4 },
 
+  // Just Like That parent
+  { name: 'Just Like That', image_url: '/tableware/butterfly-wooden-tray.jpg', parent_id: null, sort_order: 3 },
+  { name: 'Tableware', image_url: '/tableware/butterfly-wooden-tray.jpg', parent_id: 'just-like-that', sort_order: 1 },
+
   // Gift Packs parent
-  { name: 'Gift Packs', image_url: 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&q=80&w=800', parent_id: null, sort_order: 3 },
+  { name: 'Gift Packs', image_url: 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&q=80&w=800', parent_id: null, sort_order: 4 },
   { name: 'Premium Gifts', image_url: 'https://images.unsplash.com/photo-1513201099705-a9746e1e201f?auto=format&fit=crop&q=80&w=800', parent_id: 'gift-packs', sort_order: 1 },
 
   // Return Gifts parent
-  { name: 'Return Gifts', image_url: 'https://images.unsplash.com/photo-1512909006721-3d6018887383?auto=format&fit=crop&q=80&w=800', parent_id: null, sort_order: 4 },
+  { name: 'Return Gifts', image_url: 'https://images.unsplash.com/photo-1512909006721-3d6018887383?auto=format&fit=crop&q=80&w=800', parent_id: null, sort_order: 5 },
   { name: 'Wedding Favors', image_url: 'https://images.unsplash.com/photo-1602665742701-389671bc40c0?auto=format&fit=crop&q=80&w=800', parent_id: 'return-gifts', sort_order: 1 }
 ];
 
@@ -75,6 +79,41 @@ export const seedProducts = [
     gst: 5,
     is_bestseller: true,
     is_trending: true,
+    status: 'active'
+  },
+
+  // === TABLEWARE (Just Like That) ===
+  {
+    name: 'Butterfly Azure Wooden Serving Tray Set',
+    description: 'Handcrafted luxury wooden serving tray set with vibrant blue butterfly art motif and high-durability moisture resistant lacquer finish.',
+    category_id: 'tableware',
+    price: 1800,
+    original_price: 2200,
+    gst: 18,
+    is_bestseller: true,
+    is_trending: true,
+    status: 'active'
+  },
+  {
+    name: 'Peacock Compartment Wooden Snack Platter',
+    description: 'Hand-painted 4-section wooden platter featuring traditional Rajasthani peacock tile artwork. Ideal for serving dry fruits, cheese, and appetizers.',
+    category_id: 'tableware',
+    price: 850,
+    original_price: 1100,
+    gst: 18,
+    is_bestseller: true,
+    is_trending: true,
+    status: 'active'
+  },
+  {
+    name: 'Art Deco Circular Wooden Platter',
+    description: 'Modern circular wooden serving platter with sleek black gloss finish and sunburst ivory geometric art inlay.',
+    category_id: 'tableware',
+    price: 720,
+    original_price: 950,
+    gst: 18,
+    is_bestseller: true,
+    is_trending: false,
     status: 'active'
   },
 
@@ -144,6 +183,11 @@ export const seedProductImages = [
   { product_name: 'Tulsi Green Tea', images: ['/being-well/tulsi-green-tea.jpg'] },
   { product_name: 'Chamomile Herbal Tea', images: ['/being-well/chamomile-herbal-tea.jpg'] },
   { product_name: 'Blue Pea Herbal Tea', images: ['/being-well/blue-pea-herbal-tea.jpg'] },
+
+  // Tableware
+  { product_name: 'Butterfly Azure Wooden Serving Tray Set', images: ['/tableware/butterfly-wooden-tray.jpg'] },
+  { product_name: 'Peacock Compartment Wooden Snack Platter', images: ['/tableware/peacock-wooden-platter.jpg'] },
+  { product_name: 'Art Deco Circular Wooden Platter', images: ['/tableware/art-deco-wooden-platter.png'] },
 
   // Curtains
   { product_name: 'Botanical Damask Tapestry Valance Curtain', images: ['/curtains/botanical-damask-tapestry.jpg'] },

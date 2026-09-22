@@ -10,6 +10,16 @@ export const categories = [
     image: "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&q=80&w=800",
   },
   {
+    id: "just-like-that",
+    name: "Just Like That",
+    image: "/tableware/butterfly-wooden-tray.jpg",
+  },
+  {
+    id: "tableware",
+    name: "Tableware",
+    image: "/tableware/butterfly-wooden-tray.jpg",
+  },
+  {
     id: "gift-packs",
     name: "Gift Packs",
     image: "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&q=80&w=800",
@@ -71,6 +81,36 @@ export const products = [
     category: "being-well",
     image: "/being-well/blue-pea-herbal-tea.jpg",
     description: "Exotic butterfly blue pea flower tea rich in vibrant natural anthocyanin antioxidants. 100% natural, caffeine-free infusion for natural body detox, cognitive brain health, and vibrant wellness. Net Wt.: 50g."
+  },
+  {
+    id: "tb1",
+    name: "Butterfly Azure Wooden Serving Tray Set",
+    price: 1800,
+    originalPrice: 2200,
+    discount: "18% OFF",
+    category: "tableware",
+    image: "/tableware/butterfly-wooden-tray.jpg",
+    description: "Handcrafted luxury wooden serving tray set with vibrant blue butterfly art motif and high-durability moisture resistant lacquer finish."
+  },
+  {
+    id: "tb2",
+    name: "Peacock Compartment Wooden Snack Platter",
+    price: 850,
+    originalPrice: 1100,
+    discount: "23% OFF",
+    category: "tableware",
+    image: "/tableware/peacock-wooden-platter.jpg",
+    description: "Hand-painted 4-section wooden platter featuring traditional Rajasthani peacock tile artwork. Ideal for serving dry fruits, cheese, and appetizers."
+  },
+  {
+    id: "tb3",
+    name: "Art Deco Circular Wooden Platter",
+    price: 720,
+    originalPrice: 950,
+    discount: "24% OFF",
+    category: "tableware",
+    image: "/tableware/art-deco-wooden-platter.png",
+    description: "Modern circular wooden serving platter with sleek black gloss finish and sunburst ivory geometric art inlay."
   },
   {
     id: "c1",

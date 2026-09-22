@@ -228,7 +228,10 @@ function isDummyProduct(p: { name: string; id: string }): boolean {
   const validSeedNames = new Set(seedProducts.map(sp => sp.name.toLowerCase()));
   if (validSeedNames.has(lowerName)) return false;
   if (KNOWN_DUMMY_NAMES.has(lowerName)) return true;
-  if (/^p-\d+$/.test(p.id)) return true;
+  // Always preserve products created dynamically by admin
+  if (p.id.startsWith('prod-admin-') || p.id.startsWith('custom-')) return false;
+  // Only match legacy demo IDs (p-1 to p-70)
+  if (/^p-(?:[1-9]|[1-6][0-9]|70)$/.test(p.id)) return true;
   return false;
 }
 
@@ -732,7 +735,7 @@ export async function createProduct(product: {
   created_by: string;
   images?: string[];
 }) {
-  const id = `p-${Date.now()}`;
+  const id = `prod-admin-${Date.now()}`;
   const now = new Date().toISOString();
   
   const discount = product.original_price && product.original_price > 0
