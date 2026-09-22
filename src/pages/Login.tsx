@@ -141,12 +141,17 @@ export const Login: React.FC = () => {
           backgroundColor: 'rgba(31, 77, 58, 0.06)', 
           padding: '4px', 
           borderRadius: 'var(--radius-md)', 
-          marginBottom: '28px',
+          marginBottom: '20px',
           border: '1px solid rgba(31, 77, 58, 0.08)'
         }}>
           <button 
             type="button"
-            onClick={() => { setAuthRole('user'); setMessage(null); }}
+            onClick={() => { 
+              setAuthRole('user'); 
+              setMessage(null); 
+              if (email === 'admin@saugaat.com') setEmail('');
+              if (password === 'saugaat123') setPassword('');
+            }}
             style={{ 
               flex: 1, 
               padding: '10px 0', 
@@ -166,7 +171,12 @@ export const Login: React.FC = () => {
           </button>
           <button 
             type="button"
-            onClick={() => { setAuthRole('admin'); setMessage(null); }}
+            onClick={() => { 
+              setAuthRole('admin'); 
+              setMessage(null); 
+              setEmail('admin@saugaat.com');
+              setPassword('saugaat123');
+            }}
             style={{ 
               flex: 1, 
               padding: '10px 0', 
@@ -185,6 +195,25 @@ export const Login: React.FC = () => {
             <ShieldCheck size={14} /> Admin Console
           </button>
         </div>
+
+        {/* Ready Admin Info Banner */}
+        {authRole === 'admin' && (
+          <div style={{
+            padding: '10px 14px',
+            backgroundColor: 'rgba(200, 169, 107, 0.12)',
+            border: '1px dashed var(--secondary-color)',
+            borderRadius: 'var(--radius-md)',
+            marginBottom: '20px',
+            fontSize: '0.8rem',
+            color: 'var(--primary-color)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between'
+          }}>
+            <span>🔑 <strong>Admin Ready:</strong> <code>admin@saugaat.com</code> / <code>saugaat123</code></span>
+            <span style={{ fontSize: '0.7rem', fontWeight: 'bold', color: 'var(--secondary-color)', textTransform: 'uppercase' }}>Ready to Sign In</span>
+          </div>
+        )}
 
         {/* Message Alert Box */}
         <AnimatePresence mode="wait">
