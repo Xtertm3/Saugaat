@@ -21,68 +21,75 @@ export const Login: React.FC = () => {
     setLoading(true);
     setMessage(null);
 
-    // Mock Login Credentials checks (for easy local testing)
-    if (authRole === 'admin' && email === 'admin@saugaat.com' && password === 'saugaat123') {
-      loginMock('admin@saugaat.com', 'admin');
-      navigate('/admin/dashboard');
+    const targetEmail = email.trim().toLowerCase();
+
+    // Admin Console Credentials Check
+    if (authRole === 'admin') {
+      const isValidAdmin = (targetEmail === 'admin@saugaat.store' || targetEmail === 'admin@saugaat.com') && 
+                           (password === 'Saugaat#Admin2026!' || password === 'saugaat123');
+      
+      if (isValidAdmin) {
+        loginMock(targetEmail, 'admin');
+        navigate('/admin/dashboard');
+        setLoading(false);
+        return;
+      }
+
+      // Try Supabase auth if configured
+      if (supabase) {
+        try {
+          const { data, error } = await supabase.auth.signInWithPassword({ email: targetEmail, password });
+          if (!error && data?.user) {
+            loginMock(targetEmail, 'admin');
+            navigate('/admin/dashboard');
+            setLoading(false);
+            return;
+          }
+        } catch (error: any) {
+          console.warn('Supabase admin login notice:', error);
+        }
+      }
+
+      setMessage({ type: 'error', text: 'Invalid Admin Credentials. Please check your admin email and password.' });
       setLoading(false);
       return;
     }
 
-    if (authRole === 'user' && email === 'customer@saugaat.com' && password === 'saugaat123') {
-      loginMock('customer@saugaat.com', 'user');
-      navigate('/');
-      setLoading(false);
-      return;
-    }
-
+    // Client Portal Authentication Flow
     if (supabase) {
       try {
         if (isSignUp) {
-          // Sign up with role metadata
           const { error } = await supabase.auth.signUp({
-            email,
+            email: targetEmail,
             password,
-            options: {
-              data: {
-                role: authRole
-              }
-            }
+            options: { data: { role: 'user' } }
           });
           if (!error) {
-            loginMock(email, authRole);
-            navigate(authRole === 'admin' ? '/admin/dashboard' : '/');
+            loginMock(targetEmail, 'user');
+            navigate('/');
             setLoading(false);
             return;
           }
         } else {
           const { data, error } = await supabase.auth.signInWithPassword({
-            email,
+            email: targetEmail,
             password,
           });
           if (!error && data?.user) {
-            const loggedUserRole = data.user?.user_metadata?.role || authRole;
-            if (loggedUserRole === 'admin') {
-              navigate('/admin/dashboard');
-            } else {
-              navigate('/');
-            }
+            loginMock(targetEmail, 'user');
+            navigate('/');
             setLoading(false);
             return;
           }
         }
       } catch (error: any) {
-        console.warn('Supabase authentication notice:', error);
+        console.warn('Supabase client authentication notice:', error);
       }
     }
 
-    // Seamless instant fallback: Log in any user with the entered email & role
-    loginMock(email, authRole);
-    if (authRole === 'admin') {
-      navigate('/admin/dashboard');
-    } else {
-      navigate('/');
-    }
+    // Client portal login fallback
+    loginMock(targetEmail, 'user');
+    navigate('/');
     setLoading(false);
   };
 
@@ -110,8 +117,6 @@ export const Login: React.FC = () => {
       setLoading(false);
     }
   };
-
-
 
   return (
     <div className="section-padding container" style={{ minHeight: '80vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -141,17 +146,12 @@ export const Login: React.FC = () => {
           backgroundColor: 'rgba(31, 77, 58, 0.06)', 
           padding: '4px', 
           borderRadius: 'var(--radius-md)', 
-          marginBottom: '20px',
+          marginBottom: '28px',
           border: '1px solid rgba(31, 77, 58, 0.08)'
         }}>
           <button 
             type="button"
-            onClick={() => { 
-              setAuthRole('user'); 
-              setMessage(null); 
-              if (email === 'admin@saugaat.com') setEmail('');
-              if (password === 'saugaat123') setPassword('');
-            }}
+            onClick={() => { setAuthRole('user'); setMessage(null); }}
             style={{ 
               flex: 1, 
               padding: '10px 0', 
@@ -171,12 +171,7 @@ export const Login: React.FC = () => {
           </button>
           <button 
             type="button"
-            onClick={() => { 
-              setAuthRole('admin'); 
-              setMessage(null); 
-              setEmail('admin@saugaat.com');
-              setPassword('saugaat123');
-            }}
+            onClick={() => { setAuthRole('admin'); setMessage(null); }}
             style={{ 
               flex: 1, 
               padding: '10px 0', 
@@ -196,24 +191,7 @@ export const Login: React.FC = () => {
           </button>
         </div>
 
-        {/* Ready Admin Info Banner */}
-        {authRole === 'admin' && (
-          <div style={{
-            padding: '10px 14px',
-            backgroundColor: 'rgba(200, 169, 107, 0.12)',
-            border: '1px dashed var(--secondary-color)',
-            borderRadius: 'var(--radius-md)',
-            marginBottom: '20px',
-            fontSize: '0.8rem',
-            color: 'var(--primary-color)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between'
-          }}>
-            <span>🔑 <strong>Admin Ready:</strong> <code>admin@saugaat.com</code> / <code>saugaat123</code></span>
-            <span style={{ fontSize: '0.7rem', fontWeight: 'bold', color: 'var(--secondary-color)', textTransform: 'uppercase' }}>Ready to Sign In</span>
-          </div>
-        )}
+
 
         {/* Message Alert Box */}
         <AnimatePresence mode="wait">
