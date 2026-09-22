@@ -55,6 +55,28 @@ export const seedProducts = [
     is_trending: true,
     status: 'active'
   },
+  {
+    name: 'Chamomile Herbal Tea',
+    description: 'Calming and restorative herbal tea crafted with whole chamomile blossoms. 100% natural, naturally caffeine-free. Supports immunity, relaxes body & mind, and promotes better restful sleep. Net Wt.: 50g. No added flavour, no preservatives.',
+    category_id: 'being-well',
+    price: 250,
+    original_price: 320,
+    gst: 5,
+    is_bestseller: true,
+    is_trending: true,
+    status: 'active'
+  },
+  {
+    name: 'Blue Pea Herbal Tea',
+    description: 'Exotic butterfly blue pea flower tea rich in vibrant natural anthocyanin antioxidants. 100% natural, caffeine-free infusion for natural body detox, cognitive brain health, and vibrant wellness. Net Wt.: 50g. No added flavour, no preservatives.',
+    category_id: 'being-well',
+    price: 250,
+    original_price: 320,
+    gst: 5,
+    is_bestseller: true,
+    is_trending: true,
+    status: 'active'
+  },
 
   // === CURTAINS COLLECTION (Quote-based) ===
   {
@@ -120,6 +142,8 @@ export const seedProductImages = [
   { product_name: 'Rose Herbal Tea', images: ['/being-well/rose-herbal-tea.jpg'] },
   { product_name: 'Immunity Herbal Tea', images: ['/being-well/immunity-herbal-tea.jpg'] },
   { product_name: 'Tulsi Green Tea', images: ['/being-well/tulsi-green-tea.jpg'] },
+  { product_name: 'Chamomile Herbal Tea', images: ['/being-well/chamomile-herbal-tea.jpg'] },
+  { product_name: 'Blue Pea Herbal Tea', images: ['/being-well/blue-pea-herbal-tea.jpg'] },
 
   // Curtains
   { product_name: 'Botanical Damask Tapestry Valance Curtain', images: ['/curtains/botanical-damask-tapestry.jpg'] },
