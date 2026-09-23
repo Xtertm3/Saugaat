@@ -224,12 +224,13 @@ const KNOWN_DUMMY_NAMES = new Set([
 ]);
 
 function isDummyProduct(p: { name: string; id: string }): boolean {
-  const lowerName = p.name.toLowerCase();
+  if (!p || !p.id) return false;
+  const lowerName = p.name ? p.name.toLowerCase() : '';
   const validSeedNames = new Set(seedProducts.map(sp => sp.name.toLowerCase()));
   if (validSeedNames.has(lowerName)) return false;
   if (KNOWN_DUMMY_NAMES.has(lowerName)) return true;
   // Always preserve products created dynamically by admin
-  if (p.id.startsWith('prod-admin-') || p.id.startsWith('custom-')) return false;
+  if (p.id.startsWith('prod-admin-') || p.id.startsWith('custom-') || p.id.startsWith('prod-')) return false;
   // Only match legacy demo IDs (p-1 to p-70)
   if (/^p-(?:[1-9]|[1-6][0-9]|70)$/.test(p.id)) return true;
   return false;
@@ -289,13 +290,21 @@ function saveLocalCategories(cats: Category[]) {
   }
   const deduped = Array.from(map.values());
   _categoriesMemoryCache = deduped;
-  localStorage.setItem('saugaat_categories', JSON.stringify(deduped));
+  try {
+    localStorage.setItem('saugaat_categories', JSON.stringify(deduped));
+  } catch (e) {
+    console.error('Failed to save categories to localStorage:', e);
+  }
   window.dispatchEvent(new CustomEvent('saugaat_catalog_updated'));
 }
 
 function saveLocalProducts(prods: Product[]) {
   _productsMemoryCache = prods;
-  localStorage.setItem('saugaat_products', JSON.stringify(prods));
+  try {
+    localStorage.setItem('saugaat_products', JSON.stringify(prods));
+  } catch (e) {
+    console.error('Failed to save products to localStorage:', e);
+  }
   window.dispatchEvent(new CustomEvent('saugaat_catalog_updated'));
 }
 

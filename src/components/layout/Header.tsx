@@ -284,6 +284,46 @@ export const Header: React.FC = () => {
             </button>
           </div>
 
+          {/* Mobile Search Bar */}
+          <div style={{ marginBottom: '16px' }}>
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              if (searchQuery.trim()) {
+                setIsMobileMenuOpen(false);
+                navigate(`/category/all?search=${encodeURIComponent(searchQuery)}`);
+              }
+            }} style={{ display: 'flex', gap: '8px' }}>
+              <input
+                type="text"
+                placeholder="Search gifts, decor, teas..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                style={{
+                  flex: 1,
+                  padding: '10px 14px',
+                  borderRadius: 'var(--radius-md)',
+                  border: '1px solid var(--border-color)',
+                  fontSize: '0.85rem',
+                  outline: 'none'
+                }}
+              />
+              <button
+                type="submit"
+                style={{
+                  padding: '10px 16px',
+                  backgroundColor: 'var(--primary-color)',
+                  color: 'white',
+                  borderRadius: 'var(--radius-md)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
+                <Search size={18} />
+              </button>
+            </form>
+          </div>
+
           {user && (
             <div style={{ padding: '12px 16px', margin: '15px 0', backgroundColor: 'rgba(200, 169, 107, 0.1)', borderRadius: 'var(--radius-md)', border: '1px solid rgba(200, 169, 107, 0.3)' }}>
               <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Signed in as</div>

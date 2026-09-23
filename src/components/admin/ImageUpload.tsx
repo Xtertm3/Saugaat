@@ -42,36 +42,66 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({ onImagesChange, maxFil
     return true;
   };
 
-  const handleFiles = (files: FileList) => {
-    const newImages: ImageFile[] = [];
+  const compressImage = (file: File, maxWidth = 800, maxHeight = 800, quality = 0.75): Promise<string> => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
 
-    Array.from(files).forEach((file) => {
-      if (validateFile(file) && images.length + newImages.length < (maxFiles || 10)) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
+          if (width > height) {
+            if (width > maxWidth) {
+              height = Math.round((height * maxWidth) / width);
+              width = maxWidth;
+            }
+          } else {
+            if (height > maxHeight) {
+              width = Math.round((width * maxHeight) / height);
+              height = maxHeight;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL('image/jpeg', quality));
+          } else {
+            resolve((e.target?.result as string) || '');
+          }
+        };
+        img.onerror = () => resolve((e.target?.result as string) || '');
+        img.src = (e.target?.result as string) || '';
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleFiles = async (files: FileList) => {
+    const fileArray = Array.from(files);
+    for (const file of fileArray) {
+      if (validateFile(file) && images.length < (maxFiles || 10)) {
+        try {
+          const previewUrl = await compressImage(file);
           const image: ImageFile = {
             id: `${Date.now()}-${Math.random()}`,
             file,
-            preview: e.target?.result as string,
-            isFeatured: images.length + newImages.length === 0, // First image is featured
+            preview: previewUrl,
+            isFeatured: images.length === 0,
           };
-
-          const updatedImages = [...images, ...newImages, image];
-          setImages(updatedImages);
-          onImagesChange(updatedImages);
-        };
-        reader.readAsDataURL(file);
-        newImages.push({
-          id: `${Date.now()}-${Math.random()}`,
-          file,
-          preview: '',
-          isFeatured: false,
-        });
+          setImages(prev => {
+            const updated = [...prev, image];
+            onImagesChange(updated);
+            return updated;
+          });
+        } catch (err) {
+          console.error('Error compressing image:', err);
+        }
       }
-    });
-
-    if (images.length + newImages.length >= (maxFiles || 10)) {
-      alert(`You can upload a maximum of ${maxFiles || 10} images.`);
     }
   };
 

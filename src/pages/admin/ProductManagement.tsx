@@ -30,7 +30,11 @@ export const ProductManagement: React.FC = () => {
   useEffect(() => {
     fetchData();
     window.addEventListener('storage', fetchData);
-    return () => window.removeEventListener('storage', fetchData);
+    window.addEventListener('saugaat_catalog_updated', fetchData);
+    return () => {
+      window.removeEventListener('storage', fetchData);
+      window.removeEventListener('saugaat_catalog_updated', fetchData);
+    };
   }, []);
 
   const handleFormSubmit = async (formData: any) => {

@@ -77,6 +77,7 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({ products }) => {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.5 }}
+          className="hero-carousel-slide"
           style={{
             position: 'absolute',
             width: '100%',
@@ -96,6 +97,7 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({ products }) => {
             initial={{ x: -30, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.1 }}
+            className="hero-carousel-image-box"
             style={{
               position: 'relative',
               width: '100%',

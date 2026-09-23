@@ -1961,7 +1961,7 @@
   justify-content: flex-end;
 }
 
-/* Responsive Gifting Studio adjustments */
+/* Responsive Gifting Studio & Hero Carousel adjustments */
 @media (max-width: 992px) {
   .hamper-builder-grid, .calligraphy-customizer-grid {
     grid-template-columns: 1fr;
@@ -1969,6 +1969,39 @@
   }
   .studio-tab-content {
     padding: 24px;
+  }
+}
+
+/* Hero Carousel Mobile Responsiveness */
+@media (max-width: 768px) {
+  .hero-carousel {
+    min-height: 480px !important;
+    max-height: none !important;
+    padding: 10px 0 !important;
+  }
+  .hero-carousel-slide {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+    padding: 20px 16px !important;
+    position: relative !important;
+    left: 0 !important;
+    transform: none !important;
+    height: auto !important;
+  }
+  .hero-carousel-image-box {
+    max-height: 210px !important;
+    aspect-ratio: 16/10 !important;
+  }
+  .category-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 14px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .category-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
   }
 }
 

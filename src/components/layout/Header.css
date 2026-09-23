@@ -245,14 +245,27 @@
 
 @media (max-width: 768px) {
   .desktop-only {
-    display: none;
+    display: none !important;
   }
   
   .mobile-only {
-    display: flex;
+    display: flex !important;
   }
   
   .header-left, .header-right {
     gap: 10px;
+  }
+
+  .main-nav {
+    display: none;
+  }
+
+  .logo img {
+    height: 42px !important;
+  }
+
+  .mobile-menu-content {
+    width: 85vw;
+    max-width: 320px;
   }
 }
