@@ -536,7 +536,9 @@ export async function getBestsellers(limit = 10) {
         .eq('is_bestseller', true)
         .eq('status', 'active')
         .limit(limit);
-      if (!error && data && data.length > 0) return data as Product[];
+      if (!error && data && data.length > 0) {
+        return (data as Product[]).filter(p => !isDummyProduct(p));
+      }
     } catch (e) {
       console.error(e);
     }
@@ -544,7 +546,7 @@ export async function getBestsellers(limit = 10) {
 
   const localCats = getLocalCategories();
   return getLocalProducts()
-    .filter(p => p.is_bestseller && p.status === 'active')
+    .filter(p => p.is_bestseller && p.status === 'active' && !isDummyProduct(p))
     .map(p => ({
       ...p,
       categories: localCats.find(c => c.id === p.category_id)
@@ -565,7 +567,9 @@ export async function getTrendingProducts(limit = 10) {
         .eq('is_trending', true)
         .eq('status', 'active')
         .limit(limit);
-      if (!error && data && data.length > 0) return data as Product[];
+      if (!error && data && data.length > 0) {
+        return (data as Product[]).filter(p => !isDummyProduct(p));
+      }
     } catch (e) {
       console.error(e);
     }
@@ -573,7 +577,7 @@ export async function getTrendingProducts(limit = 10) {
 
   const localCats = getLocalCategories();
   return getLocalProducts()
-    .filter(p => p.is_trending && p.status === 'active')
+    .filter(p => p.is_trending && p.status === 'active' && !isDummyProduct(p))
     .map(p => ({
       ...p,
       categories: localCats.find(c => c.id === p.category_id)
@@ -583,19 +587,22 @@ export async function getTrendingProducts(limit = 10) {
 
 export async function getFeaturedHeroProducts(limit = 6): Promise<Product[]> {
   const trending = await getTrendingProducts(limit);
-  if (trending && trending.length > 0) return trending;
+  const validTrending = trending.filter(p => !isDummyProduct(p));
+  if (validTrending && validTrending.length > 0) return validTrending;
   const bestsellers = await getBestsellers(limit);
-  if (bestsellers && bestsellers.length > 0) return bestsellers;
-  return getFeaturedProducts(limit);
+  const validBestsellers = bestsellers.filter(p => !isDummyProduct(p));
+  if (validBestsellers && validBestsellers.length > 0) return validBestsellers;
+  const featured = await getFeaturedProducts(limit);
+  return featured.filter(p => !isDummyProduct(p));
 }
 
 export function getSyncFeaturedHeroProducts(limit = 6): Product[] {
   const allProds = getSyncProducts();
-  const heroItems = allProds.filter(p => p.is_trending && p.status === 'active');
+  const heroItems = allProds.filter(p => p.is_trending && p.status === 'active' && !isDummyProduct(p));
   if (heroItems.length > 0) return heroItems.slice(0, limit);
-  const bestsellers = allProds.filter(p => p.is_bestseller && p.status === 'active');
+  const bestsellers = allProds.filter(p => p.is_bestseller && p.status === 'active' && !isDummyProduct(p));
   if (bestsellers.length > 0) return bestsellers.slice(0, limit);
-  return allProds.slice(0, limit);
+  return allProds.filter(p => !isDummyProduct(p)).slice(0, limit);
 }
 
 export async function getFeaturedProducts(limit = 5) {
@@ -611,7 +618,9 @@ export async function getFeaturedProducts(limit = 5) {
         .eq('status', 'active')
         .order('created_at', { ascending: false })
         .limit(limit);
-      if (!error && data && data.length > 0) return data as Product[];
+      if (!error && data && data.length > 0) {
+        return (data as Product[]).filter(p => !isDummyProduct(p));
+      }
     } catch (e) {
       console.error(e);
     }
@@ -619,7 +628,7 @@ export async function getFeaturedProducts(limit = 5) {
 
   const localCats = getLocalCategories();
   return getLocalProducts()
-    .filter(p => p.status === 'active')
+    .filter(p => p.status === 'active' && !isDummyProduct(p))
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
     .map(p => ({
       ...p,
@@ -784,15 +793,48 @@ export async function createProduct(product: {
 
   if (supabase) {
     try {
-      const { images, ...dbProductData } = product;
+      // Resolve category_id slug to Supabase Category UUID
+      let dbCategoryUuid: string | null = null;
+      const targetSlug = slugify(product.category_id);
+      
+      const { data: dbCategories } = await supabase
+        .from('categories')
+        .select('id, name');
+        
+      if (dbCategories && dbCategories.length > 0) {
+        const matchedCat = dbCategories.find(c => 
+          c.id === product.category_id || 
+          slugify(c.name) === targetSlug || 
+          slugify(c.id) === targetSlug
+        );
+        if (matchedCat) dbCategoryUuid = matchedCat.id;
+      }
+
+      if (!dbCategoryUuid) {
+        const { data: createdCat } = await supabase
+          .from('categories')
+          .insert([{
+            name: product.category_id.charAt(0).toUpperCase() + product.category_id.slice(1),
+            image_url: 'https://images.unsplash.com/photo-1513201099705-a9746e1e201f?auto=format&fit=crop&q=80&w=800'
+          }])
+          .select('id')
+          .single();
+        if (createdCat) dbCategoryUuid = createdCat.id;
+      }
+
+      const { images, created_by, ...dbProductData } = product;
+      const payload = {
+        ...dbProductData,
+        category_id: dbCategoryUuid || product.category_id,
+        discount_percentage: discount
+      };
+
       const { data, error } = await supabase
         .from('products')
-        .insert([{
-          ...dbProductData,
-          discount_percentage: discount
-        }])
+        .insert([payload])
         .select()
         .single();
+
       if (!error && data) {
         const prod = data as Product;
         if (product.images && product.images.length > 0) {
@@ -808,6 +850,8 @@ export async function createProduct(product: {
           saveLocalProducts(updatedLocal);
           return fullProd;
         }
+      } else if (error) {
+        console.error('Error inserting product into Supabase:', error);
       }
     } catch (e) {
       console.error('Error creating product in Supabase:', e);
