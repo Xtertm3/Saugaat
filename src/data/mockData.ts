@@ -35,9 +35,9 @@ export const products = [
   {
     id: "bw1",
     name: "Rose Herbal Tea",
-    price: 235,
-    originalPrice: 299,
-    discount: "21% OFF",
+    price: 195,
+    originalPrice: 250,
+    discount: "22% OFF",
     category: "being-well",
     image: "/being-well/rose-herbal-tea.jpg",
     description: "Pure herbal wellness in every sip. Crafted with 100% natural damask rose petals, naturally caffeine-free. Promotes glowing skin, natural detox, and deep relaxation. Net Wt.: 50g."
@@ -45,9 +45,9 @@ export const products = [
   {
     id: "bw2",
     name: "Immunity Herbal Tea",
-    price: 230,
-    originalPrice: 280,
-    discount: "18% OFF",
+    price: 210,
+    originalPrice: 260,
+    discount: "19% OFF",
     category: "being-well",
     image: "/being-well/immunity-herbal-tea.jpg",
     description: "Formulated to strengthen body defenses with potent traditional herbs and antioxidants. 100% natural, caffeine-free infusion to fight seasonal illness and boost daily vitality. Net Wt.: 50g."
@@ -55,9 +55,9 @@ export const products = [
   {
     id: "bw3",
     name: "Tulsi Green Tea",
-    price: 200,
-    originalPrice: 250,
-    discount: "20% OFF",
+    price: 180,
+    originalPrice: 230,
+    discount: "22% OFF",
     category: "being-well",
     image: "/being-well/tulsi-green-tea.jpg",
     description: "Revitalizing blend of pure holy basil (tulsi) and fine green tea leaves. Rich in protective antioxidants, aids natural weight loss and daily body detox. Net Wt.: 50g."
@@ -65,9 +65,9 @@ export const products = [
   {
     id: "bw4",
     name: "Chamomile Herbal Tea",
-    price: 250,
-    originalPrice: 320,
-    discount: "22% OFF",
+    price: 225,
+    originalPrice: 280,
+    discount: "20% OFF",
     category: "being-well",
     image: "/being-well/chamomile-herbal-tea.jpg",
     description: "Calming and restorative herbal tea crafted with whole chamomile blossoms. 100% natural, naturally caffeine-free. Supports immunity, relaxes body & mind, and promotes better restful sleep. Net Wt.: 50g."
@@ -75,9 +75,9 @@ export const products = [
   {
     id: "bw5",
     name: "Blue Pea Herbal Tea",
-    price: 250,
-    originalPrice: 320,
-    discount: "22% OFF",
+    price: 225,
+    originalPrice: 280,
+    discount: "20% OFF",
     category: "being-well",
     image: "/being-well/blue-pea-herbal-tea.jpg",
     description: "Exotic butterfly blue pea flower tea rich in vibrant natural anthocyanin antioxidants. 100% natural, caffeine-free infusion for natural body detox, cognitive brain health, and vibrant wellness. Net Wt.: 50g."
