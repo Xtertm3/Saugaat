@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import './Footer.css';
 import { STORE_CONTACT } from '../../config/contact';
 
-const BUILD_ID = '2026-09-24-nav-v3';
+const BUILD_ID = '2026-09-24-nav-v4';
 
 export const Footer: React.FC = () => {
   return (
