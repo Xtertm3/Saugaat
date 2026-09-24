@@ -49,3 +49,19 @@ Curtains are quote-based (`price: 0`). Nav shows parent categories in `sort_orde
 - `npm run dev` — dev server
 - `npm run build` — production build
 - `npm run preview` — preview build
+
+
+## Vercel deployment (required for multi-device catalog)
+
+Git push only deploys **code**. Product data lives in **Supabase**.
+
+In [Vercel](https://vercel.com) → your project → **Settings → Environment Variables**, add for Production (and Preview):
+
+| Name | Value |
+|------|--------|
+| `VITE_SUPABASE_URL` | `https://xrpaonfnsflizkidjvhc.supabase.co` |
+| `VITE_SUPABASE_ANON_KEY` | your `sb_publishable_...` key |
+
+Then **Redeploy** the latest deployment (Deployments → … → Redeploy).
+
+Without these variables, the live site has no database client and admin changes stay in that browser’s localStorage only.

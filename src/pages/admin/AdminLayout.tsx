@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { BarChart3, Package, FolderOpen, ShoppingBag, LogOut, Menu, X, Award, ChevronLeft, ChevronRight } from 'lucide-react';
 import '../Admin.css';
+import { supabase } from '../../lib/supabase';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -137,7 +138,23 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => 
 
         {/* Page Content */}
         <div className="admin-content">
-          {children}
+          {!supabase && (
+          <div style={{
+            marginBottom: 16,
+            padding: '12px 16px',
+            borderRadius: 8,
+            background: '#fff3cd',
+            border: '1px solid #ffc107',
+            color: '#664d03',
+            fontSize: 14,
+            lineHeight: 1.5,
+          }}>
+            <strong>Supabase is not connected.</strong> Products you add will only stay on this device.
+            Set <code>VITE_SUPABASE_URL</code> and <code>VITE_SUPABASE_ANON_KEY</code> in
+            Vercel → Project → Settings → Environment Variables, then redeploy.
+          </div>
+        )}
+        {children}
         </div>
       </div>
     </div>
