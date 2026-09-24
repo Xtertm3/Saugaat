@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import './Footer.css';
 import { STORE_CONTACT } from '../../config/contact';
 
+const BUILD_ID = '2026-09-24-sync-v2';
+
 export const Footer: React.FC = () => {
   return (
     <footer className="footer">
@@ -66,13 +68,12 @@ export const Footer: React.FC = () => {
           <div className="footer-col">
             <h3 className="footer-title">Shop</h3>
             <ul className="footer-links">
+              <li><Link to="/category/being-well">Being Well</Link></li>
               <li><Link to="/category/home-decor">Home Decor</Link></li>
-              <li><Link to="/category/idols">Idols</Link></li>
-              <li><Link to="/category/festivals">Festivals</Link></li>
-              <li><Link to="/category/toys">Toys</Link></li>
+              <li><Link to="/category/just-like-that">Just Like That</Link></li>
               <li><Link to="/category/gift-packs">Gift Packs</Link></li>
               <li><Link to="/category/return-gifts">Return Gifts</Link></li>
-              <li><Link to="/category/just-like-that">Just Like That</Link></li>
+              <li><Link to="/category/all">All Gifts</Link></li>
             </ul>
           </div>
 
@@ -88,7 +89,7 @@ export const Footer: React.FC = () => {
         </div>
 
         <div className="footer-bottom">
-          <p>&copy; {new Date().getFullYear()} Saugaat. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Saugaat. All rights reserved. <span style={{fontSize:10,opacity:0.4,marginLeft:8}} data-build={BUILD_ID}>build {BUILD_ID}</span></p>
           <div className="payment-methods">
             <span>Secure Checkout</span>
           </div>
