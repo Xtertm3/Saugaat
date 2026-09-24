@@ -110,6 +110,65 @@ export const seedProducts = [
     description: 'Royal taupe and beige floral jacquard drapes with multi-panel valance header and luxurious heavy drop fabric. Request a quote for custom sizing.',
     category_id: 'curtains', price: 0, original_price: 0, gst: 18, is_bestseller: true, is_trending: true, status: 'active',
   },
+
+  // === GIFT PACKS ===
+  {
+    name: 'Premium Assorted Dry Fruits Hamper',
+    description: 'Elegant gift hamper with premium almonds, cashews, raisins, and pistachios in a presentation box. Ideal for festive and corporate gifting.',
+    category_id: 'premium-gifts',
+    price: 1499,
+    original_price: 1899,
+    gst: 18,
+    is_bestseller: true,
+    is_trending: true,
+    status: 'active',
+  },
+  {
+    name: 'Herbal Wellness Gift Box',
+    description: 'Curated wellness gift box with rose, tulsi, and chamomile herbal teas. Thoughtful gift for health-conscious friends and family.',
+    category_id: 'premium-gifts',
+    price: 799,
+    original_price: 999,
+    gst: 5,
+    is_bestseller: true,
+    is_trending: false,
+    status: 'active',
+  },
+
+  // === RETURN GIFTS / WEDDING FAVORS ===
+  {
+    name: 'Personalized Return Gift Potli Set',
+    description: 'Handcrafted fabric potlis with festive fillings. Perfect as wedding and celebration return gifts. Set of 10.',
+    category_id: 'wedding-favors',
+    price: 999,
+    original_price: 1299,
+    gst: 18,
+    is_bestseller: true,
+    is_trending: true,
+    status: 'active',
+  },
+  {
+    name: 'Miniature Meenakari Favor Boxes',
+    description: 'Vibrant meenakari keepsake boxes ideal for wedding favors and housewarming return gifts. Set of 4.',
+    category_id: 'wedding-favors',
+    price: 649,
+    original_price: 849,
+    gst: 18,
+    is_bestseller: true,
+    is_trending: false,
+    status: 'active',
+  },
+  {
+    name: 'Scented Soy Candle Favor Pack',
+    description: 'Softly scented soy candles in elegant jars. A warm thank-you gift for guests. Pack of 6.',
+    category_id: 'wedding-favors',
+    price: 749,
+    original_price: 949,
+    gst: 18,
+    is_bestseller: false,
+    is_trending: true,
+    status: 'active',
+  },
 ];
 
 export const seedProductImages = [
@@ -131,4 +190,10 @@ export const seedProductImages = [
   { product_name: 'Gilded Silk Sheer & Velvet Drapes', images: ['/curtains/gilded-silk-sheer.jpg'] },
   { product_name: 'Terracotta Floral Brocade Curtains', images: ['/curtains/terracotta-floral-brocade.jpg'] },
   { product_name: 'Imperial Floral Jacquard Valance Drapes', images: ['/curtains/imperial-floral-jacquard.jpg'] },
+
+  { product_name: 'Premium Assorted Dry Fruits Hamper', images: ['https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&q=80&w=800'] },
+  { product_name: 'Herbal Wellness Gift Box', images: ['https://images.unsplash.com/photo-1513201099705-a9746e1e201f?auto=format&fit=crop&q=80&w=800'] },
+  { product_name: 'Personalized Return Gift Potli Set', images: ['https://images.unsplash.com/photo-1512909006721-3d6018887383?auto=format&fit=crop&q=80&w=800'] },
+  { product_name: 'Miniature Meenakari Favor Boxes', images: ['https://images.unsplash.com/photo-1602665742701-389671bc40c0?auto=format&fit=crop&q=80&w=800'] },
+  { product_name: 'Scented Soy Candle Favor Pack', images: ['https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&q=80&w=800'] },
 ];

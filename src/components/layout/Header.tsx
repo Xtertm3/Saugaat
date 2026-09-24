@@ -40,31 +40,27 @@ export const Header: React.FC = () => {
     };
   }, []);
 
-  const hiddenCategoryKeys = ['idols', 'toys'];
-  const parentCategories = dbCategories.filter(c => {
-    if (c.parent_id !== null) return false;
-    const slug = slugify(c.name);
-    return !hiddenCategoryKeys.includes(c.id.toLowerCase()) && !hiddenCategoryKeys.includes(slug);
-  });
+  // Only show the official storefront parent categories in the main nav.
+  // Accidental top-level cats (Sling Bags, Bottles, Laptop-bags, etc.) stay out of the menu.
+  const NAV_PARENT_ORDER = [
+    { slug: 'being-well', label: 'Being Well' },
+    { slug: 'home-decor', label: 'Home Decor' },
+    { slug: 'just-like-that', label: 'Just Like That' },
+    { slug: 'gift-packs', label: 'Gift Packs' },
+    { slug: 'return-gifts', label: 'Return Gifts' },
+  ] as const;
 
-  const uniqueParentCategories: Category[] = [];
-  const seenCategorySlugs = new Set<string>();
-  for (const cat of parentCategories) {
-    const slug = slugify(cat.name);
-    if (!seenCategorySlugs.has(slug)) {
-      seenCategorySlugs.add(slug);
-      uniqueParentCategories.push(cat);
-    }
-  }
-
-  uniqueParentCategories.sort((a, b) => (a.sort_order || 99) - (b.sort_order || 99));
-
-  // Stable nav: All Gifts + parent categories by sort_order, slug paths
   const navCategories = [
     { id: 'all', path: '/category/all', label: 'All Gifts' },
-    ...uniqueParentCategories.map(c => {
-      const slug = slugify(c.name) || c.id;
-      return { id: slug, path: `/category/${slug}`, label: c.name };
+    ...NAV_PARENT_ORDER.map(({ slug, label }) => {
+      const match = dbCategories.find(
+        (c) => !c.parent_id && (slugify(c.name) === slug || c.id === slug || slugify(c.id) === slug)
+      );
+      return {
+        id: slug,
+        path: `/category/${slug}`,
+        label: match?.name || label,
+      };
     }),
   ];
 

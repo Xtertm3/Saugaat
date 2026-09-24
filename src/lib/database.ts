@@ -175,18 +175,24 @@ function getLocalProducts(): Product[] {
 }
 
 function mergeCategories(remoteCats: Category[], localCats: Category[]): Category[] {
+  // Prefer remote categories (real UUIDs + parent_id FKs) so product.category_id matches.
+  // Local seed only fills names that do not exist in Supabase yet.
   const map = new Map<string, Category>();
-  for (const c of localCats) {
-    const key = slugify(c.name) || c.id;
-    map.set(key, c);
-  }
+  const byName = new Map<string, Category>();
+
   for (const c of remoteCats) {
     const key = slugify(c.name) || c.id;
-    if (!map.has(key)) {
-      map.set(key, c);
-    }
+    map.set(key, c);
+    byName.set(slugify(c.name), c);
   }
-  return Array.from(map.values());
+  for (const c of localCats) {
+    const key = slugify(c.name) || c.id;
+    if (map.has(key)) continue;
+    // If remote already has this name under a different key, skip
+    if (byName.has(slugify(c.name))) continue;
+    map.set(key, c);
+  }
+  return Array.from(map.values()).sort((a, b) => (a.sort_order || 99) - (b.sort_order || 99));
 }
 
 const KNOWN_DUMMY_NAMES = new Set([
@@ -278,9 +284,29 @@ function getMatchingCategoryKeys(resolvedCat: Category, allCats: Category[]): Se
 
   addKeys(resolvedCat);
 
+  // Parent category: include every subcategory (match parent_id as UUID or slug or by parent name)
   if (!resolvedCat.parent_id) {
-    const parentKeys = new Set([resolvedCat.id, slugify(resolvedCat.id), slugify(resolvedCat.name)]);
-    const subCats = allCats.filter(c => c.parent_id && (parentKeys.has(c.parent_id) || parentKeys.has(slugify(c.parent_id))));
+    const parentKeys = new Set([
+      resolvedCat.id,
+      slugify(resolvedCat.id),
+      slugify(resolvedCat.name),
+      resolvedCat.name,
+    ].filter(Boolean) as string[]);
+
+    const subCats = allCats.filter((c) => {
+      if (!c.parent_id) return false;
+      if (parentKeys.has(c.parent_id) || parentKeys.has(slugify(c.parent_id))) return true;
+      // Resolve parent row and compare by name (handles mixed slug/UUID graphs)
+      const parent = allCats.find(
+        (p) =>
+          p.id === c.parent_id ||
+          slugify(p.id) === slugify(c.parent_id) ||
+          slugify(p.name) === slugify(c.parent_id)
+      );
+      if (!parent) return false;
+      return slugify(parent.name) === slugify(resolvedCat.name) || parent.id === resolvedCat.id;
+    });
+
     for (const sub of subCats) {
       addKeys(sub);
     }
