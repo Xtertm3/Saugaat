@@ -37,19 +37,26 @@ export const ProductManagement: React.FC = () => {
     };
   }, []);
 
-  const handleFormSubmit = async (formData: any) => {
+  const handleFormSubmit = async (formData: any, _images?: unknown) => {
     try {
+      const payload = {
+        ...formData,
+        created_by: formData.created_by || 'admin',
+        category_id: formData.category_id || formData.categoryId,
+      };
       if (editingId) {
-        await updateProduct(editingId, formData);
+        await updateProduct(editingId, payload);
       } else {
-        await createProduct(formData);
+        await createProduct(payload);
       }
+      window.dispatchEvent(new Event('saugaat_catalog_updated'));
       await fetchData();
       setShowForm(false);
       setEditingId(null);
     } catch (error) {
       console.error('Error saving product:', error);
       alert('Failed to save product: ' + (error as Error).message);
+      throw error;
     }
   };
 
@@ -58,12 +65,14 @@ export const ProductManagement: React.FC = () => {
       try {
         const success = await deleteProduct(id);
         if (success) {
+          window.dispatchEvent(new Event('saugaat_catalog_updated'));
           await fetchData();
         } else {
           alert('Failed to delete product.');
         }
       } catch (err) {
         console.error('Error deleting product:', err);
+        alert('Failed to delete product.');
       }
     }
   };

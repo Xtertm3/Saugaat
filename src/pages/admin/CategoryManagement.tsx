@@ -82,6 +82,7 @@ export const CategoryManagement: React.FC = () => {
           `${formData.name} Collection`
         );
       }
+      window.dispatchEvent(new Event('saugaat_catalog_updated'));
       await fetchCategories();
       setShowForm(false);
       setFormData({ name: '', image_url: '', parent_id: '' });

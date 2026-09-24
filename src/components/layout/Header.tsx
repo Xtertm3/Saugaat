@@ -59,13 +59,13 @@ export const Header: React.FC = () => {
 
   uniqueParentCategories.sort((a, b) => (a.sort_order || 99) - (b.sort_order || 99));
 
+  // Stable nav: All Gifts + parent categories by sort_order, slug paths
   const navCategories = [
     { id: 'all', path: '/category/all', label: 'All Gifts' },
-    ...uniqueParentCategories.map(c => ({
-      id: c.id,
-      path: `/category/${c.id}`,
-      label: c.name
-    }))
+    ...uniqueParentCategories.map(c => {
+      const slug = slugify(c.name) || c.id;
+      return { id: slug, path: `/category/${slug}`, label: c.name };
+    }),
   ];
 
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
@@ -126,7 +126,7 @@ export const Header: React.FC = () => {
             <div className="search-bar desktop-only" style={{ maxWidth: '340px', width: '100%', position: 'relative' }}>
               <input 
                 type="text" 
-                placeholder="Search premium gifts, idols, decor..." 
+                placeholder="Search teas, cushions, curtains, gifts..." 
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value);

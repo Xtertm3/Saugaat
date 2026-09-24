@@ -212,8 +212,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       return;
     }
 
-    if (formData.price <= 0) {
-      setMessage({ type: 'error', text: 'Price must be greater than 0.' });
+    // Allow price 0 for quote-based products (e.g. custom curtains)
+    if (formData.price < 0) {
+      setMessage({ type: 'error', text: 'Price cannot be negative.' });
       return;
     }
 

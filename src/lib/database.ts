@@ -341,12 +341,22 @@ export async function createCategory(name: string, image_url: string, parent_id:
   const id = slugify(name);
   const now = new Date().toISOString();
   const finalId = id || `cat-${Date.now()}`;
-  
+
+  // Resolve parent to local slug id for consistent local cache / nav
+  let localParentId = parent_id;
+  if (parent_id) {
+    const all = getLocalCategories();
+    const parent = all.find(
+      c => c.id === parent_id || slugify(c.name) === slugify(parent_id) || slugify(c.id) === slugify(parent_id)
+    );
+    if (parent) localParentId = parent.id;
+  }
+
   const newCat: Category = {
     id: finalId,
     name,
     image_url,
-    parent_id,
+    parent_id: localParentId,
     description,
     sort_order: 0,
     created_at: now,
@@ -354,27 +364,44 @@ export async function createCategory(name: string, image_url: string, parent_id:
   };
 
   const localCats = getLocalCategories();
-  if (!localCats.some(c => c.id === finalId)) {
+  if (!localCats.some(c => c.id === finalId || slugify(c.name) === finalId)) {
     localCats.push(newCat);
     saveLocalCategories(localCats);
   }
 
   if (supabase) {
     try {
+      // Resolve parent slug -> Supabase UUID (FK requires UUID)
+      let dbParentUuid: string | null = null;
+      if (parent_id) {
+        const { data: dbCategories } = await supabase.from('categories').select('id, name');
+        if (dbCategories) {
+          const matched = dbCategories.find(c =>
+            c.id === parent_id ||
+            slugify(c.name) === slugify(parent_id) ||
+            slugify(c.id) === slugify(parent_id)
+          );
+          if (matched) dbParentUuid = matched.id;
+        }
+      }
+
       const { data, error } = await supabase
         .from('categories')
-        .insert([{ name, image_url, parent_id, description }])
+        .insert([{ name, image_url, parent_id: dbParentUuid, description }])
         .select()
         .single();
+      if (error) console.error('Supabase createCategory error:', error);
+      // Prefer local slug id for app routing consistency
       if (!error && data) {
-        const cat = data as Category;
-        return cat;
+        window.dispatchEvent(new Event('saugaat_catalog_updated'));
+        return newCat;
       }
     } catch (e) {
       console.error('Error creating category in Supabase:', e);
     }
   }
 
+  window.dispatchEvent(new Event('saugaat_catalog_updated'));
   return newCat;
 }
 
@@ -405,21 +432,33 @@ export async function updateCategory(id: string, updates: Partial<Category>) {
 
 export async function deleteCategory(id: string) {
   const localCats = getLocalCategories();
-  const filtered = localCats.filter(c => c.id !== id);
+  // Cascade remove category + children
+  const filtered = localCats.filter(c => c.id !== id && c.parent_id !== id);
   saveLocalCategories(filtered);
 
   if (supabase) {
     try {
-      const { error } = await supabase
-        .from('categories')
-        .delete()
-        .eq('id', id);
-      return !error;
+      const { data: dbCategories } = await supabase.from('categories').select('id, name');
+      let remoteId = id;
+      if (dbCategories) {
+        const matched = dbCategories.find(c =>
+          c.id === id || slugify(c.name) === slugify(id) || slugify(c.id) === slugify(id)
+        );
+        if (matched) remoteId = matched.id;
+      }
+      await supabase.from('categories').delete().eq('parent_id', remoteId);
+      const { error } = await supabase.from('categories').delete().eq('id', remoteId);
+      if (error) {
+        console.error('Supabase deleteCategory error:', error);
+        return false;
+      }
     } catch (e) {
       console.error('Error deleting category in Supabase:', e);
+      return false;
     }
   }
 
+  window.dispatchEvent(new Event('saugaat_catalog_updated'));
   return true;
 }
 
