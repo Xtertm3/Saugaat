@@ -171,6 +171,199 @@ export const Home: React.FC = () => {
         </section>
       )}
 
+      {/* ⚡ Special Flash Sale Spotlight Banner */}
+      <section style={{
+        background: 'linear-gradient(135deg, #0b2239 0%, #1f4d3a 100%)',
+        color: 'white',
+        padding: '40px 20px',
+        position: 'relative',
+        overflow: 'hidden',
+        borderTop: '2px solid var(--secondary-color)',
+        borderBottom: '2px solid var(--secondary-color)',
+        boxShadow: '0 10px 30px rgba(0,0,0,0.2)'
+      }}>
+        <div className="container" style={{ maxWidth: '1200px', margin: '0 auto' }}>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+            gap: '35px',
+            alignItems: 'center'
+          }}>
+            {/* Poster / Product image */}
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              whileInView={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.5 }}
+              viewport={{ once: true }}
+              style={{
+                position: 'relative',
+                borderRadius: 'var(--radius-lg)',
+                overflow: 'hidden',
+                boxShadow: '0 20px 40px rgba(0,0,0,0.4)',
+                backgroundColor: '#fff',
+                border: '2px solid var(--secondary-color)',
+                textAlign: 'center',
+                padding: '8px'
+              }}
+            >
+              <img
+                src="/products/rassrang-bedsheet-combo-4pack.jpg"
+                alt="Rassrang Bedsheet Flash Sale Get 4 at Price of 2"
+                style={{
+                  width: '100%',
+                  maxHeight: '440px',
+                  objectFit: 'contain',
+                  borderRadius: 'var(--radius-md)',
+                  display: 'block'
+                }}
+              />
+              <div style={{
+                position: 'absolute',
+                top: '16px',
+                right: '16px',
+                background: 'linear-gradient(135deg, #e63946 0%, #c1121f 100%)',
+                color: 'white',
+                fontWeight: 900,
+                fontSize: '13px',
+                padding: '6px 14px',
+                borderRadius: '20px',
+                boxShadow: '0 4px 12px rgba(230, 57, 70, 0.5)',
+                letterSpacing: '0.5px'
+              }}>
+                ⚡ 50% OFF FLASH SALE
+              </div>
+            </motion.div>
+
+            {/* Content & Offer Box */}
+            <motion.div
+              initial={{ x: 30, opacity: 0 }}
+              whileInView={{ x: 0, opacity: 1 }}
+              transition={{ duration: 0.5 }}
+              viewport={{ once: true }}
+              style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}
+            >
+              <div>
+                <span style={{
+                  color: 'var(--secondary-color)',
+                  fontSize: '0.85rem',
+                  fontWeight: 800,
+                  textTransform: 'uppercase',
+                  letterSpacing: '2px',
+                  display: 'inline-block',
+                  marginBottom: '6px'
+                }}>
+                  👑 RASSRANG HOME DECOR EXCLUSIVE
+                </span>
+                <h2 style={{
+                  fontSize: 'clamp(1.8rem, 3.5vw, 2.6rem)',
+                  fontWeight: 800,
+                  color: '#ffffff',
+                  margin: 0,
+                  lineHeight: 1.2
+                }}>
+                  GET 4 AT THE PRICE OF TWO!
+                </h2>
+                <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '1rem', marginTop: '8px', lineHeight: 1.5 }}>
+                  Rassrang Luxury Double Bedsheet Set — Pack of 4 featuring vibrant assorted colours & intricate floral & geometric prints.
+                </p>
+              </div>
+
+              {/* Offer Pricing Highlight Box */}
+              <div style={{
+                background: 'rgba(255, 255, 255, 0.08)',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(200, 169, 107, 0.4)',
+                borderRadius: 'var(--radius-md)',
+                padding: '18px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '10px'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '8px' }}>
+                  <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem' }}>MRP of Single Bed Sheet:</span>
+                  <span style={{ color: '#fff', fontWeight: 600 }}>₹1,499</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '8px' }}>
+                  <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem' }}>4 Bed Sheets Standard Price:</span>
+                  <span style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'line-through', fontWeight: 600 }}>₹5,996</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '4px' }}>
+                  <div>
+                    <span style={{ color: 'var(--secondary-color)', fontSize: '0.85rem', fontWeight: 700, display: 'block' }}>FLASH SALE OFFER PRICE:</span>
+                    <span style={{ fontSize: '1.8rem', fontWeight: 900, color: '#25D366' }}>GET 4 FOR ₹2,998</span>
+                  </div>
+                  <span style={{
+                    backgroundColor: '#e63946',
+                    color: 'white',
+                    padding: '6px 12px',
+                    borderRadius: '8px',
+                    fontWeight: 800,
+                    fontSize: '0.85rem'
+                  }}>
+                    SAVE ₹2,998
+                  </span>
+                </div>
+              </div>
+
+              {/* Features List */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.9rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Sparkles size={16} style={{ color: 'var(--secondary-color)' }} />
+                  <span><strong>Vibrant Prints:</strong> Showcasing intricate floral and geometric designs.</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <CheckCircle2 size={16} style={{ color: 'var(--secondary-color)' }} />
+                  <span><strong>Double Bed Sheet:</strong> Perfect fit for larger double & king beds.</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Heart size={16} style={{ color: 'var(--secondary-color)' }} />
+                  <span><strong>Cotton Feel Fabric:</strong> Soft, breathable, and comfortable against the skin.</span>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap', marginTop: '6px' }}>
+                <a
+                  href="https://wa.me/918368229705?text=Hi%20Rassrang%20Support%2C%20I%20want%20to%20order%20the%204%20Bedsheets%20for%20%E2%82%B92998%20Flash%20Sale%20Offer!"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn"
+                  style={{
+                    backgroundColor: '#25D366',
+                    borderColor: '#25D366',
+                    color: 'white',
+                    fontWeight: 800,
+                    padding: '14px 24px',
+                    fontSize: '0.95rem',
+                    borderRadius: 'var(--radius-md)',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    boxShadow: '0 4px 15px rgba(37, 211, 102, 0.4)'
+                  }}
+                >
+                  <Gift size={20} /> ORDER NOW: 8368229705
+                </a>
+                <Link
+                  to="/category/bed-sheets"
+                  className="btn btn-secondary"
+                  style={{
+                    padding: '14px 24px',
+                    fontSize: '0.95rem',
+                    fontWeight: 700,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}
+                >
+                  Explore Bed Sheets Category <ArrowRight size={18} />
+                </Link>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
       {/* Shop By Category Section with textures */}
       <section className="section-padding bg-linen-texture">
         <div className="container">

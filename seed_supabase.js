@@ -49,10 +49,11 @@ const seedCategories = [
 
   // Home Decor parent
   { name: 'Home Decor', image_url: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&q=80&w=800', parent_id: null, sort_order: 2 },
-  { name: 'Curtains', image_url: '/curtains/botanical-damask-tapestry.jpg', parent_id: 'home-decor', sort_order: 1 },
-  { name: 'Wall Decor', image_url: 'https://images.unsplash.com/photo-1578500494198-246f612d03b3?auto=format&fit=crop&q=80&w=800', parent_id: 'home-decor', sort_order: 2 },
-  { name: 'Showpieces', image_url: 'https://images.unsplash.com/photo-1572186192734-1779ef884240?auto=format&fit=crop&q=80&w=800', parent_id: 'home-decor', sort_order: 3 },
-  { name: 'Vases & Planters', image_url: 'https://images.unsplash.com/photo-1485955900006-10f4d324d411?auto=format&fit=crop&q=80&w=800', parent_id: 'home-decor', sort_order: 4 },
+  { name: 'Bed Sheets', image_url: '/products/rassrang-bedsheet-combo-4pack.jpg', parent_id: 'home-decor', sort_order: 1 },
+  { name: 'Curtains', image_url: '/curtains/botanical-damask-tapestry.jpg', parent_id: 'home-decor', sort_order: 2 },
+  { name: 'Wall Decor', image_url: 'https://images.unsplash.com/photo-1578500494198-246f612d03b3?auto=format&fit=crop&q=80&w=800', parent_id: 'home-decor', sort_order: 3 },
+  { name: 'Showpieces', image_url: 'https://images.unsplash.com/photo-1572186192734-1779ef884240?auto=format&fit=crop&q=80&w=800', parent_id: 'home-decor', sort_order: 4 },
+  { name: 'Vases & Planters', image_url: 'https://images.unsplash.com/photo-1485955900006-10f4d324d411?auto=format&fit=crop&q=80&w=800', parent_id: 'home-decor', sort_order: 5 },
 
   // Just Like That parent
   { name: 'Just Like That', image_url: '/tableware/butterfly-wooden-tray.jpg', parent_id: null, sort_order: 3 },
@@ -68,6 +69,19 @@ const seedCategories = [
 ];
 
 const seedProducts = [
+  // === HERO FLASH SALE BED SHEETS ===
+  {
+    name: 'Rassrang Luxury Double Bedsheet Combo (Set of 4)',
+    description: '⚡ GET 4 AT THE PRICE OF 2 FLASH SALE! Premium cotton-feel double bed sheets featuring vibrant assorted colours and intricate floral & geometric prints. Soft, breathable, and comfortable against the skin. Perfect fit for larger double beds. (MRP of 1 Bed Sheet: ₹1,499. Regular 4-Pack MRP: ₹5,996 — Flash Sale Price: ₹2,998 for 4 Bedsheets!). Key Features: Assorted Colours & Prints | Double Bed Sheet | Cotton Feel Fabric. Order Now Hotline: 8368229705.',
+    category_id: 'bed-sheets',
+    price: 2998,
+    original_price: 5996,
+    gst: 12,
+    is_bestseller: true,
+    is_trending: true,
+    status: 'active',
+    image: '/products/rassrang-bedsheet-combo-4pack.jpg'
+  },
   // === BEING WELL PRODUCTS ===
   {
     name: 'Rose Herbal Tea',

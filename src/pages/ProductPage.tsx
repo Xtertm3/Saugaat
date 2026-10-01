@@ -156,17 +156,20 @@ export const ProductPage: React.FC = () => {
           transition={{ duration: 0.5 }}
           className="product-gallery-block"
         >
-          <div className="product-image-large" style={{ position: 'relative', overflow: 'hidden', borderRadius: 'var(--radius-md)', boxShadow: 'var(--shadow-md)' }}>
+          <div className="product-image-large" style={{ position: 'relative', overflow: 'hidden', borderRadius: 'var(--radius-md)', boxShadow: 'var(--shadow-md)', backgroundColor: '#f9f9f9', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '380px' }}>
             <img 
-              src={getOptimizedImageUrl(selectedImage || allImages[0], { width: 600, quality: 70 })} 
+              src={getOptimizedImageUrl(selectedImage || allImages[0], { width: 750, quality: 80 })} 
               alt={product.name} 
               loading="eager"
               decoding="sync"
-              style={{ width: '100%', maxHeight: '520px', objectFit: 'cover', display: 'block' }} 
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1513201099705-a9746e1e201f?auto=format,compress&fit=crop&q=80&w=800&fm=webp';
+              }}
+              style={{ maxWidth: '100%', maxHeight: '520px', objectFit: 'contain', display: 'block', margin: '0 auto' }} 
             />
             {product.discount_percentage > 0 && (
               <span style={{ position: 'absolute', top: '15px', left: '15px', backgroundColor: 'var(--accent-color)', color: 'white', padding: '6px 12px', borderRadius: '4px', fontSize: '0.85rem', fontWeight: 'bold' }}>
-                {product.discount_percentage}% OFF
+                {product.discount_percentage >= 50 ? '🔥 GET 4 AT PRICE OF 2 (50% OFF)' : `${product.discount_percentage}% OFF`}
               </span>
             )}
           </div>

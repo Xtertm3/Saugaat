@@ -98,7 +98,44 @@ export const Header: React.FC = () => {
   };
 
   return (
-    <header className="header glass" style={{ padding: '15px 0' }}>
+    <>
+      {/* Flash Sale Announcement Top Bar */}
+      <div style={{
+        background: 'linear-gradient(90deg, #0b2239 0%, #1f4d3a 50%, #0b2239 100%)',
+        color: '#ffffff',
+        fontSize: '0.82rem',
+        fontWeight: 700,
+        padding: '8px 16px',
+        textAlign: 'center',
+        letterSpacing: '0.5px',
+        borderBottom: '1px solid var(--secondary-color)',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        gap: '12px',
+        flexWrap: 'wrap'
+      }}>
+        <span>⚡ <strong>FLASH SALE DEAL:</strong> Rassrang Luxury Double Bedsheets — Get 4 at ₹2,998 instead of ₹5,996!</span>
+        <a
+          href="https://wa.me/918368229705?text=Hi%20Saugaat%20Support%2C%20I%20am%20interested%20in%20ordering%20the%204%20Bedsheets%20for%20%E2%82%B92998%20Flash%20Sale%20Offer!"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            backgroundColor: '#25D366',
+            color: 'white',
+            padding: '3px 12px',
+            borderRadius: '12px',
+            fontSize: '0.78rem',
+            textDecoration: 'none',
+            fontWeight: 800,
+            boxShadow: '0 2px 6px rgba(37,211,102,0.4)'
+          }}
+        >
+          ORDER NOW: 8368229705
+        </a>
+      </div>
+
+      <header className="header glass" style={{ padding: '15px 0' }}>
       <div className="container">
         <div className="header-main" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           
@@ -352,5 +389,6 @@ export const Header: React.FC = () => {
         </div>
       </div>
     </header>
+    </>
   );
 };

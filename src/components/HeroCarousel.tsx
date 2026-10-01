@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { getOptimizedImageUrl } from '../utils/imageOptimizer';
 import { preloadImages } from '../utils/imagePreloader';
 import { slugify, type Product } from '../lib/database';
-import { STORE_CONTACT } from '../config/contact';
 
 interface HeroCarouselProps {
   products: Product[];
@@ -101,26 +100,34 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({ products }) => {
             style={{
               position: 'relative',
               width: '100%',
-              maxHeight: '360px',
-              aspectRatio: '4/3',
+              height: '380px',
               borderRadius: 'var(--radius-lg)',
               overflow: 'hidden',
-              boxShadow: 'var(--shadow-lg)',
-              background: 'white',
-              margin: '0 auto'
+              boxShadow: '0 20px 40px rgba(0, 0, 0, 0.15)',
+              background: 'linear-gradient(145deg, #1f4d3a 0%, #0b2239 100%)',
+              margin: '0 auto',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '6px'
             }}
           >
-            <Link to={`/product/${currentProduct.id}`}>
+            <Link to={`/product/${currentProduct.id}`} style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <img
                 src={imageUrl}
                 alt={currentProduct.name}
                 loading="eager"
                 decoding="sync"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format,compress&fit=crop&q=75&w=650&fm=webp';
+                }}
                 style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
+                  maxWidth: '100%',
+                  maxHeight: '100%',
+                  objectFit: 'contain',
+                  borderRadius: 'var(--radius-md)',
                   display: 'block',
+                  boxShadow: '0 8px 24px rgba(0,0,0,0.2)'
                 }}
               />
             </Link>
@@ -138,7 +145,8 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({ products }) => {
                   borderRadius: 'var(--radius-sm)',
                   fontWeight: 700,
                   fontSize: '12px',
-                  letterSpacing: '0.5px'
+                  letterSpacing: '0.5px',
+                  boxShadow: '0 4px 10px rgba(0,0,0,0.2)'
                 }}
               >
                 PRICE ON REQUEST
@@ -149,15 +157,17 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({ products }) => {
                   position: 'absolute',
                   top: '15px',
                   left: '15px',
-                  background: 'var(--accent-color)',
+                  background: 'linear-gradient(135deg, #e63946 0%, #c1121f 100%)',
                   color: 'white',
                   padding: '6px 14px',
                   borderRadius: 'var(--radius-sm)',
-                  fontWeight: 700,
+                  fontWeight: 800,
                   fontSize: '12px',
+                  letterSpacing: '0.5px',
+                  boxShadow: '0 4px 12px rgba(230, 57, 70, 0.4)'
                 }}
               >
-                {discountPercentage}% OFF
+                {discountPercentage >= 50 ? '🔥 GET 4 AT PRICE OF 2 (50% OFF)' : `${discountPercentage}% OFF`}
               </div>
             ) : null}
           </motion.div>
@@ -174,7 +184,22 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({ products }) => {
             }}
           >
             {/* Badges */}
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
+              <span
+                style={{
+                  background: 'linear-gradient(135deg, #c8a96b 0%, #b38b46 100%)',
+                  color: 'white',
+                  padding: '4px 14px',
+                  borderRadius: '20px',
+                  fontSize: '11px',
+                  fontWeight: 800,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.8px',
+                  boxShadow: '0 2px 8px rgba(200, 169, 107, 0.3)'
+                }}
+              >
+                ⚡ Flash Sale Deal
+              </span>
               {currentProduct.is_bestseller && (
                 <span
                   style={{
@@ -247,6 +272,7 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({ products }) => {
                 display: 'flex',
                 alignItems: 'baseline',
                 gap: '14px',
+                flexWrap: 'wrap'
               }}
             >
               {isQuoteItem ? (
@@ -263,8 +289,8 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({ products }) => {
                 <>
                   <span
                     style={{
-                      fontSize: '1.8rem',
-                      fontWeight: 700,
+                      fontSize: '2rem',
+                      fontWeight: 800,
                       color: 'var(--primary-color)',
                     }}
                   >
@@ -273,7 +299,7 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({ products }) => {
                   {currentProduct.original_price && currentProduct.original_price > currentProduct.price && (
                     <span
                       style={{
-                        fontSize: '1.1rem',
+                        fontSize: '1.2rem',
                         color: 'var(--text-muted)',
                         textDecoration: 'line-through',
                       }}
@@ -281,58 +307,95 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({ products }) => {
                       ₹{currentProduct.original_price.toLocaleString()}
                     </span>
                   )}
+                  {discountPercentage > 0 && (
+                    <span
+                      style={{
+                        fontSize: '0.85rem',
+                        fontWeight: 700,
+                        color: '#2e7d32',
+                        backgroundColor: '#e8f5e9',
+                        padding: '4px 10px',
+                        borderRadius: '12px'
+                      }}
+                    >
+                      SAVE ₹{(currentProduct.original_price! - currentProduct.price).toLocaleString()} ({discountPercentage}% OFF)
+                    </span>
+                  )}
                 </>
               )}
             </div>
+
+            {/* Features summary bar if bedsheets */}
+            {currentProduct.name.toLowerCase().includes('bedsheet') && (
+              <div
+                style={{
+                  display: 'flex',
+                  gap: '12px',
+                  fontSize: '0.8rem',
+                  color: 'var(--primary-color)',
+                  fontWeight: 600,
+                  backgroundColor: 'rgba(200, 169, 107, 0.1)',
+                  padding: '8px 12px',
+                  borderRadius: 'var(--radius-sm)',
+                  borderLeft: '3px solid var(--secondary-color)'
+                }}
+              >
+                <span>✨ Assorted Colours & Prints</span>
+                <span>•</span>
+                <span>🛏️ Fits Double Beds</span>
+                <span>•</span>
+                <span>🌿 100% Cotton Feel</span>
+              </div>
+            )}
 
             {/* Action buttons */}
             <div
               style={{
                 display: 'flex',
                 gap: '12px',
-                marginTop: '6px'
+                marginTop: '6px',
+                flexWrap: 'wrap'
               }}
             >
-              {isQuoteItem ? (
-                <a
-                  href={`https://wa.me/${STORE_CONTACT.whatsappNumber}?text=${encodeURIComponent(`*HERO QUOTATION ENQUIRY - SAUGAAT*\n------------------------------\n🖼️ *Product:* ${currentProduct.name}\n📍 *Category:* Curtains & Decor\n------------------------------\nHi Saugaat Support, I am interested in getting a quote for this featured item.`)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn btn-primary"
-                  style={{
-                    flex: 1,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '8px',
-                    backgroundColor: '#25D366',
-                    borderColor: '#25D366',
-                    color: 'white',
-                    fontWeight: 700,
-                    padding: '12px 20px',
-                    fontSize: '0.85rem'
-                  }}
-                >
-                  <MessageSquare size={18} /> GET QUOTATION VIA WHATSAPP
-                </a>
-              ) : (
-                <Link
-                  to={`/product/${currentProduct.id}`}
-                  className="btn btn-primary"
-                  style={{
-                    flex: 1,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '8px',
-                    fontWeight: 700,
-                    padding: '12px 20px',
-                    fontSize: '0.85rem'
-                  }}
-                >
-                  <ShoppingCart size={18} /> VIEW PRODUCT DETAILS
-                </Link>
-              )}
+              <Link
+                to={`/product/${currentProduct.id}`}
+                className="btn btn-primary"
+                style={{
+                  flex: 1,
+                  minWidth: '180px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  fontWeight: 700,
+                  padding: '12px 20px',
+                  fontSize: '0.85rem'
+                }}
+              >
+                <ShoppingCart size={18} /> VIEW OFFER DETAILS
+              </Link>
+              <a
+                href={`https://wa.me/918368229705?text=${encodeURIComponent(`*HERO FLASH SALE ORDER - SAUGAAT*\n------------------------------\n🖼️ *Item:* ${currentProduct.name}\n💰 *Price:* ₹${currentProduct.price} (Get 4 at price of 2)\n------------------------------\nHi Saugaat Team, I want to order this Flash Sale Bed Sheet offer! Please guide me.`)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn"
+                style={{
+                  flex: 1,
+                  minWidth: '180px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  backgroundColor: '#25D366',
+                  borderColor: '#25D366',
+                  color: 'white',
+                  fontWeight: 700,
+                  padding: '12px 20px',
+                  fontSize: '0.85rem'
+                }}
+              >
+                <MessageSquare size={18} /> ORDER VIA WHATSAPP (8368229705)
+              </a>
             </div>
           </motion.div>
         </motion.div>

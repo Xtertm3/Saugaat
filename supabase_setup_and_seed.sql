@@ -68,6 +68,25 @@ CREATE POLICY "Allow public read" ON public.products FOR SELECT USING (true);
 CREATE POLICY "Allow public read" ON public.product_images FOR SELECT USING (true);
 CREATE POLICY "Allow users to read their own profile" ON public.profiles FOR SELECT USING (auth.uid() = id);
 
+CREATE POLICY "Allow public write categories" ON public.categories FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Allow public write products" ON public.products FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Allow public write product_images" ON public.product_images FOR ALL USING (true) WITH CHECK (true);
+
+-- Storage bucket setup for product images (Saugaat bucket)
+INSERT INTO storage.buckets (id, name, public) 
+VALUES ('Saugaat', 'Saugaat', true)
+ON CONFLICT (id) DO UPDATE SET public = true;
+
+DROP POLICY IF EXISTS "Public Storage Read Saugaat" ON storage.objects;
+DROP POLICY IF EXISTS "Public Storage Upload Saugaat" ON storage.objects;
+DROP POLICY IF EXISTS "Public Storage Update Saugaat" ON storage.objects;
+DROP POLICY IF EXISTS "Public Storage Delete Saugaat" ON storage.objects;
+
+CREATE POLICY "Public Storage Read Saugaat" ON storage.objects FOR SELECT USING (bucket_id = 'Saugaat');
+CREATE POLICY "Public Storage Upload Saugaat" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'Saugaat');
+CREATE POLICY "Public Storage Update Saugaat" ON storage.objects FOR UPDATE USING (bucket_id = 'Saugaat');
+CREATE POLICY "Public Storage Delete Saugaat" ON storage.objects FOR DELETE USING (bucket_id = 'Saugaat');
+
 -- 3. TRUNCATE CURRENT DATA TO PREVENT DUPLICATE KEY ERRORS
 TRUNCATE public.product_images, public.products, public.categories CASCADE;
 
