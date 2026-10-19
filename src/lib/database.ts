@@ -665,7 +665,11 @@ export async function getFeaturedHeroProducts(limit = 6): Promise<Product[]> {
   const allProds = await getProducts();
   const diwaliHampers = allProds
     .filter(p => p.name.toLowerCase().includes('diwali'))
-    .sort((a, b) => (a.name.toLowerCase().includes('jute') ? -1 : 1));
+    .sort((a, b) => {
+      const aJute = a.name.toLowerCase().includes('jute');
+      const bJute = b.name.toLowerCase().includes('jute');
+      return aJute === bJute ? 0 : aJute ? -1 : 1;
+    });
 
   const flashSaleBedsheet = allProds.find(p => p.name.toLowerCase().includes('bedsheet') && p.name.toLowerCase().includes('rassrang'))
     || allProds.find(p => p.name.toLowerCase().includes('bedsheet'));
@@ -701,7 +705,11 @@ export function getSyncFeaturedHeroProducts(limit = 6): Product[] {
   const allProds = getSyncProducts();
   const diwaliHampers = allProds
     .filter(p => p.name.toLowerCase().includes('diwali'))
-    .sort((a, b) => (a.name.toLowerCase().includes('jute') ? -1 : 1));
+    .sort((a, b) => {
+      const aJute = a.name.toLowerCase().includes('jute');
+      const bJute = b.name.toLowerCase().includes('jute');
+      return aJute === bJute ? 0 : aJute ? -1 : 1;
+    });
 
   const flashSaleBedsheet = allProds.find(p => p.name.toLowerCase().includes('bedsheet') && p.name.toLowerCase().includes('rassrang'))
     || allProds.find(p => p.name.toLowerCase().includes('bedsheet'));
