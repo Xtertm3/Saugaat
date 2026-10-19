@@ -55,7 +55,7 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({ products }) => {
 
   const currentProduct = products[currentIndex];
   const isBedsheetProduct = currentProduct.name.toLowerCase().includes('bedsheet');
-  const isDiwaliHamper = currentProduct.name.toLowerCase().includes('diwali');
+  const isDiwaliHamper = currentProduct.name.toLowerCase().includes('diwali') || currentProduct.name.toLowerCase().includes('shubh labh');
   const rawImageUrl =
     (currentProduct.product_images && currentProduct.product_images.length > 0 && currentProduct.product_images[0]?.image_url) ||
     (isBedsheetProduct ? '/products/rassrang-bedsheet-combo-4pack.jpg' : 

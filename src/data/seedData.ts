@@ -34,7 +34,7 @@ export const seedProducts = [
     status: 'active'
   },
   {
-    name: 'Diwali Shubh Labh Festive Tea & Idol Gift Hamper',
+    name: 'Shubh Labh Hampers for Home',
     description: '🪔 Divine Auspicious Diwali Celebration Hamper uniting sacred blessings with holistic wellbeing. Presented in an elegant royal palace arch gift carrying box with festive peacock artwork. Includes a sacred Silver-finish Shubh Labh idol encased in a royal red velvet presentation box, paired with two pure wellness teas: (1) Revitalizing Tulsi Green Tea for daily antioxidant energy, and (2) Potent Immunity Herbal Tea infused with traditional Ayurvedic spices. The quintessential Diwali gift for home pooja, family blessings, and corporate gifting. Net Wt.: 2 x 50g + Silver Idol. Special Festive Price: ₹750.',
     category_id: 'gift-packs',
     price: 750,
@@ -228,7 +228,7 @@ export const seedProducts = [
 
 export const seedProductImages = [
   { product_name: 'Diwali Herbal Tea Trio Jute Gift Hamper', images: ['/products/diwali-herbal-tea-jute-hamper.jpg', '/products/diwali-shubh-labh-tea-hamper.jpg'] },
-  { product_name: 'Diwali Shubh Labh Festive Tea & Idol Gift Hamper', images: ['/products/diwali-shubh-labh-tea-hamper.jpg', '/products/diwali-herbal-tea-jute-hamper.jpg'] },
+  { product_name: 'Shubh Labh Hampers for Home', images: ['/products/diwali-shubh-labh-tea-hamper.jpg', '/products/diwali-herbal-tea-jute-hamper.jpg'] },
   { product_name: 'Rassrang Luxury Double Bedsheet Combo (Set of 4)', images: ['/products/rassrang-bedsheet-combo-4pack.jpg'] },
   { product_name: 'Rose Herbal Tea', images: ['/being-well/rose-herbal-tea.jpg'] },
   { product_name: 'Immunity Herbal Tea', images: ['/being-well/immunity-herbal-tea.jpg'] },

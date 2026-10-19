@@ -44,7 +44,7 @@ export const products = [
   },
   {
     id: "dh2",
-    name: "Diwali Shubh Labh Festive Tea & Idol Gift Hamper",
+    name: "Shubh Labh Hampers for Home",
     price: 750,
     originalPrice: 1050,
     discount: "29% OFF",

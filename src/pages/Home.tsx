@@ -495,7 +495,7 @@ export const Home: React.FC = () => {
               }}>
                 <img
                   src="/products/diwali-shubh-labh-tea-hamper.jpg"
-                  alt="Diwali Shubh Labh Festive Tea & Idol Gift Hamper"
+                  alt="Shubh Labh Hampers for Home"
                   style={{
                     width: '100%',
                     height: '100%',
@@ -542,7 +542,7 @@ export const Home: React.FC = () => {
                   margin: 0,
                   lineHeight: 1.3
                 }}>
-                  Diwali Shubh Labh Festive Tea & Idol Hamper
+                  Shubh Labh Hampers for Home
                 </h3>
               </div>
 
@@ -601,7 +601,7 @@ export const Home: React.FC = () => {
                 <button
                   onClick={() => handleQuickBuyDiwaliHamper({
                     id: '8dc46d83-0f12-44c5-a492-59fc5e88491c',
-                    name: 'Diwali Shubh Labh Festive Tea & Idol Gift Hamper',
+                    name: 'Shubh Labh Hampers for Home',
                     price: 750,
                     image: '/products/diwali-shubh-labh-tea-hamper.jpg'
                   })}
@@ -625,7 +625,7 @@ export const Home: React.FC = () => {
 
                 <div style={{ display: 'flex', gap: '10px' }}>
                   <a
-                    href={`https://wa.me/918368229705?text=${encodeURIComponent('*DIWALI FESTIVE HAMPER ORDER - SAUGAAT*\n----------------------------------------\n🪔 *Hamper:* Diwali Shubh Labh Festive Tea & Idol Gift Hamper\n💰 *Festive Price:* ₹750 each (Net Wt: 2 x 50g + Silver Idol)\n🎁 *Inclusions:* Silver Shubh Labh Idol + Palace Motif Box\n----------------------------------------\nHi Saugaat Team, I want to order this Diwali Shubh Labh Festive Hamper for ₹750! Please guide me with delivery details.')}`}
+                    href={`https://wa.me/918368229705?text=${encodeURIComponent('*DIWALI FESTIVE HAMPER ORDER - SAUGAAT*\n----------------------------------------\n🪔 *Hamper:* Shubh Labh Hampers for Home\n💰 *Festive Price:* ₹750 each (Net Wt: 2 x 50g + Silver Idol)\n🎁 *Inclusions:* Silver Shubh Labh Idol + Palace Motif Box\n----------------------------------------\nHi Saugaat Team, I want to order Shubh Labh Hampers for Home for ₹750! Please guide me with delivery details.')}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="btn"
