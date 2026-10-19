@@ -13,14 +13,38 @@ export const seedCategories = [
   { name: 'Just Like That', image_url: '/tableware/butterfly-wooden-tray.jpg', parent_id: null, sort_order: 3 },
   { name: 'Tableware', image_url: '/tableware/butterfly-wooden-tray.jpg', parent_id: 'just-like-that', sort_order: 1 },
 
-  { name: 'Gift Packs', image_url: 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&q=80&w=800', parent_id: null, sort_order: 4 },
-  { name: 'Premium Gifts', image_url: 'https://images.unsplash.com/photo-1513201099705-a9746e1e201f?auto=format&fit=crop&q=80&w=800', parent_id: 'gift-packs', sort_order: 1 },
+  { name: 'Gift Packs', image_url: '/products/diwali-herbal-tea-jute-hamper.jpg', parent_id: null, sort_order: 4 },
+  { name: 'Premium Gifts', image_url: '/products/diwali-herbal-tea-jute-hamper.jpg', parent_id: 'gift-packs', sort_order: 1 },
 
   { name: 'Return Gifts', image_url: 'https://images.unsplash.com/photo-1512909006721-3d6018887383?auto=format&fit=crop&q=80&w=800', parent_id: null, sort_order: 5 },
   { name: 'Wedding Favors', image_url: 'https://images.unsplash.com/photo-1602665742701-389671bc40c0?auto=format&fit=crop&q=80&w=800', parent_id: 'return-gifts', sort_order: 1 },
 ];
 
 export const seedProducts = [
+  // === DIWALI FESTIVE GIFT HAMPERS ===
+  {
+    name: 'Diwali Herbal Tea Trio Jute Gift Hamper',
+    description: '🪔 Exquisite Diwali Wellness Gift Hamper crafted with love and tradition. Features an eco-friendly handcrafted natural jute tote bag with delicate white scalloped lace embroidery. Inside is a curated trio of Saugaat\'s signature 100% natural, caffeine-free herbal teas: (1) Damask Rose Herbal Tea for natural radiance & detox, (2) Butterfly Blue Pea Herbal Tea for cognitive wellness & antioxidants, and (3) Calming Chamomile Herbal Tea for deep restful relaxation. A thoughtful, sustainable festive gift for friends, family, and corporate celebrations. Net Wt.: 3 x 50g (150g). Special Festive Price: ₹750.',
+    category_id: 'gift-packs',
+    price: 750,
+    original_price: 999,
+    gst: 5,
+    is_bestseller: true,
+    is_trending: true,
+    status: 'active'
+  },
+  {
+    name: 'Diwali Shubh Labh Festive Tea & Idol Gift Hamper',
+    description: '🪔 Divine Auspicious Diwali Celebration Hamper uniting sacred blessings with holistic wellbeing. Presented in an elegant royal palace arch gift carrying box with festive peacock artwork. Includes a sacred Silver-finish Shubh Labh idol encased in a royal red velvet presentation box, paired with two pure wellness teas: (1) Revitalizing Tulsi Green Tea for daily antioxidant energy, and (2) Potent Immunity Herbal Tea infused with traditional Ayurvedic spices. The quintessential Diwali gift for home pooja, family blessings, and corporate gifting. Net Wt.: 2 x 50g + Silver Idol. Special Festive Price: ₹750.',
+    category_id: 'gift-packs',
+    price: 750,
+    original_price: 1050,
+    gst: 5,
+    is_bestseller: true,
+    is_trending: true,
+    status: 'active'
+  },
+
   // === HERO FLASH SALE BED SHEETS ===
   {
     name: 'Rassrang Luxury Double Bedsheet Combo (Set of 4)',
@@ -203,6 +227,8 @@ export const seedProducts = [
 ];
 
 export const seedProductImages = [
+  { product_name: 'Diwali Herbal Tea Trio Jute Gift Hamper', images: ['/products/diwali-herbal-tea-jute-hamper.jpg', '/products/diwali-shubh-labh-tea-hamper.jpg'] },
+  { product_name: 'Diwali Shubh Labh Festive Tea & Idol Gift Hamper', images: ['/products/diwali-shubh-labh-tea-hamper.jpg', '/products/diwali-herbal-tea-jute-hamper.jpg'] },
   { product_name: 'Rassrang Luxury Double Bedsheet Combo (Set of 4)', images: ['/products/rassrang-bedsheet-combo-4pack.jpg'] },
   { product_name: 'Rose Herbal Tea', images: ['/being-well/rose-herbal-tea.jpg'] },
   { product_name: 'Immunity Herbal Tea', images: ['/being-well/immunity-herbal-tea.jpg'] },

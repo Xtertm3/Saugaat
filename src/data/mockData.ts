@@ -22,7 +22,7 @@ export const categories = [
   {
     id: "gift-packs",
     name: "Gift Packs",
-    image: "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&q=80&w=800",
+    image: "/products/diwali-herbal-tea-jute-hamper.jpg",
   },
   {
     id: "return-gifts",
@@ -32,6 +32,26 @@ export const categories = [
 ];
 
 export const products = [
+  {
+    id: "dh1",
+    name: "Diwali Herbal Tea Trio Jute Gift Hamper",
+    price: 750,
+    originalPrice: 999,
+    discount: "25% OFF",
+    category: "gift-packs",
+    image: "/products/diwali-herbal-tea-jute-hamper.jpg",
+    description: "🪔 Exquisite Diwali Wellness Gift Hamper crafted with love and tradition. Features an eco-friendly handcrafted natural jute tote bag with delicate white scalloped lace embroidery. Inside is a curated trio of Saugaat's signature 100% natural, caffeine-free herbal teas: Damask Rose Herbal Tea, Butterfly Blue Pea Herbal Tea, and Calming Chamomile Herbal Tea. Net Wt.: 3 x 50g (150g). Special Festive Price: ₹750."
+  },
+  {
+    id: "dh2",
+    name: "Diwali Shubh Labh Festive Tea & Idol Gift Hamper",
+    price: 750,
+    originalPrice: 1050,
+    discount: "29% OFF",
+    category: "gift-packs",
+    image: "/products/diwali-shubh-labh-tea-hamper.jpg",
+    description: "🪔 Divine Auspicious Diwali Celebration Hamper uniting sacred blessings with holistic wellbeing. Presented in an elegant royal palace arch gift carrying box with festive peacock artwork. Includes a sacred Silver-finish Shubh Labh idol encased in a royal red velvet presentation box, paired with Revitalizing Tulsi Green Tea and Immunity Herbal Tea. Net Wt.: 2 x 50g + Silver Idol. Special Festive Price: ₹750."
+  },
   {
     id: "bw1",
     name: "Rose Herbal Tea",

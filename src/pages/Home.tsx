@@ -13,7 +13,9 @@ import {
   RefreshCw,
   LayoutDashboard,
   Box,
-  CheckCircle2
+  CheckCircle2,
+  ShoppingCart,
+  MessageSquare
 } from 'lucide-react';
 import { 
   getParentCategories, 
@@ -107,6 +109,11 @@ export const Home: React.FC = () => {
     navigate('/cart');
   };
 
+  const handleQuickBuyDiwaliHamper = (item: { id: string; name: string; price: number; image: string }) => {
+    addToCart(item);
+    navigate('/cart');
+  };
+
   return (
     <div className="home-page-wrapper">
       {/* Logged in User Dashboard Banner */}
@@ -170,6 +177,498 @@ export const Home: React.FC = () => {
           </div>
         </section>
       )}
+
+      {/* 🪔 Exclusive Diwali Gift Hampers Festive Spotlight */}
+      <section style={{
+        background: 'linear-gradient(135deg, #180816 0%, #2e0d1f 50%, #150613 100%)',
+        color: 'white',
+        padding: '50px 20px',
+        position: 'relative',
+        overflow: 'hidden',
+        borderTop: '2px solid #d4af37',
+        borderBottom: '2px solid #d4af37',
+        boxShadow: '0 12px 35px rgba(0,0,0,0.35)'
+      }}>
+        {/* Decorative background glow */}
+        <div style={{
+          position: 'absolute',
+          top: '-10%',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: '70%',
+          height: '140%',
+          background: 'radial-gradient(circle, rgba(212, 175, 55, 0.08) 0%, transparent 70%)',
+          pointerEvents: 'none'
+        }}></div>
+
+        <div className="container" style={{ maxWidth: '1240px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
+          {/* Section Heading */}
+          <div style={{ textAlign: 'center', marginBottom: '35px' }}>
+            <span style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              background: 'linear-gradient(135deg, #b8860b 0%, #c41e3a 100%)',
+              color: 'white',
+              padding: '6px 18px',
+              borderRadius: '20px',
+              fontSize: '0.8rem',
+              fontWeight: 800,
+              letterSpacing: '1px',
+              textTransform: 'uppercase',
+              boxShadow: '0 4px 15px rgba(184, 134, 11, 0.35)',
+              marginBottom: '12px'
+            }}>
+              🪔 FESTIVE CELEBRATION EDITION • SPECIAL OFFER ₹750 EACH
+            </span>
+            <h2 style={{
+              fontSize: 'clamp(2rem, 3.8vw, 2.9rem)',
+              fontWeight: 800,
+              color: '#ffffff',
+              margin: '8px 0 10px 0',
+              fontFamily: 'var(--font-heading)',
+              lineHeight: 1.2
+            }}>
+              Exquisite Diwali Gift Hampers
+            </h2>
+            <p style={{
+              color: 'rgba(255, 255, 255, 0.85)',
+              fontSize: '1.05rem',
+              maxWidth: '750px',
+              margin: '0 auto',
+              lineHeight: 1.6
+            }}>
+              Thoughtfully curated for festive blessings, health, and prosperity. Each hamper unites artisanal Indian packaging with our signature 100% natural herbal teas.
+            </p>
+            <div style={{
+              width: '80px',
+              height: '3px',
+              background: 'linear-gradient(90deg, transparent, #d4af37, transparent)',
+              margin: '14px auto 0 auto'
+            }}></div>
+          </div>
+
+          {/* 2 Hampers Grid */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(330px, 1fr))',
+            gap: '30px',
+            alignItems: 'stretch'
+          }}>
+            {/* Hamper 1: Jute Bag 3 Teas */}
+            <motion.div
+              initial={{ opacity: 0, y: 25 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              viewport={{ once: true }}
+              style={{
+                backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                backdropFilter: 'blur(10px)',
+                border: '1.5px solid rgba(212, 175, 55, 0.4)',
+                borderRadius: 'var(--radius-lg, 16px)',
+                padding: '24px',
+                display: 'flex',
+                flexDirection: 'column',
+                boxShadow: '0 15px 35px rgba(0,0,0,0.3)',
+                transition: 'all 0.3s ease'
+              }}
+            >
+              {/* Product Image */}
+              <div style={{
+                position: 'relative',
+                borderRadius: 'var(--radius-md, 10px)',
+                overflow: 'hidden',
+                backgroundColor: '#ffffff',
+                border: '2px solid rgba(212, 175, 55, 0.3)',
+                marginBottom: '18px',
+                aspectRatio: '4/3',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '8px'
+              }}>
+                <img
+                  src="/products/diwali-herbal-tea-jute-hamper.jpg"
+                  alt="Diwali Herbal Tea Trio Jute Gift Hamper"
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'contain',
+                    borderRadius: 'var(--radius-sm)'
+                  }}
+                />
+                <span style={{
+                  position: 'absolute',
+                  top: '12px',
+                  left: '12px',
+                  background: 'linear-gradient(135deg, #c41e3a 0%, #b8860b 100%)',
+                  color: 'white',
+                  fontWeight: 800,
+                  fontSize: '11px',
+                  padding: '5px 12px',
+                  borderRadius: '16px',
+                  boxShadow: '0 4px 10px rgba(196, 30, 58, 0.4)'
+                }}>
+                  🪔 3 HERBAL TEAS + JUTE TOTE
+                </span>
+                <span style={{
+                  position: 'absolute',
+                  bottom: '12px',
+                  right: '12px',
+                  background: 'rgba(11, 34, 57, 0.9)',
+                  color: '#d4af37',
+                  fontWeight: 700,
+                  fontSize: '11px',
+                  padding: '4px 10px',
+                  borderRadius: '12px',
+                  border: '1px solid #d4af37'
+                }}>
+                  Net Wt: 3 x 50g
+                </span>
+              </div>
+
+              {/* Title & Price */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '10px', marginBottom: '10px' }}>
+                <h3 style={{
+                  fontSize: '1.35rem',
+                  fontWeight: 800,
+                  color: '#ffffff',
+                  margin: 0,
+                  lineHeight: 1.3
+                }}>
+                  Diwali Herbal Tea Trio Jute Hamper
+                </h3>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px', marginBottom: '12px' }}>
+                <span style={{ fontSize: '1.9rem', fontWeight: 900, color: '#d4af37' }}>
+                  ₹750
+                </span>
+                <span style={{ fontSize: '1rem', color: 'rgba(255,255,255,0.5)', textDecoration: 'line-through' }}>
+                  ₹999
+                </span>
+                <span style={{
+                  backgroundColor: '#e63946',
+                  color: 'white',
+                  padding: '3px 8px',
+                  borderRadius: '8px',
+                  fontSize: '0.75rem',
+                  fontWeight: 800
+                }}>
+                  25% OFF
+                </span>
+                <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem', marginLeft: 'auto' }}>
+                  (₹750 each)
+                </span>
+              </div>
+
+              {/* Description */}
+              <p style={{
+                color: 'rgba(255, 255, 255, 0.82)',
+                fontSize: '0.9rem',
+                lineHeight: 1.55,
+                marginBottom: '16px',
+                flexGrow: 1
+              }}>
+                Handcrafted natural jute tote bag with delicate white lace embroidery. Contains 3 signature 100% natural, caffeine-free herbal teas: <strong>Damask Rose</strong> (radiant skin & detox), <strong>Blue Pea</strong> (brain vitality & antioxidants), and <strong>Chamomile</strong> (calm & restful sleep).
+              </p>
+
+              {/* Inclusions pill */}
+              <div style={{
+                backgroundColor: 'rgba(212, 175, 55, 0.1)',
+                border: '1px solid rgba(212, 175, 55, 0.3)',
+                borderRadius: '8px',
+                padding: '10px 12px',
+                fontSize: '0.82rem',
+                color: '#f6d365',
+                marginBottom: '18px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '4px'
+              }}>
+                <div>🌿 <strong>Tea Trio:</strong> Rose Tea (50g) + Blue Pea (50g) + Chamomile (50g)</div>
+                <div>🎁 <strong>Packaging:</strong> Premium Embroidered Lace Jute Tote Carry Bag</div>
+              </div>
+
+              {/* CTAs */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: 'auto' }}>
+                <button
+                  onClick={() => handleQuickBuyDiwaliHamper({
+                    id: '098a7cc7-986e-412d-8e7e-d5530689924b',
+                    name: 'Diwali Herbal Tea Trio Jute Gift Hamper',
+                    price: 750,
+                    image: '/products/diwali-herbal-tea-jute-hamper.jpg'
+                  })}
+                  className="btn btn-primary"
+                  style={{
+                    backgroundColor: '#d4af37',
+                    borderColor: '#d4af37',
+                    color: '#0b2239',
+                    fontWeight: 800,
+                    fontSize: '0.9rem',
+                    padding: '12px 20px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    boxShadow: '0 4px 15px rgba(212, 175, 55, 0.35)'
+                  }}
+                >
+                  <ShoppingCart size={18} /> BUY NOW (₹750 EACH)
+                </button>
+
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <a
+                    href={`https://wa.me/918368229705?text=${encodeURIComponent('*DIWALI FESTIVE HAMPER ORDER - SAUGAAT*\n----------------------------------------\n🪔 *Hamper:* Diwali Herbal Tea Trio Jute Gift Hamper\n💰 *Festive Price:* ₹750 each (Net Wt: 3 x 50g)\n🎁 *Packaging:* Handcrafted Lace Jute Tote Bag\n----------------------------------------\nHi Saugaat Team, I want to order this Diwali Herbal Tea Trio Jute Hamper for ₹750! Please guide me with delivery details.')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn"
+                    style={{
+                      flex: 1,
+                      backgroundColor: '#25D366',
+                      borderColor: '#25D366',
+                      color: 'white',
+                      fontWeight: 700,
+                      fontSize: '0.82rem',
+                      padding: '10px 14px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '6px'
+                    }}
+                  >
+                    <MessageSquare size={16} /> WhatsApp Order
+                  </a>
+
+                  <Link
+                    to="/product/098a7cc7-986e-412d-8e7e-d5530689924b"
+                    className="btn btn-secondary"
+                    style={{
+                      flex: 1,
+                      borderColor: 'rgba(255,255,255,0.4)',
+                      color: 'white',
+                      fontWeight: 600,
+                      fontSize: '0.82rem',
+                      padding: '10px 14px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                  >
+                    View Details
+                  </Link>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Hamper 2: Royal Palace Arch Box + Silver Idol + 2 Teas */}
+            <motion.div
+              initial={{ opacity: 0, y: 25 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              viewport={{ once: true }}
+              style={{
+                backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                backdropFilter: 'blur(10px)',
+                border: '1.5px solid rgba(212, 175, 55, 0.4)',
+                borderRadius: 'var(--radius-lg, 16px)',
+                padding: '24px',
+                display: 'flex',
+                flexDirection: 'column',
+                boxShadow: '0 15px 35px rgba(0,0,0,0.3)',
+                transition: 'all 0.3s ease'
+              }}
+            >
+              {/* Product Image */}
+              <div style={{
+                position: 'relative',
+                borderRadius: 'var(--radius-md, 10px)',
+                overflow: 'hidden',
+                backgroundColor: '#ffffff',
+                border: '2px solid rgba(212, 175, 55, 0.3)',
+                marginBottom: '18px',
+                aspectRatio: '4/3',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '8px'
+              }}>
+                <img
+                  src="/products/diwali-shubh-labh-tea-hamper.jpg"
+                  alt="Diwali Shubh Labh Festive Tea & Idol Gift Hamper"
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'contain',
+                    borderRadius: 'var(--radius-sm)'
+                  }}
+                />
+                <span style={{
+                  position: 'absolute',
+                  top: '12px',
+                  left: '12px',
+                  background: 'linear-gradient(135deg, #b8860b 0%, #c41e3a 100%)',
+                  color: 'white',
+                  fontWeight: 800,
+                  fontSize: '11px',
+                  padding: '5px 12px',
+                  borderRadius: '16px',
+                  boxShadow: '0 4px 10px rgba(184, 134, 11, 0.4)'
+                }}>
+                  🪔 SILVER IDOL + 2 HERBAL TEAS
+                </span>
+                <span style={{
+                  position: 'absolute',
+                  bottom: '12px',
+                  right: '12px',
+                  background: 'rgba(11, 34, 57, 0.9)',
+                  color: '#d4af37',
+                  fontWeight: 700,
+                  fontSize: '11px',
+                  padding: '4px 10px',
+                  borderRadius: '12px',
+                  border: '1px solid #d4af37'
+                }}>
+                  Net Wt: 2 x 50g + Idol
+                </span>
+              </div>
+
+              {/* Title & Price */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '10px', marginBottom: '10px' }}>
+                <h3 style={{
+                  fontSize: '1.35rem',
+                  fontWeight: 800,
+                  color: '#ffffff',
+                  margin: 0,
+                  lineHeight: 1.3
+                }}>
+                  Diwali Shubh Labh Festive Tea & Idol Hamper
+                </h3>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px', marginBottom: '12px' }}>
+                <span style={{ fontSize: '1.9rem', fontWeight: 900, color: '#d4af37' }}>
+                  ₹750
+                </span>
+                <span style={{ fontSize: '1rem', color: 'rgba(255,255,255,0.5)', textDecoration: 'line-through' }}>
+                  ₹1,050
+                </span>
+                <span style={{
+                  backgroundColor: '#e63946',
+                  color: 'white',
+                  padding: '3px 8px',
+                  borderRadius: '8px',
+                  fontSize: '0.75rem',
+                  fontWeight: 800
+                }}>
+                  29% OFF
+                </span>
+                <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem', marginLeft: 'auto' }}>
+                  (₹750 each)
+                </span>
+              </div>
+
+              {/* Description */}
+              <p style={{
+                color: 'rgba(255, 255, 255, 0.82)',
+                fontSize: '0.9rem',
+                lineHeight: 1.55,
+                marginBottom: '16px',
+                flexGrow: 1
+              }}>
+                Auspicious Diwali celebration hamper in a royal palace motif carrying box. Features a sacred Silver-finish Shubh Labh idol in a royal red velvet jewelry box, paired with revitalizing <strong>Tulsi Green Tea</strong> for antioxidant defense and potent <strong>Immunity Herbal Tea</strong>.
+              </p>
+
+              {/* Inclusions pill */}
+              <div style={{
+                backgroundColor: 'rgba(212, 175, 55, 0.1)',
+                border: '1px solid rgba(212, 175, 55, 0.3)',
+                borderRadius: '8px',
+                padding: '10px 12px',
+                fontSize: '0.82rem',
+                color: '#f6d365',
+                marginBottom: '18px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '4px'
+              }}>
+                <div>🪔 <strong>Divine Blessing:</strong> Sacred Silver Shubh Labh Idol in Red Velvet Box</div>
+                <div>🌿 <strong>Wellness Teas:</strong> Tulsi Green Tea (50g) + Immunity Herbal Tea (50g)</div>
+              </div>
+
+              {/* CTAs */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: 'auto' }}>
+                <button
+                  onClick={() => handleQuickBuyDiwaliHamper({
+                    id: '8dc46d83-0f12-44c5-a492-59fc5e88491c',
+                    name: 'Diwali Shubh Labh Festive Tea & Idol Gift Hamper',
+                    price: 750,
+                    image: '/products/diwali-shubh-labh-tea-hamper.jpg'
+                  })}
+                  className="btn btn-primary"
+                  style={{
+                    backgroundColor: '#d4af37',
+                    borderColor: '#d4af37',
+                    color: '#0b2239',
+                    fontWeight: 800,
+                    fontSize: '0.9rem',
+                    padding: '12px 20px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    boxShadow: '0 4px 15px rgba(212, 175, 55, 0.35)'
+                  }}
+                >
+                  <ShoppingCart size={18} /> BUY NOW (₹750 EACH)
+                </button>
+
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <a
+                    href={`https://wa.me/918368229705?text=${encodeURIComponent('*DIWALI FESTIVE HAMPER ORDER - SAUGAAT*\n----------------------------------------\n🪔 *Hamper:* Diwali Shubh Labh Festive Tea & Idol Gift Hamper\n💰 *Festive Price:* ₹750 each (Net Wt: 2 x 50g + Silver Idol)\n🎁 *Inclusions:* Silver Shubh Labh Idol + Palace Motif Box\n----------------------------------------\nHi Saugaat Team, I want to order this Diwali Shubh Labh Festive Hamper for ₹750! Please guide me with delivery details.')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn"
+                    style={{
+                      flex: 1,
+                      backgroundColor: '#25D366',
+                      borderColor: '#25D366',
+                      color: 'white',
+                      fontWeight: 700,
+                      fontSize: '0.82rem',
+                      padding: '10px 14px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '6px'
+                    }}
+                  >
+                    <MessageSquare size={16} /> WhatsApp Order
+                  </a>
+
+                  <Link
+                    to="/product/8dc46d83-0f12-44c5-a492-59fc5e88491c"
+                    className="btn btn-secondary"
+                    style={{
+                      flex: 1,
+                      borderColor: 'rgba(255,255,255,0.4)',
+                      color: 'white',
+                      fontWeight: 600,
+                      fontSize: '0.82rem',
+                      padding: '10px 14px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                  >
+                    View Details
+                  </Link>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
 
       {/* ⚡ Special Flash Sale Spotlight Banner */}
       <section style={{

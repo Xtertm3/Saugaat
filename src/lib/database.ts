@@ -300,11 +300,11 @@ function getMatchingCategoryKeys(resolvedCat: Category, allCats: Category[]): Se
       const parent = allCats.find(
         (p) =>
           p.id === c.parent_id ||
-          slugify(p.id) === slugify(c.parent_id) ||
-          slugify(p.name) === slugify(c.parent_id)
+          slugify(p.id || '') === slugify(c.parent_id || '') ||
+          slugify(p.name || '') === slugify(c.parent_id || '')
       );
       if (!parent) return false;
-      return slugify(parent.name) === slugify(resolvedCat.name) || parent.id === resolvedCat.id;
+      return slugify(parent.name || '') === slugify(resolvedCat.name || '') || parent.id === resolvedCat.id;
     });
 
     for (const sub of subCats) {
@@ -341,9 +341,6 @@ function saveLocalProducts(prods: Product[]) {
   window.dispatchEvent(new CustomEvent('saugaat_catalog_updated'));
 }
 
-function isUuid(str: string): boolean {
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
-}
 
 // Category queries
 export async function getCategories() {
@@ -378,7 +375,6 @@ export async function createCategory(name: string, image_url: string, parent_id:
   const id = slugify(name);
   const now = new Date().toISOString();
   const finalId = id || `cat-${Date.now()}`;
-<<<<<<< HEAD
 
   // Resolve parent to local slug id for consistent local cache / nav
   let localParentId = parent_id;
@@ -388,38 +384,13 @@ export async function createCategory(name: string, image_url: string, parent_id:
       c => c.id === parent_id || slugify(c.name) === slugify(parent_id) || slugify(c.id) === slugify(parent_id)
     );
     if (parent) localParentId = parent.id;
-=======
-  
-  let resolvedParentUuid: string | null = parent_id;
-
-  if (supabase && parent_id && !isUuid(parent_id)) {
-    try {
-      const targetParentSlug = slugify(parent_id);
-      const { data: existingCats } = await supabase.from('categories').select('id, name');
-      if (existingCats && existingCats.length > 0) {
-        const match = existingCats.find(c => c.id === parent_id || slugify(c.name) === targetParentSlug || slugify(c.id) === targetParentSlug);
-        if (match) {
-          resolvedParentUuid = match.id;
-        } else {
-          resolvedParentUuid = null;
-        }
-      }
-    } catch (e) {
-      console.error('Error resolving parent category UUID:', e);
-      resolvedParentUuid = null;
-    }
->>>>>>> 1f47ddf (feat: Add Rassrang Bedsheet 4-pack Flash Sale combo, fix hero image visibility & UI polish)
   }
 
   const newCat: Category = {
     id: finalId,
     name,
     image_url,
-<<<<<<< HEAD
     parent_id: localParentId,
-=======
-    parent_id: resolvedParentUuid,
->>>>>>> 1f47ddf (feat: Add Rassrang Bedsheet 4-pack Flash Sale combo, fix hero image visibility & UI polish)
     description,
     sort_order: 0,
     created_at: now,
@@ -450,27 +421,13 @@ export async function createCategory(name: string, image_url: string, parent_id:
 
       const { data, error } = await supabase
         .from('categories')
-<<<<<<< HEAD
         .insert([{ name, image_url, parent_id: dbParentUuid, description }])
-=======
-        .insert([{ name, image_url, parent_id: resolvedParentUuid, description }])
->>>>>>> 1f47ddf (feat: Add Rassrang Bedsheet 4-pack Flash Sale combo, fix hero image visibility & UI polish)
         .select()
         .single();
       if (error) console.error('Supabase createCategory error:', error);
-      // Prefer local slug id for app routing consistency
       if (!error && data) {
-<<<<<<< HEAD
         window.dispatchEvent(new Event('saugaat_catalog_updated'));
         return newCat;
-=======
-        const cat = data as Category;
-        const updatedLocal = getLocalCategories().map(c => (c.name.toLowerCase() === name.toLowerCase() ? cat : c));
-        saveLocalCategories(updatedLocal);
-        return cat;
-      } else if (error) {
-        console.error('Error creating category in Supabase:', error);
->>>>>>> 1f47ddf (feat: Add Rassrang Bedsheet 4-pack Flash Sale combo, fix hero image visibility & UI polish)
       }
     } catch (e) {
       console.error('Error creating category in Supabase:', e);
@@ -705,22 +662,69 @@ export async function getTrendingProducts(limit = 10) {
 }
 
 export async function getFeaturedHeroProducts(limit = 6): Promise<Product[]> {
-  const trending = await getTrendingProducts(limit);
-  const validTrending = trending.filter(p => !isDummyProduct(p));
-  if (validTrending && validTrending.length > 0) return validTrending;
+  const allProds = await getProducts();
+  const diwaliHampers = allProds
+    .filter(p => p.name.toLowerCase().includes('diwali'))
+    .sort((a, b) => (a.name.toLowerCase().includes('jute') ? -1 : 1));
+
+  const flashSaleBedsheet = allProds.find(p => p.name.toLowerCase().includes('bedsheet') && p.name.toLowerCase().includes('rassrang'))
+    || allProds.find(p => p.name.toLowerCase().includes('bedsheet'));
+
+  const diwaliIds = new Set(diwaliHampers.map(p => p.id));
+  const trending = await getTrendingProducts(12);
+  const otherItems = trending.filter(p => !isDummyProduct(p) && p.id !== flashSaleBedsheet?.id && !diwaliIds.has(p.id));
+
+  const result: Product[] = [];
+  // Prioritize Diwali Gift Hampers as top hero slides
+  for (const hamper of diwaliHampers) {
+    if (result.length < limit) {
+      result.push(hamper);
+    }
+  }
+  // Then flash sale bedsheet
+  if (flashSaleBedsheet && result.length < limit && !result.some(p => p.id === flashSaleBedsheet.id)) {
+    result.push(flashSaleBedsheet);
+  }
+  // Then other trending items
+  for (const item of otherItems) {
+    if (result.length < limit) {
+      result.push(item);
+    }
+  }
+  if (result.length > 0) return result;
+
   const bestsellers = await getBestsellers(limit);
-  const validBestsellers = bestsellers.filter(p => !isDummyProduct(p));
-  if (validBestsellers && validBestsellers.length > 0) return validBestsellers;
-  const featured = await getFeaturedProducts(limit);
-  return featured.filter(p => !isDummyProduct(p));
+  return bestsellers.filter(p => !isDummyProduct(p));
 }
 
 export function getSyncFeaturedHeroProducts(limit = 6): Product[] {
   const allProds = getSyncProducts();
-  const heroItems = allProds.filter(p => p.is_trending && p.status === 'active' && !isDummyProduct(p));
-  if (heroItems.length > 0) return heroItems.slice(0, limit);
-  const bestsellers = allProds.filter(p => p.is_bestseller && p.status === 'active' && !isDummyProduct(p));
-  if (bestsellers.length > 0) return bestsellers.slice(0, limit);
+  const diwaliHampers = allProds
+    .filter(p => p.name.toLowerCase().includes('diwali'))
+    .sort((a, b) => (a.name.toLowerCase().includes('jute') ? -1 : 1));
+
+  const flashSaleBedsheet = allProds.find(p => p.name.toLowerCase().includes('bedsheet') && p.name.toLowerCase().includes('rassrang'))
+    || allProds.find(p => p.name.toLowerCase().includes('bedsheet'));
+
+  const diwaliIds = new Set(diwaliHampers.map(p => p.id));
+  const heroItems = allProds.filter(p => p.is_trending && p.status === 'active' && !isDummyProduct(p) && p.id !== flashSaleBedsheet?.id && !diwaliIds.has(p.id));
+
+  const result: Product[] = [];
+  // Prioritize Diwali Gift Hampers as top hero slides
+  for (const hamper of diwaliHampers) {
+    if (result.length < limit) {
+      result.push(hamper);
+    }
+  }
+  if (flashSaleBedsheet && result.length < limit && !result.some(p => p.id === flashSaleBedsheet.id)) {
+    result.push(flashSaleBedsheet);
+  }
+  for (const item of heroItems) {
+    if (result.length < limit) {
+      result.push(item);
+    }
+  }
+  if (result.length > 0) return result;
   return allProds.filter(p => !isDummyProduct(p)).slice(0, limit);
 }
 
@@ -857,41 +861,6 @@ export function getSyncProductById(id: string): Product | null {
   };
 }
 
-async function resolveCategoryUuid(categoryId: string): Promise<string> {
-  if (!supabase) return categoryId;
-  if (isUuid(categoryId)) return categoryId;
-
-  const targetSlug = slugify(categoryId);
-  const { data: dbCategories } = await supabase
-    .from('categories')
-    .select('id, name');
-
-  if (dbCategories && dbCategories.length > 0) {
-    const matchedCat = dbCategories.find(c =>
-      c.id === categoryId ||
-      slugify(c.name) === targetSlug ||
-      slugify(c.id) === targetSlug
-    );
-    if (matchedCat) return matchedCat.id;
-  }
-
-  const prettyName = categoryId.replace(/[-_]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-  const { data: createdCat, error } = await supabase
-    .from('categories')
-    .insert([{
-      name: prettyName,
-      image_url: 'https://images.unsplash.com/photo-1513201099705-a9746e1e201f?auto=format&fit=crop&q=80&w=800'
-    }])
-    .select('id')
-    .single();
-
-  if (!error && createdCat) {
-    return createdCat.id;
-  }
-
-  return categoryId;
-}
-
 let _isSyncingLocalProducts = false;
 
 export async function syncLocalProductsToSupabase() {
@@ -989,7 +958,6 @@ export async function createProduct(product: {
   images?: string[];
 }) {
   const now = new Date().toISOString();
-<<<<<<< HEAD
   const discount =
     product.original_price && product.original_price > 0
       ? Math.round(((product.original_price - product.price) / product.original_price) * 100)
@@ -999,99 +967,6 @@ export async function createProduct(product: {
   const imageUrls = (product.images || []).filter((u) => typeof u === 'string' && u.trim().length > 0);
   if (imageUrls.length === 0) {
     imageUrls.push('https://images.unsplash.com/photo-1513201099705-a9746e1e201f?auto=format&fit=crop&q=80&w=800');
-=======
-  
-  const discount = product.original_price && product.original_price > 0
-    ? Math.round(((product.original_price - product.price) / product.original_price) * 100)
-    : (product.discount_percentage || 0);
-
-  const product_images = (product.images || ['https://images.unsplash.com/photo-1513201099705-a9746e1e201f?auto=format&fit=crop&q=80&w=800']).map((url, i) => ({
-    id: `img-${id}-${i}`,
-    product_id: id,
-    image_url: url,
-    is_featured: i === 0,
-    display_order: i,
-    created_at: now
-  }));
-
-  const newProduct: Product = {
-    id,
-    name: product.name,
-    description: product.description,
-    category_id: product.category_id,
-    price: product.price,
-    original_price: product.original_price,
-    discount_percentage: discount,
-    gst: product.gst || 18,
-    is_bestseller: product.is_bestseller || false,
-    is_trending: product.is_trending || false,
-    status: product.status || 'active',
-    created_by: 'admin',
-    product_images,
-    created_at: now,
-    updated_at: now
-  };
-
-  const localProds = getLocalProducts();
-  const existingLocalIdx = localProds.findIndex(p => p.name.toLowerCase() === product.name.toLowerCase());
-  if (existingLocalIdx === -1) {
-    localProds.unshift(newProduct);
-    saveLocalProducts(localProds);
-  }
-
-  if (supabase) {
-    try {
-      const dbCategoryUuid = await resolveCategoryUuid(product.category_id);
-
-      const { images, created_by, ...dbProductData } = product;
-      const payload: any = {
-        ...dbProductData,
-        category_id: dbCategoryUuid,
-        discount_percentage: discount,
-        gst: product.gst || 18,
-        is_bestseller: product.is_bestseller || false,
-        is_trending: product.is_trending || false,
-        status: product.status || 'active'
-      };
-
-      delete payload.id;
-      delete payload.categories;
-      delete payload.product_images;
-
-      const { data, error } = await supabase
-        .from('products')
-        .insert([payload])
-        .select()
-        .single();
-
-      if (!error && data) {
-        const prod = data as Product;
-        if (product.images && product.images.length > 0) {
-          const uploadedUrls: string[] = [];
-          for (const rawImg of product.images) {
-            const uploadedUrl = await uploadProductImage(rawImg, prod.id);
-            uploadedUrls.push(uploadedUrl || rawImg);
-          }
-
-          await addProductImages(prod.id, uploadedUrls.map((url, i) => ({
-            image_url: url,
-            is_featured: i === 0,
-            display_order: i
-          })));
-        }
-        const fullProd = await getProductById(prod.id);
-        if (fullProd) {
-          const updatedLocal = getLocalProducts().map(lp => lp.name.toLowerCase() === product.name.toLowerCase() ? fullProd : lp);
-          saveLocalProducts(updatedLocal);
-          return fullProd;
-        }
-      } else if (error) {
-        console.error('Error inserting product into Supabase:', error);
-      }
-    } catch (e) {
-      console.error('Error creating product in Supabase:', e);
-    }
->>>>>>> 1f47ddf (feat: Add Rassrang Bedsheet 4-pack Flash Sale combo, fix hero image visibility & UI polish)
   }
 
   // --- Supabase is required for multi-device visibility ---
@@ -1119,7 +994,6 @@ export async function createProduct(product: {
     is_bestseller: product.is_bestseller ?? false,
     is_trending: product.is_trending ?? false,
     status: product.status || 'active',
-    // omit created_by — column is UUID FK to auth.users; mock admin has no real user id
   };
 
   const { data, error } = await supabase
@@ -1147,7 +1021,6 @@ export async function createProduct(product: {
     );
   }
 
-<<<<<<< HEAD
   const fullProd = (await getProductById(prod.id)) || {
     ...prod,
     product_images: imageUrls.map((url, i) => ({
@@ -1173,54 +1046,6 @@ export async function updateProduct(id: string, updates: Partial<Product> & { im
     throw new Error(
       'Supabase is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY on Vercel and redeploy.'
     );
-=======
-  if (supabase) {
-    try {
-      const { images, categories, product_images, ...dbUpdates } = updates as any;
-      if (dbUpdates.category_id) {
-        dbUpdates.category_id = await resolveCategoryUuid(dbUpdates.category_id);
-      }
-      if (dbUpdates.price !== undefined || dbUpdates.original_price !== undefined) {
-        const currentProd = await getProductById(id);
-        if (currentProd) {
-          const originalPrice = dbUpdates.original_price !== undefined ? dbUpdates.original_price : currentProd.original_price;
-          const price = dbUpdates.price !== undefined ? dbUpdates.price : currentProd.price;
-          dbUpdates.discount_percentage = originalPrice && originalPrice > 0
-            ? Math.round(((originalPrice - price) / originalPrice) * 100)
-            : 0;
-        }
-      }
-
-      delete dbUpdates.created_by;
-
-      const { data, error } = await supabase
-        .from('products')
-        .update(dbUpdates)
-        .eq('id', id)
-        .select()
-        .single();
-      if (!error && data) {
-        if (updates.images) {
-          const uploadedUrls: string[] = [];
-          for (const rawImg of updates.images) {
-            const uploadedUrl = await uploadProductImage(rawImg, id);
-            uploadedUrls.push(uploadedUrl || rawImg);
-          }
-
-          await supabase.from('product_images').delete().eq('product_id', id);
-          await addProductImages(id, uploadedUrls.map((url, i) => ({
-            image_url: url,
-            is_featured: i === 0,
-            display_order: i
-          })));
-        }
-        const fullProd = await getProductById(id);
-        return fullProd;
-      }
-    } catch (e) {
-      console.error('Error updating product in Supabase:', e);
-    }
->>>>>>> 1f47ddf (feat: Add Rassrang Bedsheet 4-pack Flash Sale combo, fix hero image visibility & UI polish)
   }
 
   const { images, categories, product_images, created_by, ...rawUpdates } = updates as any;
